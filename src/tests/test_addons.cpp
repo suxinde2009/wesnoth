@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2012 - 2015 by Ignacio Riquelme Morelle <shadowm2006@gmail.com>
+   Copyright (C) 2012 - 2016 by Ignacio Riquelme Morelle <shadowm2006@gmail.com>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -17,8 +17,6 @@
 #include <boost/test/unit_test.hpp>
 
 #include "addon/validation.hpp"
-
-#include <boost/foreach.hpp>
 
 BOOST_AUTO_TEST_SUITE( addons )
 
@@ -78,7 +76,7 @@ BOOST_AUTO_TEST_CASE( encoding )
 	// There is no test for \x00 here because \x00 really shouldn't occur in
 	// a string -- otherwise things get weird.
 	//
-	BOOST_FOREACH(const char c, raw)
+	for(const char c : raw)
 	{
 		if(c == bin_escape || bin_special.find(c) != std::string::npos) {
 			encoded += bin_escape;

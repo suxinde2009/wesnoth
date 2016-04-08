@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Battle for Wesnoth 1.12\n"
 "Report-Msgid-Bugs-To: http://bugs.wesnoth.org/\n"
-"POT-Creation-Date: 2015-06-27 20:18-0300\n"
+"POT-Creation-Date: 2016-03-05 05:00+0300\n"
 "PO-Revision-Date: 2015-01-15 16:27-0000\n"
 "Last-Translator: German translation team <irc://irc.freenode.net/#wesnoth-"
 "de>\n"
@@ -21,21 +21,21 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #. [time]: id=underground
-#: data/campaigns/Heir_To_The_Throne/utils/httt_utils.cfg:531
+#: data/campaigns/Heir_To_The_Throne/utils/httt_utils.cfg:459
 #: data/core/macros/schedules.cfg:99
 msgid "Underground"
 msgstr "Unter Tage"
 
 #. [berserk]: id=berserk
-#: data/campaigns/Under_the_Burning_Suns/scenarios/03_Stirring_in_the_Night.cfg:666
-#: data/core/macros/abilities.cfg:540
+#: data/campaigns/Under_the_Burning_Suns/scenarios/03_Stirring_in_the_Night.cfg:653
+#: data/core/macros/abilities.cfg:391
 msgid "berserk"
 msgstr "Kampfrausch"
 
 # type: Content of: <book><chapter><section><section><variablelist><varlistentry><listitem><simpara>
 #. [berserk]: id=berserk
-#: data/campaigns/Under_the_Burning_Suns/scenarios/03_Stirring_in_the_Night.cfg:668
-#: data/core/macros/abilities.cfg:541
+#: data/campaigns/Under_the_Burning_Suns/scenarios/03_Stirring_in_the_Night.cfg:655
+#: data/core/macros/abilities.cfg:392
 msgid ""
 "Whether used offensively or defensively, this attack presses the engagement "
 "until one of the combatants is slain, or 30 rounds of attacks have occurred."
@@ -45,15 +45,15 @@ msgstr ""
 "oder im Kampfrausch 30 Runden verstrichen sind."
 
 #. [chance_to_hit]: id=magical
-#: data/campaigns/Under_the_Burning_Suns/scenarios/03_Stirring_in_the_Night.cfg:677
-#: data/core/macros/abilities.cfg:619
+#: data/campaigns/Under_the_Burning_Suns/scenarios/03_Stirring_in_the_Night.cfg:664
+#: data/core/macros/abilities.cfg:470
 msgid "magical"
 msgstr "Magie"
 
 # type: Content of: <book><chapter><section><section><variablelist><varlistentry><listitem><simpara>
 #. [chance_to_hit]: id=magical
-#: data/campaigns/Under_the_Burning_Suns/scenarios/03_Stirring_in_the_Night.cfg:679
-#: data/core/macros/abilities.cfg:620
+#: data/campaigns/Under_the_Burning_Suns/scenarios/03_Stirring_in_the_Night.cfg:666
+#: data/core/macros/abilities.cfg:471
 msgid ""
 "This attack always has a 70% chance to hit regardless of the defensive "
 "ability of the unit being attacked."
@@ -63,8 +63,8 @@ msgstr ""
 "des Gegners."
 
 #. [firststrike]: id=firststrike
-#: data/campaigns/Under_the_Burning_Suns/scenarios/03_Stirring_in_the_Night.cfg:688
-#: data/core/macros/abilities.cfg:664
+#: data/campaigns/Under_the_Burning_Suns/scenarios/03_Stirring_in_the_Night.cfg:675
+#: data/core/macros/abilities.cfg:515
 msgid "first strike"
 msgstr "Erstschlag"
 
@@ -72,8 +72,8 @@ msgstr "Erstschlag"
 # vorher:
 # Mit dieser Waffe führt die Einheit immer den ersten Angriff durch, selbst, wenn sie sich verteidigt.
 #. [firststrike]: id=firststrike
-#: data/campaigns/Under_the_Burning_Suns/scenarios/03_Stirring_in_the_Night.cfg:690
-#: data/core/macros/abilities.cfg:665
+#: data/campaigns/Under_the_Burning_Suns/scenarios/03_Stirring_in_the_Night.cfg:677
+#: data/core/macros/abilities.cfg:516
 msgid ""
 "This unit always strikes first with this attack, even if they are defending."
 msgstr ""
@@ -632,7 +632,7 @@ msgid ""
 "ref> and running east to the Listra."
 msgstr ""
 "Strom, der im <ref>dst='heart_mountains' text='Erzgebirge'</ref> entspringt "
-"und in östlicher Richtung in den Fluss 'Listra' mündet."
+"und in östlicher Richtung in den Fluss »Listra« mündet."
 
 #. [topic]: id=great_ocean
 #: data/core/encyclopedia/geography.cfg:32
@@ -641,10 +641,16 @@ msgstr "Der Große Ozean"
 
 #. [topic]: id=great_ocean
 #: data/core/encyclopedia/geography.cfg:33
+#, fuzzy
+#| msgid ""
+#| "Lies to the west of the <ref>dst='great_continent' text='continent'</ref> "
+#| "and all rivers eventually flow to it. Far to the west in the the Great "
+#| "Ocean is a huge archipelago called <ref>dst='morogor' text='Morogor'</"
+#| "ref>."
 msgid ""
 "Lies to the west of the <ref>dst='great_continent' text='continent'</ref> "
-"and all rivers eventually flow to it. Far to the west in the the Great Ocean "
-"is a huge archipelago called <ref>dst='morogor' text='Morogor'</ref>."
+"and all rivers eventually flow to it. Far to the west in the Great Ocean is "
+"a huge archipelago called <ref>dst='morogor' text='Morogor'</ref>."
 msgstr ""
 "Das Wasser aller Flüsse des <ref>dst='great_continent' text='Großen "
 "Kontinents'</ref> ergießt sich westlich in dieses Weltmeer.\n"
@@ -734,12 +740,11 @@ msgid ""
 "“the world” or, poetically, “the wide green world”."
 msgstr ""
 "Name der Welt, auf der sich das <ref>dst='kingdom_wesnoth' text='Königreich "
-"von Wesnoth'</ref> befindet\n"
+"von Wesnoth'</ref> befindet.\n"
 "\n"
 "Die Bezeichnung »Irdya« wird allerdings in der Epoche, in der die "
 "Haupthandlungen stattfinden, kaum verwendet. Die Bewohner nennen sie "
-"gewöhnlich \"die Welt\" oder - poetisch ausgedrückt - \"die weite grüne Welt"
-"\"."
+"gewöhnlich »die Welt« oder - poetisch ausgedrückt - »die weite grüne Welt«."
 
 #. [topic]: id=kingdom_wesnoth
 #: data/core/encyclopedia/geography.cfg:70
@@ -920,7 +925,7 @@ msgstr ""
 "             jedoch bestenfalls dürftig, Raubüberfälle sind daher keine "
 "Seltenheit.\n"
 "          ◦ Glyns Gehölz: benannt nach einem Sohn Haldrics II, auch als "
-"'Königswald' bekannt\n"
+"»Königswald« bekannt\n"
 "          ◦ Grauer Wald: großes Waldgebiet in der Wildnis zwischen den Orten "
 "Carcyn und Aldril\n"
 "             Der allgemeinen Auffassung nach gilt er als verflucht."
@@ -976,7 +981,7 @@ msgstr ""
 "\n"
 "    • Erwähnenswerte Städte:\n"
 "          ◦ Elensefar: gleichnamige Hauptstadt der Region am Delta des "
-"'Großen Flusses'\n"
+"Großen Flusses\n"
 "          ◦ Carcyn: Stadt an der Wesnoth/Elensefar-Grenze\n"
 "             Die Zugehörigkeit zu einem der beiden Reiche ist umstritten\n"
 "\n"
@@ -1060,7 +1065,7 @@ msgid ""
 "and the Great River. A notoriously dangerous place.\n"
 "    • Lake Vrug: A large mountain lake whose river carves the only pathway "
 "through the Northern Mountains.\n"
-"    • Arkan-thoria: The river than comes out of Lake Vrug. This is the "
+"    • Arkan-thoria: The river that comes out of Lake Vrug. This is the "
 "elvish name; among humans it is called Longlier.\n"
 "    • River Listra: The south-running tributary of the Great River into "
 "which the Arkan-thoria empties.\n"
@@ -1262,9 +1267,9 @@ msgid ""
 "    • Barren Plains"
 msgstr ""
 "Kalt, rau und unzugänglich – der Weite Norden ist die angestammte Heimat der "
-"orkischen Sippen. Er liegt nördlich des Erzgebirges, das die Orks 'Haggid-"
-"Dargor' nennen und – völlig unbegründet – als ihr Eigentum betrachten. Im "
-"Osten walten 'Unabhängige Orkstämme der Wilden Steppe', die sich den Sippen "
+"orkischen Sippen. Er liegt nördlich des Erzgebirges, das die Orks »Haggid-"
+"Dargor« nennen und – völlig unbegründet – als ihr Eigentum betrachten. Im "
+"Osten walten »Unabhängige Orkstämme der Wilden Steppe«, die sich den Sippen "
 "entzogen haben und nun mit wilden Barbaren umhertreiben oder in Scharmützel "
 "mit Hochelfen der nördlichen Ebenen (bei Menschen als Nordelfen bekannt) "
 "einlassen.\n"
@@ -1317,7 +1322,7 @@ msgstr "Spielregeln"
 
 #. [section]: id=traits_section
 #. [topic]: id=..traits_section
-#: data/core/help.cfg:29 data/core/help.cfg:393
+#: data/core/help.cfg:29 data/core/help.cfg:398
 msgid "Traits"
 msgstr "Charakteristiken"
 
@@ -1343,25 +1348,25 @@ msgstr "Waffenfähigkeiten"
 #. [topic]: id=..eras_section
 #: data/core/help.cfg:63 data/core/help.cfg:129
 msgid "Eras"
-msgstr ""
+msgstr "Epochen"
 
 #. [section]: id=terrains_section
 #. [topic]: id=..terrains_section
-#: data/core/help.cfg:72 data/core/help.cfg:530
+#: data/core/help.cfg:72 data/core/help.cfg:535
 msgid "Terrains"
 msgstr "Geländearten"
 
 #. [section]: id=addons
 #. [topic]: id=..addons
-#: data/core/help.cfg:80 data/core/help.cfg:583
+#: data/core/help.cfg:80 data/core/help.cfg:588
 msgid "Add-ons"
 msgstr "Erweiterungen"
 
 #. [section]: id=commands
 #. [topic]: id=..commands
-#: data/core/help.cfg:86 data/core/help.cfg:650
+#: data/core/help.cfg:86 data/core/help.cfg:655
 msgid "Commands"
-msgstr "Kommandos"
+msgstr "Befehle"
 
 #. [topic]: id=..introduction
 #: data/core/help.cfg:98
@@ -1714,8 +1719,8 @@ msgstr ""
 "\n"
 "\n"
 "In folgenden Szenarien können die Überlebenden aus früheren Schlachten "
-"<bold>text=einberufen</bold>. Das funktioniert wie 'Ausbilden', kostet aber "
-"generell 20 Goldstücke. Das Auswahlmenü zeigt alle Veteranen aus den "
+"<bold>text=einberufen</bold> werden. Das funktioniert wie Ausbilden, kostet "
+"aber generell 20 Goldstücke. Das Auswahlmenü zeigt alle Veteranen aus den "
 "vorherigen Episoden."
 
 #. [topic]: id=recruit_and_recall
@@ -2016,14 +2021,25 @@ msgstr ""
 
 #. [topic]: id=movement
 #: data/core/help.cfg:260
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "\n"
+#| "Another thing to keep in mind while moving is <italic>text='zones of "
+#| "control'</italic>. Each unit generates a zone of control in the hexes "
+#| "immediately surrounding it, and any enemy unit entering those hexes "
+#| "immediately ends its movement. Learning how to use zones of control to "
+#| "your advantage is an important part of Wesnoth, as only "
+#| "<ref>dst='ability_skirmisher' text='skirmishers'</ref> can ignore zones "
+#| "of control."
 msgid ""
 "\n"
 "\n"
 "Another thing to keep in mind while moving is <italic>text='zones of "
-"control'</italic>. Each unit generates a zone of control in the hexes "
-"immediately surrounding it, and any enemy unit entering those hexes "
-"immediately ends its movement. Learning how to use zones of control to your "
-"advantage is an important part of Wesnoth, as only "
+"control'</italic>. Each unit — except for level 0 units — generates a zone "
+"of control in the hexes immediately surrounding it, and any enemy unit "
+"entering those hexes immediately ends its movement. Learning how to use "
+"zones of control to your advantage is an important part of Wesnoth, as only "
 "<ref>dst='ability_skirmisher' text='skirmishers'</ref> can ignore zones of "
 "control."
 msgstr ""
@@ -2544,10 +2560,16 @@ msgstr "Heilung"
 
 #. [topic]: id=healing
 #: data/core/help.cfg:360
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "\n"
+#| "<italic>text='Resting'</italic>: A unit which neither moves, attacks, nor "
+#| "is attacked will heal 2 HP in its next turn."
 msgid ""
 "\n"
 "\n"
-"<italic>text='Resting'</italic>: A unit which neither moves, attacks, nor is "
+"• <bold>text='Resting'</bold>: A unit which neither moves, attacks, nor is "
 "attacked will heal 2 HP in its next turn."
 msgstr ""
 "\n"
@@ -2557,34 +2579,24 @@ msgstr ""
 
 #. [topic]: id=healing
 #: data/core/help.cfg:360
-#, fuzzy
-#| msgid ""
-#| "In combat, your units will inevitably take damage. When a unit "
-#| "<ref>dst='experience_and_advancement' text='advances'</ref>, it will heal "
-#| "fully. This can happen as you finish fighting an enemy, whether it is "
-#| "your turn or not. Wesnoth offers several other ways for your units to "
-#| "heal, all of which take place at the beginning of your turn, before you "
-#| "take action."
 msgid ""
-"In combat, your units will inevitably take damage. When a unit "
-"<ref>dst='advancement' text='advances'</ref>, it will heal fully. This can "
-"happen as you finish fighting an enemy, whether it is your turn or not. "
-"Wesnoth offers several other ways for your units to heal, all of which take "
-"place at the beginning of your turn, before you take action."
+"In combat, your units will inevitably take damage. There are several ways to "
+"heal your units. However, with the exception of resting, these do not stack; "
+"only one can occur per turn."
 msgstr ""
-"In all den Schlachten tragen Eure Einheiten unvermeidlich Verletzungen "
-"davon. Per <ref>dst='experience_and_advancement' text='Stufenaufstieg'</ref> "
-"werden sie vollständig geheilt – das kann am Ende eines Kampfes geschehen, "
-"einerlei wer am Zug ist. Selbstverständlich gibt es in Wesnoth noch andere "
-"Möglichkeiten, wieder zu gesunden. Jede Heilung vollzieht sich zu Beginn "
-"Eures Zuges, bevor Ihr etwas unternehmt."
 
 #. [topic]: id=healing
 #: data/core/help.cfg:362
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "<italic>text='Villages'</italic>: A unit which starts a turn in a village "
+#| "will heal 8HP."
 msgid ""
 "\n"
-"<italic>text='Villages'</italic>: A unit which starts a turn in a village "
-"will heal 8HP."
+"• <bold>text='Villages'</bold>: A unit which starts a turn in a village or "
+"oasis will heal 8HP. If the unit is poisoned, the poison will be cured "
+"instead."
 msgstr ""
 "\n"
 "• Dörfer: befindet sich eine Einheit zu Beginn ihres Zuges in einem Dorf, "
@@ -2592,10 +2604,16 @@ msgstr ""
 
 #. [topic]: id=healing
 #: data/core/help.cfg:363
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "<ref>dst='ability_regenerates' text='Regeneration'</ref>: Certain units "
+#| "(such as trolls) will automatically heal 8HP every turn."
 msgid ""
 "\n"
-"<ref>dst='ability_regenerates' text='Regeneration'</ref>: Certain units "
-"(such as trolls) will automatically heal 8HP every turn."
+"• <ref>dst='ability_regenerates' text='Regeneration'</ref>: Certain units "
+"(such as trolls) will automatically heal 8HP every turn. If the unit is "
+"poisoned, the poison will be cured instead."
 msgstr ""
 "\n"
 "• <ref>dst='ability_regenerates' text='Regeneration'</ref>: Manche Einheiten "
@@ -2603,13 +2621,20 @@ msgstr ""
 
 #. [topic]: id=healing
 #: data/core/help.cfg:364
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "<italic>text='Healing units'</italic>: Units with the "
+#| "<ref>dst='ability_heals +4' text='Heals'</ref> ability will heal each "
+#| "allied adjacent unit, usually <ref>dst='ability_heals +4' text='4HP'</"
+#| "ref> or <ref>dst='ability_heals +8' text='8HP'</ref> per turn, or prevent "
+#| "Poison from causing that unit damage."
 msgid ""
 "\n"
-"<italic>text='Healing units'</italic>: Units with the "
-"<ref>dst='ability_heals +4' text='Heals'</ref> ability will heal each allied "
-"adjacent unit, usually <ref>dst='ability_heals +4' text='4HP'</ref> or "
-"<ref>dst='ability_heals +8' text='8HP'</ref> per turn, or prevent Poison "
-"from causing that unit damage."
+"• <bold>text='Healing units'</bold>: Units with the <ref>dst='ability_heals "
+"+4' text='Heals'</ref> ability will heal each allied adjacent unit, usually "
+"<ref>dst='ability_heals +4' text='4HP'</ref> or <ref>dst='ability_heals +8' "
+"text='8HP'</ref> per turn, or prevent Poison from causing that unit damage."
 msgstr ""
 "\n"
 "• <ref>dst='ability_heals +4' text='Heilen'</ref>: Heiler verarzten "
@@ -2618,12 +2643,18 @@ msgstr ""
 
 #. [topic]: id=healing
 #: data/core/help.cfg:365
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "<italic>text='Curing units'</italic>: Units with the "
+#| "<ref>dst='ability_cures' text='cures'</ref> ability will cure Poison in "
+#| "all allied adjacent units (in preference to healing, if it has that "
+#| "ability as well)."
 msgid ""
 "\n"
-"<italic>text='Curing units'</italic>: Units with the "
-"<ref>dst='ability_cures' text='cures'</ref> ability will cure Poison in all "
-"allied adjacent units (in preference to healing, if it has that ability as "
-"well)."
+"• <bold>text='Curing units'</bold>: Units with the <ref>dst='ability_cures' "
+"text='cures'</ref> ability will cure Poison in all allied adjacent units (in "
+"preference to healing, if it has that ability as well)."
 msgstr ""
 "\n"
 "• <ref>dst='ability_cures' text='Kurieren'</ref>: Diese Heiler können "
@@ -2632,6 +2663,15 @@ msgstr ""
 
 #. [topic]: id=healing
 #: data/core/help.cfg:366
+msgid ""
+"\n"
+"• <bold>text='Advancement'</bold>: When a unit <ref>dst='advancement' "
+"text='advances'</ref>, it will heal fully. This can happen as soon as your "
+"unit gains enough experience, whether it is your turn or not."
+msgstr ""
+
+#. [topic]: id=healing
+#: data/core/help.cfg:367
 msgid ""
 "\n"
 "\n"
@@ -2646,13 +2686,33 @@ msgstr ""
 "einem Heiler daneben beschleunigt die Genesung also nicht. Zudem werden alle "
 "Einheiten zwischen zwei Szenarien vollends kuriert."
 
+#. [topic]: id=healing
+#: data/core/help.cfg:369
+msgid ""
+"\n"
+"\n"
+"<bold>text='Advanced'</bold>"
+msgstr ""
+
+#. [topic]: id=healing
+#: data/core/help.cfg:371
+msgid ""
+"\n"
+"\n"
+"Unlike other forms of healing, the heals ability will not take effect on the "
+"healed unit’s turn, but on the healer’s turn. This means that while a unit "
+"surrounded by several healers on the same side will only receive healing "
+"from one healer per turn, a unit surrounded by healers from several allied "
+"sides will be healed once on each of said allied sides’ turns."
+msgstr ""
+
 #. [topic]: id=wrap_up
-#: data/core/help.cfg:374
+#: data/core/help.cfg:379
 msgid "Wrap Up"
 msgstr "Fazit"
 
 #. [topic]: id=wrap_up
-#: data/core/help.cfg:375
+#: data/core/help.cfg:380
 msgid ""
 "This concludes the fundamentals of Wesnoth. You might want to read up on "
 "basic strategy, or familiarize yourself with <ref>dst='..traits_section' "
@@ -2673,17 +2733,17 @@ msgstr ""
 "<bold>text='Viel Spaß dabei!'</bold>"
 
 #. [topic]: id=about
-#: data/core/help.cfg:380
+#: data/core/help.cfg:385
 msgid "ingame_help_item^Contributors"
 msgstr "Mitwirkende"
 
 #. [topic]: id=license
-#: data/core/help.cfg:386
+#: data/core/help.cfg:391
 msgid "License"
 msgstr "Lizenz"
 
 #. [topic]: id=..traits_section
-#: data/core/help.cfg:395
+#: data/core/help.cfg:400
 #, fuzzy
 #| msgid ""
 #| "Most units have two traits. However, undead units are assigned the single "
@@ -2709,7 +2769,7 @@ msgstr ""
 "»Ausbilden« willkürlich zugewiesen."
 
 #. [topic]: id=..traits_section
-#: data/core/help.cfg:395
+#: data/core/help.cfg:400
 msgid ""
 "Traits are modifications that change a unit’s attributes slightly. They are "
 "usually randomly assigned to a unit when it is recruited. The traits "
@@ -2718,7 +2778,7 @@ msgid ""
 msgstr ""
 
 #. [topic]: id=..traits_section
-#: data/core/help.cfg:397
+#: data/core/help.cfg:402
 #, fuzzy
 #| msgid ""
 #| "\n"
@@ -2744,7 +2804,7 @@ msgstr ""
 "text='robust'</ref> und <ref>dst='traits_strong' text='kräftig'</ref>."
 
 #. [topic]: id=..traits_section
-#: data/core/help.cfg:399
+#: data/core/help.cfg:404
 #, fuzzy
 #| msgid ""
 #| "\n"
@@ -2757,8 +2817,8 @@ msgid ""
 "\n"
 "\n"
 "Elves may also receive <ref>dst='traits_dextrous' text='dextrous'</ref>, and "
-"dwarves may recieve <ref>dst='traits_healthy' text='healthy'</ref>. Trolls "
-"and certain humans may recieve <ref>dst='traits_fearless' text='fearless'</"
+"dwarves may receive <ref>dst='traits_healthy' text='healthy'</ref>. Trolls "
+"and certain humans may receive <ref>dst='traits_fearless' text='fearless'</"
 "ref>. Other traits which may be assigned include <ref>dst='traits_loyal' "
 "text='loyal'</ref>, <ref>dst='traits_feral' text='feral'</ref> and "
 "<ref>dst='traits_undead' text='undead'</ref>.\n"
@@ -2772,12 +2832,12 @@ msgstr ""
 "\n"
 
 #. [topic]: id=traits_intelligent
-#: data/core/help.cfg:409
+#: data/core/help.cfg:414
 msgid "Intelligent"
 msgstr "Intelligent"
 
 #. [topic]: id=traits_intelligent
-#: data/core/help.cfg:410
+#: data/core/help.cfg:415
 msgid ""
 "\n"
 "\n"
@@ -2797,19 +2857,19 @@ msgstr ""
 "zweckmäßiger, Truppen mit anderen Charakteristika einzuberufen."
 
 #. [topic]: id=traits_intelligent
-#: data/core/help.cfg:410
+#: data/core/help.cfg:415
 msgid "Intelligent units require 20% less experience than usual to advance."
 msgstr ""
 "Einheiten mit dem Attribut »intelligent« benötigen 20% weniger Erfahrung für "
 "eine Beförderung."
 
 #. [topic]: id=traits_quick
-#: data/core/help.cfg:417
+#: data/core/help.cfg:422
 msgid "Quick"
 msgstr "Schnell"
 
 #. [topic]: id=traits_quick
-#: data/core/help.cfg:418
+#: data/core/help.cfg:423
 msgid ""
 "\n"
 "\n"
@@ -2829,7 +2889,7 @@ msgstr ""
 "aufgrund ihrer verminderten LP allerdings weniger gut."
 
 #. [topic]: id=traits_quick
-#: data/core/help.cfg:418
+#: data/core/help.cfg:423
 #, fuzzy
 #| msgid ""
 #| "<italic>text='Quick'</italic> units have 1 extra movement point, but 5% "
@@ -2842,12 +2902,12 @@ msgstr ""
 "als andere."
 
 #. [topic]: id=traits_resilient
-#: data/core/help.cfg:425
+#: data/core/help.cfg:430
 msgid "Resilient"
 msgstr "Robust"
 
 #. [topic]: id=traits_resilient
-#: data/core/help.cfg:426
+#: data/core/help.cfg:431
 msgid ""
 "\n"
 "\n"
@@ -2866,7 +2926,7 @@ msgstr ""
 "halten."
 
 #. [topic]: id=traits_resilient
-#: data/core/help.cfg:426
+#: data/core/help.cfg:431
 #, fuzzy
 #| msgid ""
 #| "<italic>text='Resilient'</italic> units have 4 HP plus 1 HP per level "
@@ -2879,12 +2939,12 @@ msgstr ""
 "weiterer LP hinzu."
 
 #. [topic]: id=traits_strong
-#: data/core/help.cfg:433
+#: data/core/help.cfg:438
 msgid "Strong"
 msgstr "Kräftig"
 
 #. [topic]: id=traits_strong
-#: data/core/help.cfg:434
+#: data/core/help.cfg:439
 msgid ""
 "\n"
 "\n"
@@ -2901,7 +2961,7 @@ msgstr ""
 "dann sind kräftige Einheiten gefragt."
 
 #. [topic]: id=traits_strong
-#: data/core/help.cfg:434
+#: data/core/help.cfg:439
 #, fuzzy
 #| msgid ""
 #| "<italic>text='Strong'</italic> units do 1 more damage for every "
@@ -2914,24 +2974,24 @@ msgstr ""
 "pro Angriff mehr und haben einen zusätzlichen LP."
 
 #. [topic]: id=traits_fearless
-#: data/core/help.cfg:441
+#: data/core/help.cfg:446
 msgid "Fearless"
 msgstr "Furchtlos"
 
 #. [topic]: id=traits_fearless
-#: data/core/help.cfg:442
+#: data/core/help.cfg:447
 msgid "Aversion to light and dark holds no sway over these brave individuals."
 msgstr ""
 "Diese Recken sind nicht ängstlich, weder Abneigung gegen Licht noch tiefste "
 "Dunkelheit bringen sie ins Schwanken."
 
 #. [topic]: id=traits_feral
-#: data/core/help.cfg:447
+#: data/core/help.cfg:452
 msgid "Feral"
 msgstr "Wild"
 
 #. [topic]: id=traits_feral
-#: data/core/help.cfg:448
+#: data/core/help.cfg:453
 msgid ""
 "Dwellings of sentient beings are not easily used for cover by feral "
 "creatures of low intelligence. As a result, <italic>text='feral'</italic> "
@@ -2944,12 +3004,12 @@ msgstr ""
 "der Art des Terrains in der Umgebung."
 
 #. [topic]: id=traits_loyal
-#: data/core/help.cfg:453
+#: data/core/help.cfg:458
 msgid "Loyal"
 msgstr "Loyal"
 
 #. [topic]: id=traits_loyal
-#: data/core/help.cfg:454
+#: data/core/help.cfg:459
 msgid ""
 "\n"
 "\n"
@@ -2963,7 +3023,7 @@ msgstr ""
 "\n"
 "\n"
 "Hin und wieder schließen sich Euch im Verlauf einer Kampagne aus freien "
-"Stücken Gleichgesinnte an. Solchen Einheiten wird das Attribut 'loyal' "
+"Stücken Gleichgesinnte an. Solchen Einheiten wird das Attribut »loyal« "
 "verliehen. Wenn ihre Wiedereinberufung auch den üblichen Preis hat, so "
 "fordern sie doch niemals eine Entlohnung ihrer Dienste. In langen Spielen "
 "oder wenn Goldvorräte knapp sind, sind sie von unschätzbarem Wert. Seid Euch "
@@ -2972,7 +3032,7 @@ msgstr ""
 "unsinnigerweise in den sicheren Tod schickt."
 
 #. [topic]: id=traits_loyal
-#: data/core/help.cfg:454
+#: data/core/help.cfg:459
 msgid ""
 "<italic>text='Loyal'</italic> units don’t incur upkeep. Most units incur an "
 "upkeep cost at the end of every turn, which is equal to their level. Loyal "
@@ -2983,12 +3043,12 @@ msgstr ""
 "Mitstreiter verursachen die Kosten nicht."
 
 #. [topic]: id=traits_undead
-#: data/core/help.cfg:461
+#: data/core/help.cfg:466
 msgid "trait^Undead"
 msgstr "Untot"
 
 #. [topic]: id=traits_undead
-#: data/core/help.cfg:462
+#: data/core/help.cfg:467
 msgid ""
 "\n"
 "\n"
@@ -3005,20 +3065,20 @@ msgstr ""
 "Kampf gegen Feinde, die mit vergifteten Waffen angreifen."
 
 #. [topic]: id=traits_undead
-#: data/core/help.cfg:462
+#: data/core/help.cfg:467
 msgid ""
 "<italic>text='Undead'</italic> units are immune to poison, drain, and plague."
 msgstr ""
 "»Untote« Einheiten sind gegen Gift immun, auch die speziellen Angriffe "
-"'Lebensentzug' und 'Untote Plage' zeigen bei diesen Wesen keine Wirkung."
+"»Lebensentzug« und »Untote Plage« zeigen bei diesen Wesen keine Wirkung."
 
 #. [topic]: id=traits_mechanical
-#: data/core/help.cfg:469
+#: data/core/help.cfg:474
 msgid "trait^Mechanical"
 msgstr "Mechanisch"
 
 #. [topic]: id=traits_mechanical
-#: data/core/help.cfg:470
+#: data/core/help.cfg:475
 msgid ""
 "\n"
 "\n"
@@ -3034,19 +3094,19 @@ msgstr ""
 "hier nicht in Frage."
 
 #. [topic]: id=traits_mechanical
-#: data/core/help.cfg:470
+#: data/core/help.cfg:475
 msgid ""
 "<italic>text='Mechanical'</italic> units are immune to poison, drain, and "
 "plague."
 msgstr "Kriegsgerät oder Maschinen erhalten das Merkmal »mechanisch«."
 
 #. [topic]: id=traits_elemental
-#: data/core/help.cfg:477
+#: data/core/help.cfg:482
 msgid "trait^Elemental"
 msgstr "Elementar"
 
 #. [topic]: id=traits_elemental
-#: data/core/help.cfg:478
+#: data/core/help.cfg:483
 msgid ""
 "\n"
 "\n"
@@ -3061,7 +3121,7 @@ msgstr ""
 "meisten Schadensarten zeigen keine Wirkung."
 
 #. [topic]: id=traits_elemental
-#: data/core/help.cfg:478
+#: data/core/help.cfg:483
 msgid ""
 "<italic>text='Elemental'</italic> units are immune to poison, drain, and "
 "plague."
@@ -3070,12 +3130,12 @@ msgstr ""
 "Plage nicht beeinflusst."
 
 #. [topic]: id=traits_dextrous
-#: data/core/help.cfg:485
+#: data/core/help.cfg:490
 msgid "Dextrous"
 msgstr "Geschickt"
 
 #. [topic]: id=traits_dextrous
-#: data/core/help.cfg:486
+#: data/core/help.cfg:491
 msgid ""
 "\n"
 "\n"
@@ -3093,7 +3153,7 @@ msgstr ""
 "Gegner mehr Schaden zu als die ihrer Gefährten (-1 LP)."
 
 #. [topic]: id=traits_dextrous
-#: data/core/help.cfg:486
+#: data/core/help.cfg:491
 msgid ""
 "<italic>text='Dextrous'</italic> units do 1 more damage for every successful "
 "strike in ranged combat."
@@ -3102,12 +3162,12 @@ msgstr ""
 "an."
 
 #. [topic]: id=traits_healthy
-#: data/core/help.cfg:493
+#: data/core/help.cfg:498
 msgid "Healthy"
 msgstr "Vital"
 
 #. [topic]: id=traits_healthy
-#: data/core/help.cfg:494
+#: data/core/help.cfg:499
 msgid ""
 "\n"
 "\n"
@@ -3117,7 +3177,7 @@ msgid ""
 msgstr ""
 
 #. [topic]: id=traits_healthy
-#: data/core/help.cfg:494
+#: data/core/help.cfg:499
 #, fuzzy
 #| msgid ""
 #| "Renowned for their vitality, some dwarves are sturdier than others and "
@@ -3131,12 +3191,12 @@ msgstr ""
 "schneller als die Kollegen."
 
 #. [topic]: id=traits_dim
-#: data/core/help.cfg:501
+#: data/core/help.cfg:506
 msgid "Dim"
 msgstr "Tumb"
 
 #. [topic]: id=traits_dim
-#: data/core/help.cfg:502
+#: data/core/help.cfg:507
 msgid ""
 "\n"
 "\n"
@@ -3151,7 +3211,7 @@ msgstr ""
 "entwickelter Intellekt ist einer davon."
 
 #. [topic]: id=traits_dim
-#: data/core/help.cfg:502
+#: data/core/help.cfg:507
 msgid ""
 "Units with trait <italic>text='dim'</italic> suffer a 20% increase in "
 "experience required to advance."
@@ -3160,12 +3220,12 @@ msgstr ""
 "aufzusteigen."
 
 #. [topic]: id=traits_slow
-#: data/core/help.cfg:509
+#: data/core/help.cfg:514
 msgid "Slow"
 msgstr "Lahm"
 
 #. [topic]: id=traits_slow
-#: data/core/help.cfg:510
+#: data/core/help.cfg:515
 msgid ""
 "\n"
 "\n"
@@ -3180,7 +3240,7 @@ msgstr ""
 "verkraften."
 
 #. [topic]: id=traits_slow
-#: data/core/help.cfg:510
+#: data/core/help.cfg:515
 #, fuzzy
 #| msgid ""
 #| "<italic>text='Slow'</italic> units have −1 movement but 5% more hitpoints."
@@ -3192,12 +3252,12 @@ msgstr ""
 "über 5% mehr LP."
 
 #. [topic]: id=traits_weak
-#: data/core/help.cfg:517
+#: data/core/help.cfg:522
 msgid "Weak"
 msgstr "Schwächlich"
 
 #. [topic]: id=traits_weak
-#: data/core/help.cfg:518
+#: data/core/help.cfg:523
 #, fuzzy
 #| msgid ""
 #| "Units with trait <italic>text='weak'</italic> get a −1 increment in "
@@ -3210,12 +3270,12 @@ msgstr ""
 "und auch ihre Widerstandskraft ist um 1 LP geringer."
 
 #. [topic]: id=traits_aged
-#: data/core/help.cfg:523
+#: data/core/help.cfg:528
 msgid "trait^Aged"
 msgstr "Gealtert"
 
 #. [topic]: id=traits_aged
-#: data/core/help.cfg:524
+#: data/core/help.cfg:529
 #, fuzzy
 #| msgid ""
 #| "Units with trait <italic>text='aged'</italic> get a −8 increment in "
@@ -3231,7 +3291,7 @@ msgstr ""
 "die Jahre natürlich auf die Lebenserwartung aus: 8 LP werden abgezogen."
 
 #. [topic]: id=..terrains_section
-#: data/core/help.cfg:531
+#: data/core/help.cfg:536
 msgid ""
 "\n"
 "\n"
@@ -3240,7 +3300,7 @@ msgid ""
 msgstr ""
 
 #. [topic]: id=..terrains_section
-#: data/core/help.cfg:531
+#: data/core/help.cfg:536
 msgid ""
 "Game maps feature a variety of terrains that affect both unit movement and a "
 "unit’s defensive capability in combat."
@@ -3251,7 +3311,7 @@ msgstr ""
 "Einheiten aus, sondern auch auf die Verteidigungsfähigkeit in Gefechten."
 
 #. [topic]: id=..terrains_section
-#: data/core/help.cfg:533
+#: data/core/help.cfg:538
 #, fuzzy
 #| msgid ""
 #| "\n"
@@ -3267,7 +3327,7 @@ msgstr ""
 "<header>text='Ressourcen für Entwickler von Erweiterungen</header>"
 
 #. [topic]: id=..terrains_section
-#: data/core/help.cfg:535
+#: data/core/help.cfg:540
 msgid ""
 "\n"
 "\n"
@@ -3278,7 +3338,7 @@ msgid ""
 msgstr ""
 
 #. [topic]: id=..terrains_section
-#: data/core/help.cfg:539
+#: data/core/help.cfg:544
 msgid ""
 "\n"
 "\n"
@@ -3288,7 +3348,7 @@ msgid ""
 msgstr ""
 
 #. [topic]: id=..terrains_section
-#: data/core/help.cfg:541
+#: data/core/help.cfg:546
 #, fuzzy
 #| msgid ""
 #| "\n"
@@ -3304,7 +3364,7 @@ msgstr ""
 "<header>text='Ressourcen für Entwickler von Erweiterungen</header>"
 
 #. [topic]: id=..terrains_section
-#: data/core/help.cfg:543
+#: data/core/help.cfg:548
 msgid ""
 "\n"
 "\n"
@@ -3318,7 +3378,7 @@ msgid ""
 msgstr ""
 
 #. [topic]: id=..terrains_section
-#: data/core/help.cfg:547
+#: data/core/help.cfg:552
 msgid ""
 "\n"
 "\n"
@@ -3333,39 +3393,39 @@ msgid ""
 msgstr ""
 
 #. [topic]: id=..terrains_section
-#: data/core/help.cfg:551
+#: data/core/help.cfg:556
 msgid ""
 "\n"
 "\n"
-"Land‐based villages generally give best‐defense, best‐movement as well. "
+"Land-based villages generally give the best defense and movement as well. "
 "These villages are mixed terrains, based on the village terrain type, "
 "together with hill, swamp, and cave, respectively.\n"
 "\n"
 msgstr ""
 
 #. [topic]: id=..terrains_section
-#: data/core/help.cfg:555
+#: data/core/help.cfg:560
 msgid ""
 "\n"
 "\n"
-"Finally, water villages generally are not hospitable to land units, and do "
-"not give defense or movement benefits associated to the village terrain "
-"type. They count only as water tiles instead.\n"
+"Finally, water villages are generally inhospitable to land units, and do not "
+"give defense or movement benefits associated with the village terrain type. "
+"Instead, they count only as water tiles.\n"
 "\n"
 msgstr ""
 
 #. [topic]: id=..terrains_section
-#: data/core/help.cfg:559
+#: data/core/help.cfg:564
 msgid ""
 "\n"
 "\n"
-"You can see what basic types are associated to a mixed type by mousing over "
+"You can see what basic types a mixed terrain is comprised of by mousing over "
 "its hex and checking the terrain type icons displayed in the upper right, "
 "(under the default theme)."
 msgstr ""
 
 #. [topic]: id=..terrains_section
-#: data/core/help.cfg:561
+#: data/core/help.cfg:566
 msgid ""
 "\n"
 "\n"
@@ -3376,7 +3436,7 @@ msgid ""
 msgstr ""
 
 #. [topic]: id=..terrains_section
-#: data/core/help.cfg:563
+#: data/core/help.cfg:568
 #, fuzzy
 #| msgid ""
 #| "\n"
@@ -3392,7 +3452,7 @@ msgstr ""
 "<header>text='Ressourcen für Entwickler von Erweiterungen</header>"
 
 #. [topic]: id=..terrains_section
-#: data/core/help.cfg:565
+#: data/core/help.cfg:570
 msgid ""
 "\n"
 "\n"
@@ -3402,7 +3462,7 @@ msgid ""
 msgstr ""
 
 #. [topic]: id=..terrains_section
-#: data/core/help.cfg:567
+#: data/core/help.cfg:572
 msgid ""
 "\n"
 "\n"
@@ -3413,7 +3473,7 @@ msgid ""
 msgstr ""
 
 #. [topic]: id=..terrains_section
-#: data/core/help.cfg:569
+#: data/core/help.cfg:574
 msgid ""
 "\n"
 "\n"
@@ -3422,7 +3482,7 @@ msgid ""
 msgstr ""
 
 #. [topic]: id=..terrains_section
-#: data/core/help.cfg:571
+#: data/core/help.cfg:576
 #, fuzzy
 #| msgid ""
 #| "\n"
@@ -3439,7 +3499,7 @@ msgstr ""
 "<header>text='Ressourcen für Entwickler von Erweiterungen</header>"
 
 #. [topic]: id=..addons
-#: data/core/help.cfg:584
+#: data/core/help.cfg:589
 msgid ""
 "The degree of customization offered by the Wesnoth engine allows players to "
 "create their own game content, including new scenarios, campaigns, and much "
@@ -3455,12 +3515,12 @@ msgstr ""
 "\n"
 
 #. [topic]: id=using_addons
-#: data/core/help.cfg:594
+#: data/core/help.cfg:599
 msgid "Using Add-ons"
 msgstr "Auswahl von Erweiterungen"
 
 #. [topic]: id=using_addons
-#: data/core/help.cfg:595
+#: data/core/help.cfg:600
 msgid ""
 "\n"
 "\n"
@@ -3471,7 +3531,7 @@ msgstr ""
 "<header>text='Kampagnen und Szenarien'</header>"
 
 #. [topic]: id=using_addons
-#: data/core/help.cfg:595
+#: data/core/help.cfg:600
 msgid ""
 "The game supports different types of add-on content, which are not all "
 "available in every gameplay mode."
@@ -3480,7 +3540,7 @@ msgstr ""
 "nicht alle Erweiterungen in jedem beliebigen Spielmodus aufgerufen werden."
 
 #. [topic]: id=using_addons
-#: data/core/help.cfg:597
+#: data/core/help.cfg:602
 msgid ""
 "\n"
 "\n"
@@ -3498,7 +3558,7 @@ msgstr ""
 "Eurem Computer installiert habt."
 
 #. [topic]: id=using_addons
-#: data/core/help.cfg:599
+#: data/core/help.cfg:604
 msgid ""
 "\n"
 "\n"
@@ -3509,7 +3569,7 @@ msgstr ""
 "<header>text='Mehrspieler-Kampagnen, Szenarien und Kartenpakete'</header>"
 
 #. [topic]: id=using_addons
-#: data/core/help.cfg:601
+#: data/core/help.cfg:606
 msgid ""
 "\n"
 "\n"
@@ -3523,10 +3583,10 @@ msgstr ""
 "zu diesem Zweck entworfene Kampagnen gespielt werden, die völlig nach "
 "eigenen Vorstellungen der Anwender gescriptet und auf deren Wünsche "
 "zugeschnitten wurden. Ebenso stehen Pakete mit Sets aus mehreren "
-"individuellen Szenarien für den Spielmodus 'Multiplayer' (MP) bereit."
+"individuellen Szenarien für den Mehrspieler-Modus bereit."
 
 #. [topic]: id=using_addons
-#: data/core/help.cfg:603
+#: data/core/help.cfg:608
 msgid ""
 "\n"
 "\n"
@@ -3537,7 +3597,7 @@ msgstr ""
 "<header>text='Mehrspieler-Epochen und Fraktionen'</header>"
 
 #. [topic]: id=using_addons
-#: data/core/help.cfg:605
+#: data/core/help.cfg:610
 msgid ""
 "\n"
 "\n"
@@ -3555,16 +3615,16 @@ msgstr ""
 "Im Sinne des Spielgeschehens ziehen diverse Rassen in der Welt von Wesnoth "
 "am gleichen Strang und schließen sich zu »Fraktionen« zusammen. Diese sind "
 "unter einem gemeinsamen Titel in ausgewogene Sets gruppiert. So sind etwa "
-"die sechs Hauptlager von Wesnoth in der Epoche namens 'Standard' zu finden, "
+"die sechs Hauptlager von Wesnoth in der Epoche namens »Standard« zu finden, "
 "die Teil des Original-Installationspaketes ist.\n"
 "\n"
 "Im Mehrspieler-Modus entscheidet Ihr Euch zu Beginn einer Partie zunächst "
-"für eine 'Epoche'. Wenn die Mitspieler ihre Seiten und Teams aufbauen, "
+"für eine »Epoche«. Wenn die Mitspieler ihre Seiten und Teams aufbauen, "
 "treffen sie die Auswahl ihrer Einheiten unter den für diese Ära verfügbaren "
 "Fraktionen."
 
 #. [topic]: id=using_addons
-#: data/core/help.cfg:609
+#: data/core/help.cfg:614
 msgid ""
 "\n"
 "\n"
@@ -3573,7 +3633,7 @@ msgid ""
 msgstr ""
 
 #. [topic]: id=using_addons
-#: data/core/help.cfg:611
+#: data/core/help.cfg:616
 msgid ""
 "\n"
 "\n"
@@ -3584,7 +3644,7 @@ msgstr ""
 "<header>text='Mehrspieler-Modifikationen'</header>"
 
 #. [topic]: id=using_addons
-#: data/core/help.cfg:613
+#: data/core/help.cfg:618
 msgid ""
 "\n"
 "\n"
@@ -3601,7 +3661,7 @@ msgstr ""
 "Anpassungen aus der Änderungsliste gewählt und konfiguriert werden."
 
 #. [topic]: id=using_addons
-#: data/core/help.cfg:615
+#: data/core/help.cfg:620
 msgid ""
 "\n"
 "\n"
@@ -3612,7 +3672,7 @@ msgstr ""
 "<header>text='Ressourcen für Entwickler von Erweiterungen</header>"
 
 #. [topic]: id=using_addons
-#: data/core/help.cfg:617
+#: data/core/help.cfg:622
 msgid ""
 "\n"
 "\n"
@@ -3632,12 +3692,12 @@ msgstr ""
 "Downloads würde deren Installation empfohlen bzw. unerlässlich sein."
 
 #. [topic]: id=installing_addons
-#: data/core/help.cfg:626
+#: data/core/help.cfg:631
 msgid "Installing Add-ons"
 msgstr "Installation von Erweiterungen"
 
 #. [topic]: id=installing_addons
-#: data/core/help.cfg:627
+#: data/core/help.cfg:632
 msgid ""
 "User-made add-ons can be obtained and updated through the <italic>text='Add-"
 "ons'</italic> option in the main menu. After connecting to the add-ons "
@@ -3686,12 +3746,12 @@ msgstr ""
 "die Installation durchgeführt."
 
 #. [topic]: id=removing_addons
-#: data/core/help.cfg:640
+#: data/core/help.cfg:645
 msgid "Removing Add-ons"
 msgstr "Deinstallation von Erweiterungen"
 
 #. [topic]: id=removing_addons
-#: data/core/help.cfg:641
+#: data/core/help.cfg:646
 msgid ""
 "To remove add-ons, choose <bold>text='Remove Add-ons'</bold> in the add-ons "
 "server connection dialog. You will be presented with options to remove any "
@@ -3716,16 +3776,14 @@ msgstr ""
 "deinstallieren."
 
 #. [topic]: id=general_commands
-#: data/core/help.cfg:656
-#, fuzzy
-#| msgid "General commands"
+#: data/core/help.cfg:661
 msgid "General Commands"
-msgstr "Generelle Kommandos"
+msgstr "Allgemeine Befehle"
 
 #. [topic]: id=debug_commands
 #. [topic]: id=general_commands
 #. [topic]: id=mp_commands
-#: data/core/help.cfg:658 data/core/help.cfg:701 data/core/help.cfg:739
+#: data/core/help.cfg:663 data/core/help.cfg:706 data/core/help.cfg:744
 msgid ""
 "These commands can either be issued via the command line by prefixing them "
 "with ':' (as shown here) or via the chat by prefixing them with '/' (press "
@@ -3740,7 +3798,7 @@ msgstr ""
 "\n"
 
 #. [topic]: id=general_commands
-#: data/core/help.cfg:660
+#: data/core/help.cfg:665
 msgid ""
 "\n"
 "Clear chat messages.\n"
@@ -3751,7 +3809,7 @@ msgstr ""
 "\n"
 
 #. [topic]: id=general_commands
-#: data/core/help.cfg:663
+#: data/core/help.cfg:668
 msgid ""
 "\n"
 "Switch debug mode on (does not work in multiplayer). See "
@@ -3761,14 +3819,14 @@ msgid ""
 msgstr ""
 "\n"
 "Debug-Modus aktivieren (funktioniert nicht bei Mehrspieler-Partien)\n"
-"Eine Übersicht der möglichen Kommandos findet Ihr unter "
-"<ref>dst='debug_commands' text='Debug Kommandos'</ref>.\n"
+"Eine Übersicht der möglichen Befehle findet Ihr unter "
+"<ref>dst='debug_commands' text='Debug-Befehle'</ref>.\n"
 "Der Debug-Modus wird bei Beenden des Spiels abgeschaltet oder durch den "
 "Befehl [:nodebug].\n"
 "\n"
 
 #. [topic]: id=general_commands
-#: data/core/help.cfg:667
+#: data/core/help.cfg:672
 msgid ""
 "\n"
 "Set or toggle player on side between human and AI player. The player/client "
@@ -3791,7 +3849,7 @@ msgstr ""
 "\n"
 
 #. [topic]: id=general_commands
-#: data/core/help.cfg:670
+#: data/core/help.cfg:675
 msgid ""
 "\n"
 "Display the controller status of a side.\n"
@@ -3802,7 +3860,7 @@ msgstr ""
 "\n"
 
 #. [topic]: id=general_commands
-#: data/core/help.cfg:673
+#: data/core/help.cfg:678
 msgid ""
 "\n"
 "Toggle the display of the current frames per second.\n"
@@ -3813,7 +3871,7 @@ msgstr ""
 "\n"
 
 #. [topic]: id=general_commands
-#: data/core/help.cfg:676
+#: data/core/help.cfg:681
 msgid ""
 "\n"
 "Switch a log domain to a different log level.\n"
@@ -3824,7 +3882,7 @@ msgstr ""
 "\n"
 
 #. [topic]: id=general_commands
-#: data/core/help.cfg:679
+#: data/core/help.cfg:684
 msgid ""
 "\n"
 "Redraws the screen and reloads any image files that have been changed.\n"
@@ -3836,7 +3894,7 @@ msgstr ""
 "\n"
 
 #. [topic]: id=general_commands
-#: data/core/help.cfg:682
+#: data/core/help.cfg:687
 msgid ""
 "\n"
 "Bring up theme selection menu.\n"
@@ -3847,7 +3905,7 @@ msgstr ""
 "\n"
 
 #. [topic]: id=general_commands
-#: data/core/help.cfg:685
+#: data/core/help.cfg:690
 msgid ""
 "\n"
 "Quit the scenario (without prompting).\n"
@@ -3858,7 +3916,7 @@ msgstr ""
 "\n"
 
 #. [topic]: id=general_commands
-#: data/core/help.cfg:688
+#: data/core/help.cfg:693
 msgid ""
 "\n"
 "Save the game (without prompting).\n"
@@ -3869,7 +3927,7 @@ msgstr ""
 "\n"
 
 #. [topic]: id=general_commands
-#: data/core/help.cfg:691
+#: data/core/help.cfg:696
 msgid ""
 "\n"
 "Save the game and quit the scenario (without prompting)."
@@ -3878,14 +3936,12 @@ msgstr ""
 "Spiel speichern und Szenario beenden (ohne vorherige Rückfrage)"
 
 #. [topic]: id=mp_commands
-#: data/core/help.cfg:700
-#, fuzzy
-#| msgid "Multiplayer commands"
+#: data/core/help.cfg:705
 msgid "Multiplayer Commands"
-msgstr "Mehrspieler Kommandos"
+msgstr "Mehrspieler-Befehle"
 
 #. [topic]: id=mp_commands
-#: data/core/help.cfg:703
+#: data/core/help.cfg:708
 msgid ""
 "\n"
 "Ban a user in a multiplayer game by the IP address used by that username and "
@@ -3902,7 +3958,7 @@ msgstr ""
 "\n"
 
 #. [topic]: id=mp_commands
-#: data/core/help.cfg:706
+#: data/core/help.cfg:711
 msgid ""
 "\n"
 "Change the controller for side (write here the number of the side) to "
@@ -3924,7 +3980,7 @@ msgstr ""
 
 # Erklärung zum Mehrspieler-Kommando  " :give_contrl "
 #. [topic]: id=mp_commands
-#: data/core/help.cfg:709
+#: data/core/help.cfg:714
 msgid ""
 "\n"
 "Launch a dialog to assist the host in changing the human controllers of "
@@ -3945,7 +4001,7 @@ msgstr ""
 # ... für ein Team aktivieren / deaktivieren\n
 # *Mehrspieler-Kommando *
 #. [topic]: id=mp_commands
-#: data/core/help.cfg:712
+#: data/core/help.cfg:717
 msgid ""
 "\n"
 "Toggle the idle state for a side. The host may make a side idle after a "
@@ -3959,7 +4015,7 @@ msgstr ""
 "\n"
 
 #. [topic]: id=mp_commands
-#: data/core/help.cfg:715
+#: data/core/help.cfg:720
 msgid ""
 "\n"
 "Kick a user in multiplayer. They will be able to rejoin the game. If you "
@@ -3968,7 +4024,7 @@ msgid ""
 "\n"
 msgstr ""
 "\n"
-"Spieler von einer Multiplayer-Partie ausschließen\n"
+"Spieler von einer Mehrspieler-Partie ausschließen\n"
 "Es ist den betroffenen Spielern jedoch möglich, dem Spiel erneut "
 "beizutreten.\n"
 "Soll nur die Kontrolle eines/mehrere Teams geändert werden, verwendet den "
@@ -3976,7 +4032,7 @@ msgstr ""
 "\n"
 
 #. [topic]: id=mp_commands
-#: data/core/help.cfg:718
+#: data/core/help.cfg:723
 msgid ""
 "\n"
 "Send a private message to a user. When in a game, it is not possible to send "
@@ -3991,7 +4047,7 @@ msgstr ""
 "\n"
 
 #. [topic]: id=mp_commands
-#: data/core/help.cfg:721
+#: data/core/help.cfg:726
 msgid ""
 "\n"
 "Mute a specific observer. If no username is supplied the muted usernames are "
@@ -4001,11 +4057,11 @@ msgstr ""
 "\n"
 "Beobachter die Redefreiheit entziehen\n"
 "Ohne Angabe eines Benutzernamens wird eine Liste aller Beobachter angezeigt, "
-"die auf 'stumm' geschaltet sind.\n"
+"die auf »stumm« geschaltet sind.\n"
 "\n"
 
 #. [topic]: id=mp_commands
-#: data/core/help.cfg:724
+#: data/core/help.cfg:729
 msgid ""
 "\n"
 "Toggle muting/silencing of all observers on/off.\n"
@@ -4016,7 +4072,7 @@ msgstr ""
 "\n"
 
 #. [topic]: id=mp_commands
-#: data/core/help.cfg:727
+#: data/core/help.cfg:732
 msgid ""
 "\n"
 "Unban a user in a multiplayer game by the IP address used by that username. "
@@ -4031,7 +4087,7 @@ msgstr ""
 "\n"
 
 #. [topic]: id=mp_commands
-#: data/core/help.cfg:730
+#: data/core/help.cfg:735
 msgid ""
 "\n"
 "Unmute a specific observer. If no username is supplied the list of muted "
@@ -4039,18 +4095,16 @@ msgid ""
 msgstr ""
 "\n"
 "Speziellem Beobachter Redefreiheit erteilen\n"
-"Ohne Angabe eines Benutzernamens wird allen auf 'stumm' geschalteten "
+"Ohne Angabe eines Benutzernamens wird allen auf »stumm« geschalteten "
 "Beobachtern wieder Redefreiheit erteilt."
 
 #. [topic]: id=debug_commands
-#: data/core/help.cfg:738
-#, fuzzy
-#| msgid "Debug mode commands"
+#: data/core/help.cfg:743
 msgid "Debug Mode Commands"
-msgstr "Debug Kommandos"
+msgstr "Debug-Befehle"
 
 #. [topic]: id=debug_commands
-#: data/core/help.cfg:741
+#: data/core/help.cfg:746
 msgid ""
 "\n"
 "Brings up a menu for choosing a scenario to immediately advance to in a "
@@ -4063,7 +4117,7 @@ msgstr ""
 "\n"
 
 #. [topic]: id=debug_commands
-#: data/core/help.cfg:744
+#: data/core/help.cfg:749
 msgid ""
 "\n"
 "Create a unit of the specified type on the selected hex.\n"
@@ -4074,7 +4128,7 @@ msgstr ""
 "\n"
 
 #. [topic]: id=debug_commands
-#: data/core/help.cfg:747
+#: data/core/help.cfg:752
 msgid ""
 "\n"
 "Toggle fog/shroud for the current side.\n"
@@ -4086,7 +4140,7 @@ msgstr ""
 "\n"
 
 #. [topic]: id=debug_commands
-#: data/core/help.cfg:750
+#: data/core/help.cfg:755
 msgid ""
 "\n"
 "Adds the specified amount to the current side’s gold.\n"
@@ -4097,7 +4151,7 @@ msgstr ""
 "\n"
 
 #. [topic]: id=debug_commands
-#: data/core/help.cfg:753
+#: data/core/help.cfg:758
 msgid ""
 "\n"
 "Immediately advances to the next scenario in a campaign.\n"
@@ -4108,7 +4162,7 @@ msgstr ""
 "\n"
 
 #. [topic]: id=debug_commands
-#: data/core/help.cfg:756
+#: data/core/help.cfg:761
 msgid ""
 "\n"
 "Manually set a gamestate variable to value.\n"
@@ -4119,7 +4173,7 @@ msgstr ""
 "\n"
 
 #. [topic]: id=debug_commands
-#: data/core/help.cfg:759
+#: data/core/help.cfg:764
 msgid ""
 "\n"
 "Show a gamestate variable.\n"
@@ -4130,7 +4184,7 @@ msgstr ""
 "\n"
 
 #. [topic]: id=debug_commands
-#: data/core/help.cfg:762
+#: data/core/help.cfg:767
 msgid ""
 "\n"
 "Manually fire the specified event.\n"
@@ -4141,7 +4195,7 @@ msgstr ""
 "\n"
 
 #. [topic]: id=debug_commands
-#: data/core/help.cfg:765
+#: data/core/help.cfg:770
 msgid ""
 "\n"
 "Modifies the specified property of the selected unit. Example: :unit "
@@ -4154,7 +4208,7 @@ msgstr ""
 "\n"
 
 #. [topic]: id=debug_commands
-#: data/core/help.cfg:768
+#: data/core/help.cfg:773
 msgid ""
 "\n"
 "Makes the selected unit level up N times. Example: :unit advances=2"
@@ -4233,30 +4287,23 @@ msgid ""
 "This unit’s resistances are doubled, up to a maximum of 50%, when defending. "
 "Vulnerabilities are not affected."
 msgstr ""
-"Diese Einheit steht wie ein Fels im Schlachtgetümmel und ihre Schlagkraft "
-"ist verdoppelt. Wenn sie sich aber verteidigt, steigt sie nur um maximal "
-"50%.\n"
-"Auf die Anfälligkeit für Schaden wirkt diese Fertigkeit sich wohlgemerkt "
-"nicht aus."
+"Diese Einheit steht wie ein Fels im Schlachtgetümmel, denn ihre Resistenz "
+"ist verdoppelt, wenn sie sich verteidigt; allerdings steigt ihre Resistenz "
+"nur bis maximal 50%.\n"
+"Bei Anfälligkeiten gegen Schadensarten wirkt sich diese Fertigkeit nicht aus."
 
 #. [leadership]: id=leadership
-#: data/core/macros/abilities.cfg:106 data/core/macros/abilities.cfg:127
-#: data/core/macros/abilities.cfg:159 data/core/macros/abilities.cfg:202
-#: data/core/macros/abilities.cfg:256
+#: data/core/macros/abilities.cfg:107
 msgid "leadership"
 msgstr "Führungsqualitäten"
 
 #. [leadership]: id=leadership
-#: data/core/macros/abilities.cfg:107 data/core/macros/abilities.cfg:128
-#: data/core/macros/abilities.cfg:160 data/core/macros/abilities.cfg:203
-#: data/core/macros/abilities.cfg:257
+#: data/core/macros/abilities.cfg:108
 msgid "female^leadership"
 msgstr "Führungsqualitäten"
 
 #. [leadership]: id=leadership
-#: data/core/macros/abilities.cfg:108 data/core/macros/abilities.cfg:129
-#: data/core/macros/abilities.cfg:161 data/core/macros/abilities.cfg:204
-#: data/core/macros/abilities.cfg:258
+#: data/core/macros/abilities.cfg:109
 msgid ""
 "This unit can lead our own units that are next to it, making them fight "
 "better.\n"
@@ -4276,14 +4323,14 @@ msgstr ""
 "die sie sich vom Anführer unterscheiden."
 
 #. [skirmisher]: id=skirmisher
-#: data/core/macros/abilities.cfg:319
+#: data/core/macros/abilities.cfg:170
 msgid "skirmisher"
 msgstr "Plänkler"
 
 # vorher:
 # Plänkler
 #. [skirmisher]: id=skirmisher
-#: data/core/macros/abilities.cfg:320
+#: data/core/macros/abilities.cfg:171
 msgid "female^skirmisher"
 msgstr "Plänklerin"
 
@@ -4291,7 +4338,7 @@ msgstr "Plänklerin"
 # vorher:
 # Diese Fertigkeit ermöglicht es einer Einheit, durch feindliche Linien zu brechen, da sie sämtliche feindlichen Kontrollzonen ignorieren kann.
 #. [skirmisher]: id=skirmisher
-#: data/core/macros/abilities.cfg:321
+#: data/core/macros/abilities.cfg:172
 msgid ""
 "This unit is skilled in moving past enemies quickly, and ignores all enemy "
 "Zones of Control."
@@ -4301,17 +4348,17 @@ msgstr ""
 "Gegner ignorieren können."
 
 #. [illuminates]: id=illumination
-#: data/core/macros/abilities.cfg:334
+#: data/core/macros/abilities.cfg:185
 msgid "illuminates"
 msgstr "Lichtaura"
 
 #. [illuminates]: id=illumination
-#: data/core/macros/abilities.cfg:335
+#: data/core/macros/abilities.cfg:186
 msgid "female^illuminates"
 msgstr "Lichtaura"
 
 #. [illuminates]: id=illumination
-#: data/core/macros/abilities.cfg:336
+#: data/core/macros/abilities.cfg:187
 msgid ""
 "This unit illuminates the surrounding area, making lawful units fight "
 "better, and chaotic units fight worse.\n"
@@ -4328,17 +4375,17 @@ msgstr ""
 "im Halbdunkel des Abends so gut wie am Tage."
 
 #. [teleport]: id=teleport
-#: data/core/macros/abilities.cfg:348
+#: data/core/macros/abilities.cfg:199
 msgid "teleport"
 msgstr "Teleportation"
 
 #. [teleport]: id=teleport
-#: data/core/macros/abilities.cfg:349
+#: data/core/macros/abilities.cfg:200
 msgid "female^teleport"
 msgstr "Teleportation"
 
 #. [teleport]: id=teleport
-#: data/core/macros/abilities.cfg:350
+#: data/core/macros/abilities.cfg:201
 msgid ""
 "This unit may teleport between any two empty villages owned by its side "
 "using one of its moves."
@@ -4348,17 +4395,17 @@ msgstr ""
 "einem anderen bewegen, ohne den Raum dazwischen physisch zu durchqueren."
 
 #. [hides]: id=ambush
-#: data/core/macros/abilities.cfg:386 data/core/macros/abilities.cfg:388
+#: data/core/macros/abilities.cfg:237 data/core/macros/abilities.cfg:239
 msgid "ambush"
 msgstr "Waldkenntnis"
 
 #. [hides]: id=ambush
-#: data/core/macros/abilities.cfg:387 data/core/macros/abilities.cfg:389
+#: data/core/macros/abilities.cfg:238 data/core/macros/abilities.cfg:240
 msgid "female^ambush"
 msgstr "Waldkenntnis"
 
 #. [hides]: id=ambush
-#: data/core/macros/abilities.cfg:390 data/core/macros/abilities.cfg:393
+#: data/core/macros/abilities.cfg:241 data/core/macros/abilities.cfg:244
 msgid ""
 "This unit can hide in forest, and remain undetected by its enemies.\n"
 "\n"
@@ -4376,13 +4423,13 @@ msgstr ""
 "gleichzeitig alle BP, die ihm in diesem Zug noch verblieben sind."
 
 #. [hides]: id=nightstalk
-#: data/core/macros/abilities.cfg:410 data/core/macros/abilities.cfg:411
-#: data/core/macros/abilities.cfg:415
+#: data/core/macros/abilities.cfg:261 data/core/macros/abilities.cfg:262
+#: data/core/macros/abilities.cfg:266
 msgid "nightstalk"
 msgstr "Schemen"
 
 #. [hides]: id=nightstalk
-#: data/core/macros/abilities.cfg:412 data/core/macros/abilities.cfg:417
+#: data/core/macros/abilities.cfg:263 data/core/macros/abilities.cfg:268
 msgid ""
 "The unit becomes invisible during night.\n"
 "\n"
@@ -4399,27 +4446,36 @@ msgstr ""
 "zuerst sieht, verliert alle noch verbliebenen BP."
 
 #. [hides]: id=nightstalk
-#: data/core/macros/abilities.cfg:416
+#: data/core/macros/abilities.cfg:267
 msgid "female^nightstalk"
 msgstr "Schemen"
 
 #. [hides]: id=concealment
-#: data/core/macros/abilities.cfg:434 data/core/macros/abilities.cfg:439
+#: data/core/macros/abilities.cfg:285 data/core/macros/abilities.cfg:290
 msgid "concealment"
 msgstr "Gassenwissen"
 
 #. [hides]: id=concealment
-#: data/core/macros/abilities.cfg:435 data/core/macros/abilities.cfg:440
+#: data/core/macros/abilities.cfg:286 data/core/macros/abilities.cfg:291
 msgid "female^concealment"
 msgstr "Gassenwissen"
 
 #. [hides]: id=concealment
-#: data/core/macros/abilities.cfg:436 data/core/macros/abilities.cfg:441
+#: data/core/macros/abilities.cfg:287 data/core/macros/abilities.cfg:292
+#, fuzzy
+#| msgid ""
+#| "This unit can hide in villages (with the exception of water villages), "
+#| "and remain undetected by its enemies, except by those standing next to "
+#| "it.\n"
+#| "\n"
+#| "Enemy units can not see this unit while it is in a village, except if "
+#| "they have units next to it. Any enemy unit that first discovers this unit "
+#| "immediately loses all its remaining movement."
 msgid ""
 "This unit can hide in villages (with the exception of water villages), and "
 "remain undetected by its enemies, except by those standing next to it.\n"
 "\n"
-"Enemy units can not see this unit while it is in a village, except if they "
+"Enemy units cannot see this unit while it is in a village, except if they "
 "have units next to it. Any enemy unit that first discovers this unit "
 "immediately loses all its remaining movement."
 msgstr ""
@@ -4433,17 +4489,17 @@ msgstr ""
 "in diesem Zug noch verblieben sind."
 
 #. [hides]: id=submerge
-#: data/core/macros/abilities.cfg:458 data/core/macros/abilities.cfg:463
+#: data/core/macros/abilities.cfg:309 data/core/macros/abilities.cfg:314
 msgid "submerge"
 msgstr "Abtauchen"
 
 #. [hides]: id=submerge
-#: data/core/macros/abilities.cfg:459 data/core/macros/abilities.cfg:464
+#: data/core/macros/abilities.cfg:310 data/core/macros/abilities.cfg:315
 msgid "female^submerge"
 msgstr "Abtauchen"
 
 #. [hides]: id=submerge
-#: data/core/macros/abilities.cfg:460 data/core/macros/abilities.cfg:465
+#: data/core/macros/abilities.cfg:311 data/core/macros/abilities.cfg:316
 msgid ""
 "This unit can hide in deep water, and remain undetected by its enemies.\n"
 "\n"
@@ -4461,17 +4517,17 @@ msgstr ""
 "noch übrigen BP."
 
 #. [dummy]: id=feeding
-#: data/core/macros/abilities.cfg:485
+#: data/core/macros/abilities.cfg:336
 msgid "feeding"
 msgstr "Kannibalismus"
 
 #. [dummy]: id=feeding
-#: data/core/macros/abilities.cfg:486
+#: data/core/macros/abilities.cfg:337
 msgid "female^feeding"
 msgstr "Kannibalismus"
 
 #. [dummy]: id=feeding
-#: data/core/macros/abilities.cfg:487
+#: data/core/macros/abilities.cfg:338
 msgid ""
 "This unit gains 1 hitpoint added to its maximum whenever it kills a unit, "
 "except units that are immune to plague."
@@ -4484,17 +4540,17 @@ msgstr ""
 "Plage« gefeit sind."
 
 #. [unstore_unit]
-#: data/core/macros/abilities.cfg:509
+#: data/core/macros/abilities.cfg:360
 msgid "+1 max HP"
 msgstr "+1 max LP"
 
 #. [damage]: id=backstab
-#: data/core/macros/abilities.cfg:551
+#: data/core/macros/abilities.cfg:402
 msgid "backstab"
 msgstr "Hinterlistiger Angriff"
 
 #. [damage]: id=backstab
-#: data/core/macros/abilities.cfg:552
+#: data/core/macros/abilities.cfg:403
 msgid ""
 "When used offensively, this attack deals double damage if there is an enemy "
 "of the target on the opposite side of the target, and that unit is not "
@@ -4508,12 +4564,12 @@ msgstr ""
 
 #. [plague]: id=plague({TYPE}), type={TYPE}
 #. [plague]: id=plague, type=Walking Corpse
-#: data/core/macros/abilities.cfg:564 data/core/macros/abilities.cfg:575
+#: data/core/macros/abilities.cfg:415 data/core/macros/abilities.cfg:426
 msgid "plague"
 msgstr "Untote Plage"
 
 #. [plague]: id=plague({TYPE}), type={TYPE}
-#: data/core/macros/abilities.cfg:565
+#: data/core/macros/abilities.cfg:416
 msgid ""
 "When a unit is killed by a Plague attack, that unit is replaced with a unit "
 "identical to and on the same side as the unit with the Plague attack. This "
@@ -4526,7 +4582,7 @@ msgstr ""
 "erübrigt sich natürlich solch eine Attacke."
 
 #. [plague]: id=plague, type=Walking Corpse
-#: data/core/macros/abilities.cfg:576
+#: data/core/macros/abilities.cfg:427
 msgid ""
 "When a unit is killed by a Plague attack, that unit is replaced with a "
 "Walking Corpse on the same side as the unit with the Plague attack. This "
@@ -4540,13 +4596,13 @@ msgstr ""
 "solch eine Attacke."
 
 #. [slow]: id=slow
-#: data/core/macros/abilities.cfg:586
+#: data/core/macros/abilities.cfg:437
 msgid "slows"
 msgstr "Verlangsamung"
 
 # type: Content of: <book><chapter><section><section><variablelist><varlistentry><listitem><simpara>
 #. [slow]: id=slow
-#: data/core/macros/abilities.cfg:587
+#: data/core/macros/abilities.cfg:438
 msgid ""
 "This attack slows the target until it ends a turn. Slow halves the damage "
 "caused by attacks and the movement cost for a slowed unit is doubled. A unit "
@@ -4560,13 +4616,13 @@ msgstr ""
 "Schnecken-Symbol in der seitlichen Leiste gekennzeichnet. "
 
 #. [petrifies]: id=petrifies
-#: data/core/macros/abilities.cfg:596
+#: data/core/macros/abilities.cfg:447
 msgid "petrifies"
 msgstr "Versteinerung"
 
 # type: Content of: <book><chapter><section><section><variablelist><varlistentry><listitem><simpara>
 #. [petrifies]: id=petrifies
-#: data/core/macros/abilities.cfg:597
+#: data/core/macros/abilities.cfg:448
 msgid ""
 "This attack petrifies the target, turning it to stone. Units that have been "
 "petrified may not move or attack."
@@ -4576,13 +4632,13 @@ msgstr ""
 "ausgeschlossen."
 
 #. [chance_to_hit]: id=marksman
-#: data/core/macros/abilities.cfg:606
+#: data/core/macros/abilities.cfg:457
 msgid "marksman"
 msgstr "Treffsicherheit"
 
 # type: Content of: <book><chapter><section><section><variablelist><varlistentry><listitem><simpara>
 #. [chance_to_hit]: id=marksman
-#: data/core/macros/abilities.cfg:607
+#: data/core/macros/abilities.cfg:458
 msgid ""
 "When used offensively, this attack always has at least a 60% chance to hit."
 msgstr ""
@@ -4590,12 +4646,12 @@ msgstr ""
 "Attacke in 60% aller Fälle."
 
 #. [swarm]: id=swarm
-#: data/core/macros/abilities.cfg:631
+#: data/core/macros/abilities.cfg:482
 msgid "swarm"
 msgstr "Schwarm"
 
 #. [swarm]: id=swarm
-#: data/core/macros/abilities.cfg:632
+#: data/core/macros/abilities.cfg:483
 msgid ""
 "The number of strikes of this attack decreases when the unit is wounded. The "
 "number of strikes is proportional to the percentage of its of maximum HP the "
@@ -4608,7 +4664,7 @@ msgstr ""
 "Lebenskraft, kann sie nur 3/4 so viele Angriffe wie normal führen."
 
 #. [damage]: id=charge
-#: data/core/macros/abilities.cfg:641
+#: data/core/macros/abilities.cfg:492
 msgid "charge"
 msgstr "Ansturm"
 
@@ -4617,7 +4673,7 @@ msgstr "Ansturm"
 # vorher:
 # Diese Attacke wird mit solcher Wucht ausgeführt, dass sie doppelten Schaden verursacht. Da der Angreifer dabei seine Deckung vollkommen vernachlässigt, ergeht es ihm bei einem Gegentreffer genauso. Der Anstürmende verwendet diese Fertigkeit nicht, wenn er selbst angegriffen wird.
 #. [damage]: id=charge
-#: data/core/macros/abilities.cfg:642
+#: data/core/macros/abilities.cfg:493
 msgid ""
 "When used offensively, this attack deals double damage to the target. It "
 "also causes this unit to take double damage from the target’s counterattack."
@@ -4631,13 +4687,13 @@ msgstr ""
 "für einen Sturmangriff verwehrt."
 
 #. [drains]: id=drains
-#: data/core/macros/abilities.cfg:654
+#: data/core/macros/abilities.cfg:505
 msgid "drains"
 msgstr "Lebensentzug"
 
 # type: Content of: <book><chapter><section><section><variablelist><varlistentry><listitem><simpara>
 #. [drains]: id=drains
-#: data/core/macros/abilities.cfg:655
+#: data/core/macros/abilities.cfg:506
 msgid ""
 "This unit drains health from living units, healing itself for half the "
 "amount of damage it deals (rounded down)."
@@ -4647,15 +4703,20 @@ msgstr ""
 "jeweils um die Hälfte der verursachten Schadenspunkte (abgerundet)."
 
 #. [poison]: id=poison
-#: data/core/macros/abilities.cfg:674
+#: data/core/macros/abilities.cfg:525
 msgid "poison"
 msgstr "Gift"
 
 #. [poison]: id=poison
-#: data/core/macros/abilities.cfg:675
+#: data/core/macros/abilities.cfg:526
+#, fuzzy
+#| msgid ""
+#| "This attack poisons living targets. Poisoned units lose 8 HP every turn "
+#| "until they are cured or are reduced to 1 HP. Poison can not, of itself, "
+#| "kill a unit."
 msgid ""
 "This attack poisons living targets. Poisoned units lose 8 HP every turn "
-"until they are cured or are reduced to 1 HP. Poison can not, of itself, kill "
+"until they are cured or are reduced to 1 HP. Poison cannot, of itself, kill "
 "a unit."
 msgstr ""
 "Angriffe mit Gift oder vergiftete Waffen wirken bei allen lebenden "
@@ -5731,7 +5792,7 @@ msgstr ""
 "wesentlich höheren Lebenserwartung. Die meisten Elfen – wenn unberührt von "
 "Krankheit, Unfall oder Krieg – leben wenigstens zweieinhalb Jahrhunderte. "
 "Außergewöhnliche magische Veranlagungen verlängern diese Spanne um gut und "
-"gerne hundert Jahre. Der 'Herbst des Lebens' umfasst bei allen aber oft nur "
+"gerne hundert Jahre. Der »Herbst des Lebens« umfasst bei allen aber oft nur "
 "ein, zwei Jahre der Gebrechlichkeit und körperlichen Schwäche.\n"
 "\n"
 "Elfen sind vor Natur aus bis zu einem gewissen Grade von Magie und "
@@ -5824,7 +5885,7 @@ msgstr ""
 "Vielzahl an Jungen zur Welt – und damit vermehren sie sich in kürzester Zeit "
 "rapide.\n"
 "\n"
-"Aus jedem Wurf gehen aber nur ein bis zwei 'wahre' Orks hervor mit der für "
+"Aus jedem Wurf gehen aber nur ein bis zwei »wahre« Orks hervor mit der für "
 "ihre Rasse typischen Größe und Stärke. Einige weitere gedeihen zu Halborks "
 "heran, deutlich schwächer und kleiner als ihre großen Brüder. Diese werden "
 "später in untergeordnete Positionen abgedrängt und meist als Schützen "
@@ -5832,11 +5893,11 @@ msgstr ""
 "Kobolde: Verkümmert, schwach und kaum die Größe eines Menschenkindes "
 "überschreitend, erwartet sie nur ein sklavenähnliches Dasein im Dienst der "
 "größeren Verwandtschaft. Für den Kampf erhalten sie die notdürftigste "
-"Ausrüstung – gerade eben gut genug, um als 'Schwertfutter' zu fungieren.\n"
+"Ausrüstung – gerade eben gut genug, um als »Schwertfutter« zu fungieren.\n"
 "\n"
 "Ungeachtet dessen haben Kobolde eine positive Haltung und scheinen in ihrem "
 "tragischen Schicksal aufzublühen: teils weil sie so zahlreich sein – teils "
-"weil den 'großen Brüdern' durchaus klar ist, wie abhängig sie von diesen "
+"weil den »großen Brüdern« durchaus klar ist, wie abhängig sie von diesen "
 "Kümmerlingen sind. Denn Kobolde verrichten für den Stamm den Großteil aller "
 "Arbeiten, ausgenommen die Tätigkeiten, die die brutale Stärke eines echten "
 "Orks erfordert. Letztere wiederum sehen darin den Beweis für ihre "
@@ -5959,7 +6020,7 @@ msgstr ""
 "und werden schon in jungen Jahren eingezogen.\n"
 "\n"
 "<header>text='Die Sippen'</header>\n"
-"Die östlichen Provinzen – bekannt als 'Heimat der Sippen' – bestehen, im "
+"Die östlichen Provinzen – bekannt als »Heimat der Sippen« – bestehen, im "
 "Gegensatz zu den stärker bevölkerten Regionen im Westen, aus weitläufigen "
 "Ebenen und sanft rollender Hügeln. Hier sind die Reitersippen ansässig: "
 "verbündet mit der Krone Wesnoths, aber bemüht sie sich Unabhängigkeit und "
@@ -5971,7 +6032,7 @@ msgstr ""
 "Doch sind sie deshalb nicht weniger wehrhaft: die Kampfausbildung gehört in "
 "diese rauen Landen zum alltäglichen Leben. Eltern lehren ihre Kinder früh "
 "das Reiten und Kämpfen vom Pferderücken aus. Alles in allem sind die Klans "
-"zwar weniger gut organisiert als 'zivilisierte' Krieger, doch ergänzen sich "
+"zwar weniger gut organisiert als »zivilisierte« Krieger, doch ergänzen sich "
 "Stärken und Schwächen dieser beiden Gruppen in einer Weise, die höchst "
 "effiziente Armeen hervorbringt."
 
@@ -6305,7 +6366,7 @@ msgid ""
 "travels long or lives in groups smaller than half a dozen.\n"
 "\n"
 "<header>text='Society'</header>\n"
-"Almost every orc are a member of a tribe or a clan. Relations between "
+"Almost every orc is a member of a tribe or a clan. Relations between "
 "neighboring tribes are usually violent, except in cases of a mutual enemy "
 "threatens their existence or prospects of great plunder override mutual "
 "animosity. Occasionally, a single strong chieftain may emerge to lead "
@@ -6388,7 +6449,7 @@ msgstr ""
 "auch in Höhlen. Ackerbau und Viehzucht sind ihnen fremd, doch geben sie – "
 "bedingt durch ihre Körperkraft und Schonungslosigkeit – hervorragende Jäger "
 "ab. Reich an der Zahl sind sie ohne Weiteres fähig, ihr Jagdgebiet binnen "
-"Kurzem von allen Lebewesen zu 'befreien', die größer als Mäuse sind. Dieser "
+"Kurzem von allen Lebewesen zu »befreien«, die größer als Mäuse sind. Dieser "
 "Umstand – zusammen mit dem Problem unbeständiger Anführerschaft – zwingt "
 "viele Orkstämme zu einer halbnomadischen Lebensweise, ohne irgendwo lange zu "
 "verweilen. Große Sippen lassen sich jedoch hier und da für Jahre oder gar "
@@ -6414,7 +6475,7 @@ msgstr ""
 "hat – dafür sorgen die stärkeren Geschwister, die das Meiste von der Nahrung "
 "fordern und Kleinere gleich in ihre Schranken weisen. Viele der Schwächlinge "
 "geben den Traum vom Schwert also früh auf und spezialisieren sich auf andere "
-"Dinge, wie Bogenschießen oder die 'Kunst' der Meuchelei."
+"Dinge, wie Bogenschießen oder die »Kunst« der Meuchelei."
 
 #. [race]: id=troll
 #: data/core/units.cfg:303
@@ -6433,6 +6494,43 @@ msgstr "Trolle"
 
 #. [race]: id=troll
 #: data/core/units.cfg:306
+#, fuzzy
+#| msgid ""
+#| "Trolls are ancient creatures, one of the oldest known races known to "
+#| "inhabit the Great Continent. They are large, slow, simple-minded, and "
+#| "live extremely long lives inside deep caves or atop high mountains. The "
+#| "most unique characteristic of trolls is an internal vitality that "
+#| "sustains and heals them from within. As a result they live very different "
+#| "lives from almost any known creature. Trolls have few real needs: they "
+#| "require little food or water, and thus they have little incentive to "
+#| "pursue much besides protection from those who are hostile towards them. "
+#| "This in turn means they rarely have to worry about anything and can spend "
+#| "much of their time sleeping or in contemplation. Trolls have a curious "
+#| "affinity with nature. They do not relate with living things like elves "
+#| "do, but instead with earth and stone. They are also somewhat curious of "
+#| "their surroundings and many younger whelps even enjoy traveling and "
+#| "seeing the world. As trolls grow older they tend to become increasingly "
+#| "passive, gradually losing interest in their environment and spending more "
+#| "of their time sleeping in a quiet, familiar corner of their home cave. "
+#| "This is until they finally pass away as their bodies themselves slowly "
+#| "turn into lifeless statues of stone.\n"
+#| "\n"
+#| "Trolls are seen by many as being little more than yet another race of "
+#| "savage monsters. This common misconception is in part perpetuated by orcs "
+#| "to persuade trolls to join their armies. Because they are rather simple "
+#| "and do not understand the ways of other races or sometimes can even tell "
+#| "them apart, it is usually easy for an orcish band to convince a group of "
+#| "trolls that by joining them they get to exact revenge on those that have "
+#| "before hunted them. These new recruits are then directed to attack "
+#| "whoever the orcs themselves are currently in conflict with, whether "
+#| "previously a foe of the trolls or not, accumulating even more enemies for "
+#| "the misled trolls. The most common enemy of trolls are dwarves, and the "
+#| "animosity between these two races is ancient.\n"
+#| "\n"
+#| "<header>text='Geography'</header>\n"
+#| "Trolls have inhabited the mountains of the Great Continent longer than "
+#| "the dwarves who migrated there. Trolls are a common sight on the mountain "
+#| "ranges north and east of Wesnoth, and wherever Orcish hordes travel."
 msgid ""
 "Trolls are ancient creatures, one of the oldest known races known to inhabit "
 "the Great Continent. They are large, slow, simple-minded, and live extremely "
@@ -6455,7 +6553,7 @@ msgid ""
 "Trolls are seen by many as being little more than yet another race of savage "
 "monsters. This common misconception is in part perpetuated by orcs to "
 "persuade trolls to join their armies. Because they are rather simple and do "
-"not understand the ways of other races or sometimes can even tell them "
+"not understand the ways of other races or sometimes cannot even tell them "
 "apart, it is usually easy for an orcish band to convince a group of trolls "
 "that by joining them they get to exact revenge on those that have before "
 "hunted them. These new recruits are then directed to attack whoever the orcs "
@@ -6557,8 +6655,8 @@ msgid ""
 "only in the wake of Haldric I, they were not completely unheard of by elves "
 "and dwarves before that."
 msgstr ""
-"Wenn auch gemeinhin oft so dargestellt, ist mit den 'Untoten' kein Volk oder "
-"im eigentlichen Sinn gemeint. Ein kundiger Totenbeschwörer weiß so gut wie "
+"Wenn auch gemeinhin oft so dargestellt, ist mit den »Untoten« kein Volk im "
+"eigentlichen Sinn gemeint. Ein kundiger Totenbeschwörer weiß so gut wie "
 "jedes tote Geschöpf in ein untotes Dasein zu zwingen. Zu völliger "
 "Willenlosigkeit verdammt dienen sie ihrem Herren danach in "
 "unerschütterlichem Gehorsam.\n"
@@ -6693,17 +6791,39 @@ msgstr ""
 "durch diese tragischerweise leicht den Flammen zum Opfer. Ebenso macht ihre "
 "magische Essenz sie ausgesprochen verwundbar für arkane Zauber."
 
-#: src/help/help.cpp:184
+#: src/help/help.cpp:185
 msgid "Close"
 msgstr "Schließen"
 
-#: src/help/help.cpp:187
+#: src/help/help.cpp:188
 msgid "The Battle for Wesnoth Help"
 msgstr "Hilfe zu Battle for Wesnoth"
 
 #: src/help/help.cpp:243
 msgid "Parse error when parsing help text: "
 msgstr "Fehler beim Analysieren des Hilfetextes: "
+
+#, fuzzy
+#~| msgid ""
+#~| "In combat, your units will inevitably take damage. When a unit "
+#~| "<ref>dst='experience_and_advancement' text='advances'</ref>, it will "
+#~| "heal fully. This can happen as you finish fighting an enemy, whether it "
+#~| "is your turn or not. Wesnoth offers several other ways for your units to "
+#~| "heal, all of which take place at the beginning of your turn, before you "
+#~| "take action."
+#~ msgid ""
+#~ "In combat, your units will inevitably take damage. When a unit "
+#~ "<ref>dst='advancement' text='advances'</ref>, it will heal fully. This "
+#~ "can happen as you finish fighting an enemy, whether it is your turn or "
+#~ "not. Wesnoth offers several other ways for your units to heal, all of "
+#~ "which take place at the beginning of your turn, before you take action."
+#~ msgstr ""
+#~ "In all den Schlachten tragen Eure Einheiten unvermeidlich Verletzungen "
+#~ "davon. Per <ref>dst='experience_and_advancement' text='Stufenaufstieg'</"
+#~ "ref> werden sie vollständig geheilt – das kann am Ende eines Kampfes "
+#~ "geschehen, einerlei wer am Zug ist. Selbstverständlich gibt es in Wesnoth "
+#~ "noch andere Möglichkeiten, wieder zu gesunden. Jede Heilung vollzieht "
+#~ "sich zu Beginn Eures Zuges, bevor Ihr etwas unternehmt."
 
 #~ msgid "Factions"
 #~ msgstr "Fraktionen"

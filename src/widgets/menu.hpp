@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2003 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2003 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -165,7 +165,7 @@ public:
 
 	menu(CVideo& video, const std::vector<std::string>& items,
 	     bool click_selects=false, int max_height=-1, int max_width=-1,
-		 const sorter* sorter_obj=NULL, style *menu_style=NULL, const bool auto_join=true);
+		 const sorter* sorter_obj=nullptr, style *menu_style=nullptr, const bool auto_join=true);
 
 	/** Default implementation, but defined out-of-line for efficiency reasons. */
 	~menu();
@@ -199,6 +199,9 @@ public:
 	void set_max_height(const int new_max_height);
 	void set_max_width(const int new_max_width);
 
+	int get_max_height() { return max_height_; }
+	int get_max_width() { return max_width_; }
+
 	size_t number_of_items() const { return items_.size(); }
 
 	int process();
@@ -222,7 +225,7 @@ protected:
 	virtual void handle_event(const SDL_Event& event);
 	void set_inner_location(const SDL_Rect& rect);
 
-	bool requires_event_focus(const SDL_Event *event=NULL) const;
+	bool requires_event_focus(const SDL_Event *event=nullptr) const;
 	const std::vector<int>& column_widths() const;
 	virtual void draw_row(const size_t row_index, const SDL_Rect& rect, ROW_TYPE type);
 

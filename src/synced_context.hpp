@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2014 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2014 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -14,16 +14,19 @@
 #ifndef SYNCED_CONTEXT_H_INCLUDED
 #define SYNCED_CONTEXT_H_INCLUDED
 
-#include "utils/boost_function_guarded.hpp"
+#include "utils/functional.hpp"
 #include "synced_commands.hpp"
 #include "synced_checkup.hpp"
 #include "replay.hpp"
 #include "random_new.hpp"
 #include "random_new_synced.hpp"
+#include "game_events/pump.hpp" // for queued_event
 #include "generic_event.hpp"
 #include "mouse_handler_base.hpp"
 #include <boost/shared_ptr.hpp>
 #include <boost/scoped_ptr.hpp>
+#include <deque>
+
 class config;
 
 //only static methods.
@@ -33,7 +36,7 @@ public:
 	enum synced_state
 	{
 		UNSYNCED,
-		SYNCED, 
+		SYNCED,
 		LOCAL_CHOICE
 	};
 	/**
@@ -144,6 +147,14 @@ public:
 		if we are in a mp game, ask the server, otherwise generate the answer ourselves.
 	*/
 	static config ask_server_choice(const server_choice&);
+
+	typedef std::deque<std::pair<config,game_events::queued_event>> event_list;
+	static event_list& get_undo_commands() { return undo_commands_; }
+	static event_list& get_redo_commands() { return redo_commands_; }
+	static void add_undo_commands(const config& commands, const game_events::queued_event& ctx);
+	static void add_redo_commands(const config& commands, const game_events::queued_event& ctx);
+	static void reset_undo_commands();
+	static void reset_redo_commands();
 private:
 	/*
 		weather we are in a synced move, in a user_choice, or none of them
@@ -154,12 +165,22 @@ private:
 		It's impossible to undo data that has been sended over the network.
 
 		false = we are on a local turn and haven't sended anything yet.
+
+		TODO: it would be better if the following variable were not static.
 	*/
 	static bool is_simultaneously_;
 	/**
 		Used to restore the unit id manager when undoing.
 	*/
 	static int last_unit_id_;
+	/**
+		Actions wml to be executed when the current actio is undone.
+	*/
+	static event_list undo_commands_;
+	/**
+		Actions wml to be executed when the current actio is redone.
+	*/
+	static event_list redo_commands_;
 };
 
 

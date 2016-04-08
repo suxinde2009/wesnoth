@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2009 - 2015 by Mark de Wever <koraq@xs4all.nl>
+   Copyright (C) 2009 - 2016 by Mark de Wever <koraq@xs4all.nl>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -32,9 +32,7 @@
 
 #include "gui/widgets/grid.hpp"
 
-#include "utils/const_clone.tpp"
-
-#include <boost/foreach.hpp>
+#include "utils/const_clone.hpp"
 
 namespace gui2
 {
@@ -59,7 +57,7 @@ struct tgrid_implementation
 					  const bool must_be_active)
 	{
 		typedef typename utils::tconst_clone<tgrid::tchild, W>::type hack;
-		BOOST_FOREACH(hack & child, grid.children_)
+		for(hack & child : grid.children_)
 		{
 
 			W* widget = child.widget();
@@ -95,7 +93,7 @@ struct tgrid_implementation
 		}
 
 		typedef typename utils::tconst_clone<tgrid::tchild, W>::type hack;
-		BOOST_FOREACH(hack & child, grid.children_)
+		for(hack & child : grid.children_)
 		{
 
 			widget = child.widget();

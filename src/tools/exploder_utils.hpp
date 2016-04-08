@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2004 - 2015 by Philippe Plantier <ayin@anathas.org>
+   Copyright (C) 2004 - 2016 by Philippe Plantier <ayin@anathas.org>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org
 
    This program is free software; you can redistribute it and/or modify
@@ -15,7 +15,7 @@
 #ifndef EXPLODER_UTILS_HPP_INCLUDED
 #define EXPLODER_UTILS_HPP_INCLUDED
 
-#include "../sdl/utils.hpp"
+#include "sdl/utils.hpp"
 #include <string>
 
 struct exploder_failure

@@ -25,7 +25,6 @@
 
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
-#include <boost/foreach.hpp>
 #include <boost/system/windows_error.hpp>
 #include <boost/iostreams/device/file_descriptor.hpp>
 #include <boost/iostreams/stream.hpp>
@@ -34,8 +33,12 @@
 using boost::uintmax_t;
 
 #ifdef _WIN32
+#include "log_windows.hpp"
+
 #include <boost/locale.hpp>
+
 #include <windows.h>
+#include <shlobj.h>
 #endif /* !_WIN32 */
 
 #include "config.hpp"
@@ -169,12 +172,12 @@ namespace {
 			catch(...)
 			{
 				ERR_FS << "Invalid UTF-16 string" << std::endl;
-				return std::codecvt_base::error;	
+				return std::codecvt_base::error;
 			}
 			return std::codecvt_base::ok;
 		}
 	};
-	
+
 #ifdef _WIN32
 	class static_runner {
 	public:
@@ -195,7 +198,7 @@ namespace {
 namespace filesystem {
 
 static void push_if_exists(std::vector<std::string> *vec, const path &file, bool full) {
-	if (vec != NULL) {
+	if (vec != nullptr) {
 		if (full)
 			vec->push_back(file.generic_string());
 		else
@@ -349,7 +352,7 @@ void get_files_in_dir(const std::string &dir,
 			}
 			push_if_exists(files, di->path(), mode == ENTIRE_FILE_PATH);
 
-			if (checksum != NULL) {
+			if (checksum != nullptr) {
 				std::time_t mtime = bfs::last_write_time(di->path(), ec);
 				if (ec) {
 					LOG_FS << "Failed to read modification time of " << di->path().string() << ": " << ec.message() << '\n';
@@ -367,7 +370,7 @@ void get_files_in_dir(const std::string &dir,
 			}
 		} else if (st.type() == bfs::directory_file) {
 			std::string basename = di->path().filename().string();
-			
+
 			if(!basename.empty() && basename[0] == '.' )
 				continue;
 			if (filter == SKIP_MEDIA_DIR
@@ -387,13 +390,13 @@ void get_files_in_dir(const std::string &dir,
 		}
 	}
 
-	if (files != NULL)
+	if (files != nullptr)
 		std::sort(files->begin(),files->end());
 
-	if (dirs != NULL)
+	if (dirs != nullptr)
 		std::sort(dirs->begin(),dirs->end());
 
-	if (files != NULL && reorder == DO_REORDER) {
+	if (files != nullptr && reorder == DO_REORDER) {
 		// move finalcfg_filename, if present, to the end of the vector
 		for (unsigned int i = 0; i < files->size(); i++) {
 			if (ends_with((*files)[i], "/" + finalcfg_filename)) {
@@ -444,7 +447,6 @@ std::string get_next_filename(const std::string& name, const std::string& extens
 
 static path user_data_dir, user_config_dir, cache_dir;
 
-#ifndef _WIN32
 static const std::string& get_version_path_suffix()
 {
 	static std::string suffix;
@@ -461,7 +463,6 @@ static const std::string& get_version_path_suffix()
 
 	return suffix;
 }
-#endif
 
 static void setup_user_data_dir()
 {
@@ -479,42 +480,70 @@ static void setup_user_data_dir()
 	create_directory_if_missing(user_data_dir / "data" / "add-ons");
 	create_directory_if_missing(user_data_dir / "saves");
 	create_directory_if_missing(user_data_dir / "persist");
+
+#ifdef _WIN32
+	lg::finish_log_file_setup();
+#endif
 }
+
+#ifdef _WIN32
+// As a convenience for portable installs on Windows, relative paths with . or
+// .. as the first component are considered relative to the current workdir
+// instead of Documents/My Games.
+static bool is_path_relative_to_cwd(const std::string& str)
+{
+	const path p(str);
+
+	if(p.empty()) {
+		return false;
+	}
+
+	return *p.begin() == "." || *p.begin() == "..";
+}
+#endif
+
 void set_user_data_dir(std::string newprefdir)
 {
+#ifdef PREFERENCES_DIR
+	if (newprefdir.empty()) newprefdir = PREFERENCES_DIR;
+#endif
+
 #ifdef _WIN32
-	if(newprefdir.empty()) {
-		user_data_dir = path(get_cwd()) / "userdata";
-	} else if (newprefdir.size() > 2 && newprefdir[1] == ':') {
+	if(newprefdir.size() > 2 && newprefdir[1] == ':') {
 		//allow absolute path override
 		user_data_dir = newprefdir;
+	} else if(is_path_relative_to_cwd(newprefdir)) {
+		// Custom directory relative to workdir (for portable installs, etc.)
+		user_data_dir = get_cwd() + "/" + newprefdir;
 	} else {
-		typedef BOOL (WINAPI *SHGSFPAddress)(HWND, LPWSTR, int, BOOL);
-		SHGSFPAddress SHGetSpecialFolderPathW;
-		HMODULE module = LoadLibraryA("shell32");
-		SHGetSpecialFolderPathW = reinterpret_cast<SHGSFPAddress>(GetProcAddress(module, "SHGetSpecialFolderPathW"));
-		if(SHGetSpecialFolderPathW) {
-			LOG_FS << "Using SHGetSpecialFolderPath to find My Documents\n";
-			wchar_t my_documents_path[MAX_PATH];
-			if(SHGetSpecialFolderPathW(NULL, my_documents_path, 5, 1)) {
-				path mygames_path = path(my_documents_path) / "My Games";
-				create_directory_if_missing(mygames_path);
-				user_data_dir = mygames_path / newprefdir;
-			} else {
-				WRN_FS << "SHGetSpecialFolderPath failed\n";
-				user_data_dir = path(get_cwd()) / newprefdir;
-			}
-		} else {
-			LOG_FS << "Failed to load SHGetSpecialFolderPath function\n";
+		if(newprefdir.empty()) {
+			newprefdir = "Wesnoth" + get_version_path_suffix();
+		}
+
+		wchar_t docs_path[MAX_PATH];
+
+		HRESULT res = SHGetFolderPathW(nullptr,
+									   CSIDL_PERSONAL | CSIDL_FLAG_CREATE, nullptr,
+									   SHGFP_TYPE_CURRENT,
+									   docs_path);
+		if(res != S_OK) {
+			//
+			// Crummy fallback path full of pain and suffering.
+			//
+			ERR_FS << "Could not determine path to user's Documents folder! ("
+				   << std::hex << "0x" << res << std::dec << ") "
+				   << "User config/data directories may be unavailable for "
+				   << "this session. Please report this as a bug.\n";
 			user_data_dir = path(get_cwd()) / newprefdir;
+		} else {
+			path games_path = path(docs_path) / "My Games";
+			create_directory_if_missing(games_path);
+
+			user_data_dir = games_path / newprefdir;
 		}
 	}
 
 #else /*_WIN32*/
-
-#ifdef PREFERENCES_DIR
-	if (newprefdir.empty()) newprefdir = PREFERENCES_DIR;
-#endif
 
 	std::string backupprefdir = ".wesnoth" + get_version_path_suffix();
 
@@ -573,9 +602,7 @@ void set_user_config_dir(std::string newconfigdir)
 
 static const path &get_user_data_path()
 {
-	// TODO:
-	// This function is called frequently. The file_exists call may slow things down a lot.
-	if (user_data_dir.empty() || !file_exists(user_data_dir))
+	if (user_data_dir.empty())
 	{
 		set_user_data_dir(std::string());
 	}
@@ -644,17 +671,29 @@ std::string get_cwd()
 }
 std::string get_exe_dir()
 {
-#ifndef _WIN32
-	path self_exe("/proc/self/exe");
-	error_code ec;
-	path exe = bfs::read_symlink(self_exe, ec);
-	if (ec) {
-		return std::string();
-	}
+#ifdef _WIN32
+    wchar_t process_path[MAX_PATH];
+    SetLastError(ERROR_SUCCESS);
+    GetModuleFileNameW(nullptr, process_path, MAX_PATH);
+    if (GetLastError() != ERROR_SUCCESS) {
+        return get_cwd();
+    }
 
-	return exe.parent_path().string();
+    path exe(process_path);
+    return exe.parent_path().string();
 #else
-	return get_cwd();
+    if (bfs::exists("/proc/")) {
+        path self_exe("/proc/self/exe");
+        error_code ec;
+        path exe = bfs::read_symlink(self_exe, ec);
+        if (ec) {
+            return std::string();
+        }
+
+        return exe.parent_path().string();
+    } else {
+        return get_cwd();
+    }
 #endif
 }
 
@@ -723,7 +762,7 @@ std::string read_file(const std::string &fname)
 	return ss.str();
 }
 
-#if BOOST_VERSION < 1048000
+#if BOOST_VERSION < 104800
 //boost iostream < 1.48 expects boost filesystem v2 paths. This is an adapter
 struct iostream_path
 {
@@ -778,7 +817,7 @@ std::istream *istream_file(const std::string &fname, bool treat_failure_as_error
 	}
 }
 
-std::ostream *ostream_file(std::string const &fname)
+std::ostream *ostream_file(std::string const &fname, bool create_directory)
 {
 	LOG_FS << "streaming " << fname << " for writing.\n";
 #if 1
@@ -789,6 +828,12 @@ std::ostream *ostream_file(std::string const &fname)
 	}
 	catch(BOOST_IOSTREAMS_FAILURE& e)
 	{
+		// If this operation failed because the parent directoy didn't exist, create the parent directoy and retry.
+		error_code ec_unused;
+		if(create_directory && bfs::create_directories(bfs::path(fname).parent_path(), ec_unused))
+		{
+			return ostream_file(fname, false);
+		}
 		throw filesystem::io_exception(e.what());
 	}
 #else
@@ -956,7 +1001,7 @@ void binary_paths_manager::set_paths(const config& cfg)
 	cleanup();
 	init_binary_paths();
 
-	BOOST_FOREACH(const config &bp, cfg.child_range("binary_path"))
+	for (const config &bp : cfg.child_range("binary_path"))
 	{
 		std::string path = bp["path"].str();
 		if (path.find("..") != std::string::npos) {
@@ -1030,7 +1075,7 @@ const std::vector<std::string>& get_binary_paths(const std::string& type)
 
 	init_binary_paths();
 
-	BOOST_FOREACH(const std::string &path, binary_paths)
+	for(const std::string &path : binary_paths)
 	{
 		res.push_back(get_user_data_dir() + "/" + path + type + "/");
 
@@ -1050,12 +1095,12 @@ const std::vector<std::string>& get_binary_paths(const std::string& type)
 
 std::string get_binary_file_location(const std::string& type, const std::string& filename)
 {
-	// We define ".." as "remove everything before" this is needed becasue 
-	// on the one hand allowing ".." would be a security risk but 
+	// We define ".." as "remove everything before" this is needed becasue
+	// on the one hand allowing ".." would be a security risk but
 	// especialy for terrains the c++ engine puts a hardcoded "terrain/" before filename
-	// and there would be no way to "escape" from "terrain/" otherwise. This is not the 
+	// and there would be no way to "escape" from "terrain/" otherwise. This is not the
 	// best solution but we cannot remove it without another solution (subtypes maybe?).
-	
+
 	// using 'for' instead 'if' to allow putting delcaration and check into the brackets
 	for(std::string::size_type pos = filename.rfind("../"); pos != std::string::npos;)
 		return get_binary_file_location(type, filename.substr(pos + 3));
@@ -1063,7 +1108,7 @@ std::string get_binary_file_location(const std::string& type, const std::string&
 	if (!is_legal_file(filename))
 		return std::string();
 
-	BOOST_FOREACH(const std::string &bp, get_binary_paths(type))
+	for(const std::string &bp : get_binary_paths(type))
 	{
 		path bpath(bp);
 		bpath /= filename;
@@ -1083,7 +1128,7 @@ std::string get_binary_dir_location(const std::string &type, const std::string &
 	if (!is_legal_file(filename))
 		return std::string();
 
-	BOOST_FOREACH(const std::string &bp, get_binary_paths(type))
+	for (const std::string &bp : get_binary_paths(type))
 	{
 		path bpath(bp);
 		bpath /= filename;

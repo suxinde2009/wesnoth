@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2007 - 2015 by Mark de Wever <koraq@xs4all.nl>
+   Copyright (C) 2007 - 2016 by Mark de Wever <koraq@xs4all.nl>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -16,8 +16,8 @@
 
 #include "gui/widgets/settings.hpp"
 #include "gui/widgets/window.hpp"
-#include "gui/auxiliary/event/message.hpp"
-#include "gui/auxiliary/log.hpp"
+#include "gui/core/event/message.hpp"
+#include "gui/core/log.hpp"
 #include "sdl/rect.hpp"
 
 namespace gui2
@@ -27,7 +27,7 @@ namespace gui2
 
 twidget::twidget()
 	: id_("")
-	, parent_(NULL)
+	, parent_(nullptr)
 	, x_(-1)
 	, y_(-1)
 	, width_(0)
@@ -51,7 +51,7 @@ twidget::twidget()
 
 twidget::twidget(const tbuilder_widget& builder)
 	: id_(builder.id)
-	, parent_(NULL)
+	, parent_(nullptr)
 	, x_(-1)
 	, y_(-1)
 	, width_(0)
@@ -81,7 +81,7 @@ twidget::~twidget()
 
 	twidget* p = parent();
 	while(p) {
-		fire(event::NOTIFY_REMOVAL, *p, NULL);
+		fire(event::NOTIFY_REMOVAL, *p, nullptr);
 		p = p->parent();
 	}
 
@@ -123,7 +123,7 @@ twindow* twidget::get_window()
 		result = result->parent_;
 	}
 
-	// on error dynamic_cast returns NULL which is what we want.
+	// on error dynamic_cast returns nullptr which is what we want.
 	return dynamic_cast<twindow*>(result);
 }
 
@@ -137,14 +137,14 @@ const twindow* twidget::get_window() const
 		result = result->parent_;
 	}
 
-	// on error dynamic_cast returns NULL which is what we want.
+	// on error dynamic_cast returns nullptr which is what we want.
 	return dynamic_cast<const twindow*>(result);
 }
 
 tdialog* twidget::dialog()
 {
 	twindow* window = get_window();
-	return window ? window->dialog() : NULL;
+	return window ? window->dialog() : nullptr;
 }
 
 void twidget::set_parent(twidget* parent)
@@ -192,6 +192,13 @@ tpoint twidget::get_best_size() const
 	tpoint result = layout_size_;
 	if(result == tpoint(0, 0)) {
 		result = calculate_best_size();
+		//Adjust to linked widget size if linked widget size was already calculated.
+		if(!get_window()->get_need_layout() && !linked_group_.empty())
+		{
+			tpoint linked_size = get_window()->get_linked_size(linked_group_);
+			result.x = std::max(result.x, linked_size.x);
+			result.y = std::max(result.y, linked_size.y);
+		}
 	}
 
 #ifdef DEBUG_WINDOW_LAYOUT_GRAPHS
@@ -346,20 +353,6 @@ void twidget::draw_background(surface& frame_buffer, int x_offset, int y_offset)
 	}
 }
 
-void twidget::draw_background(surface& frame_buffer)
-{
-	assert(visible_ == tvisible::visible);
-
-	if(redraw_action_ == tredraw_action::partly) {
-		clip_rect_setter clip(frame_buffer, &clipping_rectangle_);
-		draw_debug_border(frame_buffer);
-		impl_draw_background(frame_buffer);
-	} else {
-		draw_debug_border(frame_buffer);
-		impl_draw_background(frame_buffer);
-	}
-}
-
 void twidget::draw_children(surface& frame_buffer, int x_offset, int y_offset)
 {
 	assert(visible_ == tvisible::visible);
@@ -375,18 +368,6 @@ void twidget::draw_children(surface& frame_buffer, int x_offset, int y_offset)
 	}
 }
 
-void twidget::draw_children(surface& frame_buffer)
-{
-	assert(visible_ == tvisible::visible);
-
-	if(redraw_action_ == tredraw_action::partly) {
-		clip_rect_setter clip(frame_buffer, &clipping_rectangle_);
-		impl_draw_children(frame_buffer);
-	} else {
-		impl_draw_children(frame_buffer);
-	}
-}
-
 void twidget::draw_foreground(surface& frame_buffer, int x_offset, int y_offset)
 {
 	assert(visible_ == tvisible::visible);
@@ -399,18 +380,6 @@ void twidget::draw_foreground(surface& frame_buffer, int x_offset, int y_offset)
 		impl_draw_foreground(frame_buffer, x_offset, y_offset);
 	} else {
 		impl_draw_foreground(frame_buffer, x_offset, y_offset);
-	}
-}
-
-void twidget::draw_foreground(surface& frame_buffer)
-{
-	assert(visible_ == tvisible::visible);
-
-	if(redraw_action_ == tredraw_action::partly) {
-		clip_rect_setter clip(frame_buffer, &clipping_rectangle_);
-		impl_draw_foreground(frame_buffer);
-	} else {
-		impl_draw_foreground(frame_buffer);
 	}
 }
 
@@ -577,24 +546,24 @@ twidget::draw_debug_border(surface& frame_buffer, int x_offset, int y_offset)
 
 twidget* twidget::find_at(const tpoint& coordinate, const bool must_be_active)
 {
-	return is_at(coordinate, must_be_active) ? this : NULL;
+	return is_at(coordinate, must_be_active) ? this : nullptr;
 }
 
 const twidget* twidget::find_at(const tpoint& coordinate,
 								const bool must_be_active) const
 {
-	return is_at(coordinate, must_be_active) ? this : NULL;
+	return is_at(coordinate, must_be_active) ? this : nullptr;
 }
 
 twidget* twidget::find(const std::string& id, const bool /*must_be_active*/)
 {
-	return id_ == id ? this : NULL;
+	return id_ == id ? this : nullptr;
 }
 
 const twidget* twidget::find(const std::string& id,
 							 const bool /*must_be_active*/) const
 {
-	return id_ == id ? this : NULL;
+	return id_ == id ? this : nullptr;
 }
 
 bool twidget::has_widget(const twidget& widget) const

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2014 - 2015 by Chris Beck <render787@gmail.com>
+   Copyright (C) 2014 - 2016 by Chris Beck <render787@gmail.com>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -38,7 +38,7 @@ public:
 	twindow* build_window(CVideo& video);
 
 	/** Inherited from tdialog. */
-	void pre_show(CVideo& video, twindow& window);
+	void pre_show(twindow& window);
 
 	enum WHICH_KERNEL { APP, GAME };
 	static void display(CVideo& video, lua_kernel_base * lk);

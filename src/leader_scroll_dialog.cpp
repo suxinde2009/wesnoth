@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2003 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2003 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -19,17 +19,14 @@
 
 #include "leader_scroll_dialog.hpp"
 #include "wml_separators.hpp"
-#include "map.hpp"
+#include "map/map.hpp"
 
 //#include "construct_dialog.hpp"
 //#include "display.hpp"
 //#include "gettext.hpp"
 #include "marked-up_text.hpp"
 #include "resources.hpp"
-#include "unit.hpp"
-
-//
-//#include <boost/foreach.hpp>
+#include "units/unit.hpp"
 
 /**
  * @namespace about
@@ -240,7 +237,7 @@ void scenario_settings_table(display& gui, int selected)
 		}
 
 		str << COLUMN_SEPARATOR	<< team::get_side_highlight(n)
-			<< teams[n].current_player() << COLUMN_SEPARATOR
+			<< teams[n].side_name() << COLUMN_SEPARATOR
 			<< n + 1 << COLUMN_SEPARATOR
 			<< teams[n].start_gold() << COLUMN_SEPARATOR
 			<< teams[n].base_income() << COLUMN_SEPARATOR

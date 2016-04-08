@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2004 - 2015 by Philippe Plantier <ayin@anathas.org>
+   Copyright (C) 2004 - 2016 by Philippe Plantier <ayin@anathas.org>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org
 
    This program is free software; you can redistribute it and/or modify
@@ -172,16 +172,16 @@ void save_image(surface surf, const std::string &filename)
 	const util::scoped_FILE file(fopen(filename.c_str(),"wb"));
 
 	//initializes PNG write structures
-	//TODO: review whether providing NULL error handlers is something
+	//TODO: review whether providing nullptr error handlers is something
 	//sensible
 	png_struct* png_ptr = png_create_write_struct
-		(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+		(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
 	if(!png_ptr)
 		throw exploder_failure("Unable to initialize the png write structure");
 
 	png_info* info_ptr = png_create_info_struct(png_ptr);
 	if(!info_ptr) {
-		png_destroy_write_struct(&png_ptr, NULL);
+		png_destroy_write_struct(&png_ptr, nullptr);
 		throw exploder_failure("Unable to initialize the png info structure");
 	}
 
@@ -224,7 +224,7 @@ void save_image(surface surf, const std::string &filename)
 	png_set_rows(png_ptr, info_ptr, row_pointers);
 
 	//writes the actual image data
-	png_write_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
+	png_write_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, nullptr);
 
 	//cleans everything
 	png_write_end(png_ptr, info_ptr);

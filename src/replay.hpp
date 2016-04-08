@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2003 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2003 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -20,10 +20,10 @@
 #ifndef REPLAY_H_INCLUDED
 #define REPLAY_H_INCLUDED
 
-#include "config.hpp"
-#include "map_location.hpp"
+#include "map/location.hpp"
 
 #include <deque>
+#include <iterator>
 #include <map>
 #include <set>
 class replay_recorder_base;
@@ -31,6 +31,7 @@ class game_display;
 class terrain_label;
 class unit_map;
 class play_controller;
+class config;
 struct time_of_day;
 
 class chat_msg {
@@ -53,7 +54,7 @@ class replay
 public:
 	explicit replay(replay_recorder_base& base);
 
-	
+
 	void add_start();
 	void add_countdown_update(int value,int team);
 
@@ -78,8 +79,12 @@ public:
 	void add_log_data(const std::string &category, const std::string &key, const std::string &var);
 	void add_log_data(const std::string &category, const std::string &key, const config& c);
 
-
-	void add_chat_message_location();
+	/**
+		adds a chat message if it wasn't added yet.
+		@returns true if a message location was added
+	*/
+	bool add_chat_message_location();
+	bool add_chat_message_location(int pos);
 	void speak(const config& cfg);
 	const std::vector<chat_msg>& build_chat_log();
 
@@ -112,7 +117,6 @@ public:
 	bool at_end() const;
 	void set_to_end();
 
-	void clear();
 	bool empty();
 
 	enum MARK_SENT { MARK_AS_UNSENT, MARK_AS_SENT };
@@ -126,6 +130,7 @@ public:
 		returns true if a [start] was added.
 	*/
 	bool add_start_if_not_there_yet();
+	void delete_upcoming_commands();
 private:
 
 	void add_chat_log_entry(const config &speak, std::back_insert_iterator< std::vector<chat_msg> > &i) const;
@@ -152,6 +157,7 @@ enum REPLAY_RETURN
 	REPLAY_RETURN_AT_END,
 	REPLAY_FOUND_DEPENDENT,
 	REPLAY_FOUND_END_TURN,
+	REPLAY_FOUND_INIT_TURN,
 	REPLAY_FOUND_END_MOVE,
 	REPLAY_FOUND_END_LEVEL
 };
@@ -173,54 +179,5 @@ private:
 	replay& obj_;
 	int upto_;
 };
-
-namespace mp_sync {
-
-/**
- * Interface for querying local choices.
- * It has to support querying the user and making a random choice
- */
-struct user_choice
-{
-	virtual ~user_choice() {}
-	virtual config query_user(int side) const = 0;
-	virtual config random_choice(int side) const = 0;
-	///whether the choice is visible for the user like an advacement choice
-	///a non-visible choice is for example get_global_variable
-	virtual bool is_visible() const { return true; }
-};
-
-/**
- * Performs a choice for WML events.
- *
- * The choice is synchronized across all the multiplayer clients and
- * stored into the replay. The function object is called if the local
- * client is responsible for making the choice.
- * otherwise this function waits for a remote choice and returns it when it is received.
- * information about the choice made is saved in replay with dependent=true
- *
- * @param name Tag used for storing the choice into the replay.
- * @param side The number of the side responsible for making the choice.
- *             If zero, it defaults to the currently active side.
- *
- * @note In order to prevent issues with sync, crash, or infinite loop, a
- *       number of precautions must be taken when getting a choice from a
- *       specific side.
- *       - The server must recognize @name replay commands as legal from
- *         non-active players. Preferably the server should be notified
- *         about which player the data is expected from, and discard data
- *         from unexpected players.
- */
-config get_user_choice(const std::string &name, const user_choice &uch,
-	int side = 0);
-/**
- * Performs a choice for mutiple sides for WML events.
- * uch is called on all sies specified in sides, this in done simulaniously on all those sides (or one after another if one client controlls mutiple sides)
- * and after all calls are executed the results are returned.
- */
-std::map<int, config> get_user_choice_multiple_sides(const std::string &name, const user_choice &uch,
-	std::set<int> sides);
-
-}
 
 #endif

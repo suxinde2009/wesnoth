@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: wesnoth-1.12\n"
 "Report-Msgid-Bugs-To: http://bugs.wesnoth.org/\n"
-"POT-Creation-Date: 2015-06-27 20:18-0300\n"
+"POT-Creation-Date: 2016-03-01 19:50-0300\n"
 "PO-Revision-Date: 2015-02-07 13:07+0800\n"
 "Last-Translator: CloudiDust <cloudidust@gmail.com>\n"
 "Language-Team: Wesnoth Simplified Chinese Team\n"
@@ -100,12 +100,12 @@ msgstr ""
 "此时代仍在开发中，因此请务必报告出现的一切问题。"
 
 #. [lua]: f
-#: data/multiplayer/eras.lua:65
+#: data/multiplayer/eras.lua:921
 msgid "<span strikethrough='true' foreground='#%02x%02x%02x'>Side %d</span>"
 msgstr "<span strikethrough='true' foreground='#%02x%02x%02x'>阵营 %d</span>"
 
 #. [lua]: f
-#: data/multiplayer/eras.lua:81
+#: data/multiplayer/eras.lua:937
 msgid ""
 "<span foreground='#%02x%02x%02x'>Side %d</span>:  Income score = %d  Unit "
 "score = %d  Gold = %d"
@@ -114,12 +114,12 @@ msgstr ""
 "%d  金币 = %d"
 
 #. [lua]: f
-#: data/multiplayer/eras.lua:81
+#: data/multiplayer/eras.lua:937
 msgid "Grand total: <b>%d</b>"
 msgstr "总得分：<b>%d</b>"
 
 #. [lua]: f
-#: data/multiplayer/eras.lua:91
+#: data/multiplayer/eras.lua:947
 msgid "<span foreground='%s'>Side %d</span> has the advantage."
 msgstr "<span foreground='%s'>阵营 %d</span> 取得了优势。"
 
@@ -946,97 +946,53 @@ msgstr ""
 "\n"
 "注意：您需要使用地图设置，以便让这个场景能够正确运行。"
 
-#. [message]: speaker=narrator
-#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:371
-msgid ""
-"The screams and pleas for mercy are finally silenced, as you remove your "
-"blood soaked blade from the last of the rebels. There will be no more "
-"resistance from the local scum. Your reign has finally earned stability."
-msgstr ""
-"当您把浴血的剑刃从最后一个反抗者的体内拔出来时，尖叫声和求饶声最终都消散了。"
-"再也不会有本地渣滓们的反抗，您的统治终于稳定了下来。"
-
-#. [message]
-#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:703
-msgid ""
-"The last and most powerful of these creatures are almost upon us. I feel "
-"that if we can finish them off in time, we shall be victorious."
-msgstr ""
-"这些生物中最后也是最强的家伙就要来到我们面前了。我觉得如果我们能在时限内解决"
-"他们的话，那我们就能赢！"
-
-#. [case]
-#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:870
-msgid "Heavy Snowfall"
-msgstr "大雪"
-
-#. [case]
-#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:880
-msgid "Snowfall"
-msgstr "降雪"
-
-#. [case]
-#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:896
-msgid "Heavy Rains"
-msgstr "大雨"
-
-#. [case]
-#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:906
-msgid "Drought"
-msgstr "干旱"
-
-#. [else]
-#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:915
-msgid "Clear Weather"
-msgstr "晴天"
-
 #. [side]
-#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:1010
-#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:1042
+#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:19
+#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:32
 msgid "teamname^Revolt"
 msgstr "反抗者"
 
 #. [side]
-#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:1061
-#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:1078
+#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:51
+#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:68
 msgid "teamname^Human"
 msgstr "人类"
 
 #. [then]
-#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:1233
+#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:100
 msgid "Death of your leader"
 msgstr "您的领袖阵亡"
 
 #. [then]
-#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:1234
+#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:101
 msgid ""
 "Since your team has only one leader, the enemy waves will not be at full "
 "strength."
 msgstr "您的队伍里只有一位领袖，因此敌人不会竭尽全力进攻。"
 
 #. [else]
-#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:1237
+#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:104
 msgid "Death of both of your team’s leaders"
 msgstr "你队领袖全部阵亡"
 
 #. [else]
-#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:1238
+#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:105
 msgid ""
 "Since your team has two leaders, the enemy waves will be at full strength."
 msgstr "您的队伍里有两位领袖，因而敌人会竭尽全力攻打过来。"
 
 #. [objective]: condition=win
-#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:1259
+#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:126
 msgid "Survive and defeat all enemy waves"
 msgstr "撑过敌军所有波次的进攻"
 
 #. [message]: speaker=narrator
-#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:1279
+#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:146
 msgid "Dark Forecast — a random survival scenario"
 msgstr "黑暗预想——一个随机的生存场景"
 
 #. [message]: speaker=narrator
-#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:1284
+#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:151
 msgid ""
 "Your aim is to survive the spawning waves of units and defeat the final "
 "archenemies.\n"
@@ -1081,12 +1037,12 @@ msgstr ""
 "• WML实现"
 
 #. [message]
-#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:1304
+#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:171
 msgid "So this is the accursed valley — a land ours for the taking."
 msgstr "那这就是被诅咒的山谷——我们要征服的土地。"
 
 #. [message]
-#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:1308
+#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:175
 msgid ""
 "The inhabitants are rumored to be a strange alliance of man and beast, and "
 "our claim is not going to be unopposed. We must be prepared for the "
@@ -1096,21 +1052,21 @@ msgstr ""
 "们必须为这片土地所能带来的惊讶而做好准备。"
 
 #. [message]
-#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:1312
+#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:179
 msgid ""
 "Then let us discover what lies in waiting and teach them not to oppose our "
 "claim."
 msgstr "那就让我们看看是谁在等待我们，还有教会他们不要反对我们的主张。"
 
 #. [message]: speaker=unit
-#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:1349
+#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:198
 msgid ""
 "Ugh! How can this be? Defeated by mere barbarians! My gods have forsaken "
 "me..."
 msgstr "哦呃！怎么会这样？败给微不足道的野蛮人！神哪，你抛弃了我……"
 
 #. [message]: speaker=second_unit
-#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:1363
+#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:212
 msgid ""
 "Cheers of your enemy are the last thing you hear as you slip into death..."
 "their joy fills your last moments with pure hate."
@@ -1119,7 +1075,7 @@ msgstr ""
 "粹的憎恨。"
 
 #. [message]
-#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:1385
+#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:234
 msgid ""
 "The enemy cheers as a dark mist rises from the land, engulfing you. As "
 "ghostly wisps drain away your will, you realize that your time in this land "
@@ -1936,87 +1892,87 @@ msgid "2 vs. 2 or 3 vs. 3 team game."
 msgstr "2v2或3v3团队对战。"
 
 #. [multiplayer]: id=multiplayer_6p_Team_Survival
-#: data/multiplayer/scenarios/6p_Team_Survival.cfg:319
+#: data/multiplayer/scenarios/6p_Team_Survival.cfg:246
 msgid "6p — Team Survival"
 msgstr "6p — 团队生存"
 
 #. [multiplayer]: id=multiplayer_6p_Team_Survival
-#: data/multiplayer/scenarios/6p_Team_Survival.cfg:321
+#: data/multiplayer/scenarios/6p_Team_Survival.cfg:248
 msgid "Scenario where the objective is to survive for as long as possible."
 msgstr "本场景的目标是尽可能地存活最长的时间。"
 
 #. [side]
-#: data/multiplayer/scenarios/6p_Team_Survival.cfg:334
+#: data/multiplayer/scenarios/6p_Team_Survival.cfg:261
 msgid "Attacker"
 msgstr "进攻者"
 
 #. [side]
-#: data/multiplayer/scenarios/6p_Team_Survival.cfg:351
-#: data/multiplayer/scenarios/6p_Team_Survival.cfg:364
-#: data/multiplayer/scenarios/6p_Team_Survival.cfg:377
-#: data/multiplayer/scenarios/6p_Team_Survival.cfg:390
-#: data/multiplayer/scenarios/6p_Team_Survival.cfg:403
-#: data/multiplayer/scenarios/6p_Team_Survival.cfg:416
+#: data/multiplayer/scenarios/6p_Team_Survival.cfg:278
+#: data/multiplayer/scenarios/6p_Team_Survival.cfg:291
+#: data/multiplayer/scenarios/6p_Team_Survival.cfg:304
+#: data/multiplayer/scenarios/6p_Team_Survival.cfg:317
+#: data/multiplayer/scenarios/6p_Team_Survival.cfg:330
+#: data/multiplayer/scenarios/6p_Team_Survival.cfg:343
 msgid "Defender"
 msgstr "防御者"
 
 #. [objective]: condition=win
-#: data/multiplayer/scenarios/6p_Team_Survival.cfg:434
+#: data/multiplayer/scenarios/6p_Team_Survival.cfg:361
 msgid "Survive all enemy attacks"
 msgstr "撑过敌军的所有攻击"
 
 #. [objective]: condition=lose
-#: data/multiplayer/scenarios/6p_Team_Survival.cfg:440
+#: data/multiplayer/scenarios/6p_Team_Survival.cfg:367
 msgid "Death of your team leaders"
 msgstr "团队领袖全部阵亡"
 
 #. [note]
-#: data/multiplayer/scenarios/6p_Team_Survival.cfg:445
+#: data/multiplayer/scenarios/6p_Team_Survival.cfg:372
 msgid "Hint: Learning the enemy spawn points and types helps a lot."
 msgstr "提示：获知敌人刷新点的位置和敌人的种类会有很大帮助。"
 
 #. [label]
-#: data/multiplayer/scenarios/6p_Team_Survival.cfg:451
+#: data/multiplayer/scenarios/6p_Team_Survival.cfg:378
 msgid "Turn 2: Loyalists"
 msgstr "回合2：保皇军队"
 
 #. [label]
-#: data/multiplayer/scenarios/6p_Team_Survival.cfg:456
+#: data/multiplayer/scenarios/6p_Team_Survival.cfg:383
 msgid "Turn 5: Knalgans"
 msgstr "回合5：纳尔迦联盟"
 
 #. [label]
-#: data/multiplayer/scenarios/6p_Team_Survival.cfg:461
+#: data/multiplayer/scenarios/6p_Team_Survival.cfg:388
 msgid "Turn 8: Rebels"
 msgstr "回合8：反抗势力"
 
 #. [label]
-#: data/multiplayer/scenarios/6p_Team_Survival.cfg:466
+#: data/multiplayer/scenarios/6p_Team_Survival.cfg:393
 msgid "Turn 11: Northerners"
 msgstr "回合11：北方民族"
 
 #. [label]
-#: data/multiplayer/scenarios/6p_Team_Survival.cfg:471
+#: data/multiplayer/scenarios/6p_Team_Survival.cfg:398
 msgid "Turn 14: Drakes"
 msgstr "回合14：龙人氏族"
 
 #. [label]
-#: data/multiplayer/scenarios/6p_Team_Survival.cfg:476
+#: data/multiplayer/scenarios/6p_Team_Survival.cfg:403
 msgid "Turn 17: Undead"
 msgstr "回合17：不死军团"
 
 #. [label]
-#: data/multiplayer/scenarios/6p_Team_Survival.cfg:481
+#: data/multiplayer/scenarios/6p_Team_Survival.cfg:408
 msgid "Tower of Doom"
 msgstr "末日之塔"
 
 #. [message]: speaker=narrator
-#: data/multiplayer/scenarios/6p_Team_Survival.cfg:588
+#: data/multiplayer/scenarios/6p_Team_Survival.cfg:515
 msgid "Faery"
 msgstr "仙境"
 
 #. [message]: speaker=narrator
-#: data/multiplayer/scenarios/6p_Team_Survival.cfg:589
+#: data/multiplayer/scenarios/6p_Team_Survival.cfg:516
 msgid ""
 "Congratulations for surviving the map that so many people claim is "
 "impossible. Frankly, I haven’t got a clue as to how you did it, so send me "
@@ -2027,12 +1983,12 @@ msgstr ""
 "非常感谢！"
 
 #. [message]: speaker=narrator
-#: data/multiplayer/scenarios/6p_Team_Survival.cfg:603
+#: data/multiplayer/scenarios/6p_Team_Survival.cfg:530
 msgid "Death"
 msgstr "死亡"
 
 #. [message]: speaker=narrator
-#: data/multiplayer/scenarios/6p_Team_Survival.cfg:605
+#: data/multiplayer/scenarios/6p_Team_Survival.cfg:532
 msgid ""
 "You have lost this game, but fear not. You can always try again. And again. "
 "And again. *Muahahaha*"
@@ -2240,6 +2196,36 @@ msgid ""
 msgstr ""
 "这是一幅韦诺基准测试图，命令行参数为：--no-delay --multiplayer --"
 "scenario=wesbench_shroud_walk --exit-at-end。"
+
+#~ msgid ""
+#~ "The screams and pleas for mercy are finally silenced, as you remove your "
+#~ "blood soaked blade from the last of the rebels. There will be no more "
+#~ "resistance from the local scum. Your reign has finally earned stability."
+#~ msgstr ""
+#~ "当您把浴血的剑刃从最后一个反抗者的体内拔出来时，尖叫声和求饶声最终都消散"
+#~ "了。再也不会有本地渣滓们的反抗，您的统治终于稳定了下来。"
+
+#~ msgid ""
+#~ "The last and most powerful of these creatures are almost upon us. I feel "
+#~ "that if we can finish them off in time, we shall be victorious."
+#~ msgstr ""
+#~ "这些生物中最后也是最强的家伙就要来到我们面前了。我觉得如果我们能在时限内解"
+#~ "决他们的话，那我们就能赢！"
+
+#~ msgid "Heavy Snowfall"
+#~ msgstr "大雪"
+
+#~ msgid "Snowfall"
+#~ msgstr "降雪"
+
+#~ msgid "Heavy Rains"
+#~ msgstr "大雨"
+
+#~ msgid "Drought"
+#~ msgstr "干旱"
+
+#~ msgid "Clear Weather"
+#~ msgstr "晴天"
 
 #, fuzzy
 #~| msgid "Random map"

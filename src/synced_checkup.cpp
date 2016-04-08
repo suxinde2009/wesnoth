@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2014 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2014 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -14,12 +14,10 @@
 #include "global.hpp"
 #include "synced_checkup.hpp"
 #include "log.hpp"
-#include "map_location.hpp"
-#include "unit_map.hpp"
-#include "unit.hpp"
 #include "replay.hpp"
+#include "synced_user_choice.hpp"
 #include "resources.hpp"
-#include "game_display.hpp"
+
 static lg::log_domain log_replay("replay");
 #define DBG_REPLAY LOG_STREAM(debug, log_replay)
 #define LOG_REPLAY LOG_STREAM(info, log_replay)
@@ -93,15 +91,15 @@ namespace
 		virtual ~checkup_choice()
 		{
 		}
-		virtual config random_choice(int /*side*/) const OVERRIDE
+		virtual config random_choice(int /*side*/) const override
 		{
 			throw "not implemented";
 		}
-		virtual bool is_visible() const OVERRIDE
+		virtual bool is_visible() const override
 		{
 			return false;
 		}
-		virtual config query_user(int /*side*/) const OVERRIDE
+		virtual config query_user(int /*side*/) const override
 		{
 			return cfg_;
 		}

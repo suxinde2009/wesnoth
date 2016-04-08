@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2014 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2014 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -21,6 +21,7 @@ static char const v_unitvarKey = 0;
 static char const v_ustatusKey = 0;
 static char const v_uattacksKey = 0;
 static char const v_uattackKey = 0;
+static char const v_formulaKey = 0;
 
 
 luatypekey const executeKey = static_cast<void *>(const_cast<char *>(&v_executeKey));
@@ -29,3 +30,4 @@ luatypekey const unitvarKey = static_cast<void *>(const_cast<char *>(&v_unitvarK
 luatypekey const ustatusKey = static_cast<void *>(const_cast<char *>(&v_ustatusKey));
 luatypekey const uattacksKey = static_cast<void *>(const_cast<char *>(&v_uattacksKey));
 luatypekey const uattackKey = static_cast<void *>(const_cast<char *>(&v_uattackKey));
+luatypekey const formulaKey = static_cast<void *>(const_cast<char *>(&v_formulaKey));

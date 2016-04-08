@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2010 - 2015 by Ignacio R. Morelle <shadowm2006@gmail.com>
+   Copyright (C) 2010 - 2016 by Ignacio R. Morelle <shadowm2006@gmail.com>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -15,14 +15,15 @@
 #ifndef ADDON_INFO_HPP_INCLUDED
 #define ADDON_INFO_HPP_INCLUDED
 
-#include "config.hpp"
 #include "version.hpp"
 
 #include "addon/validation.hpp"
 
 #include <set>
+#include <map>
 
 struct addon_info;
+class config;
 typedef std::map<std::string, addon_info> addons_list;
 
 struct addon_info

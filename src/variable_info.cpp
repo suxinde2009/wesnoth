@@ -1,6 +1,6 @@
 /*
    Copyright (C) 2003 by David White <dave@whitevine.net>
-   Copyright (C) 2005 - 2015 by Philippe Plantier <ayin@anathas.org>
+   Copyright (C) 2005 - 2016 by Philippe Plantier <ayin@anathas.org>
 
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
@@ -41,14 +41,6 @@ namespace
 			throw invalid_variablename_exception();
 		}
 	}
-	/// Checks if name is a valid key for an attribute_value/child
-	void check_valid_name(const std::string& name)
-	{
-		if(name.empty())
-		{
-			throw invalid_variablename_exception();
-		}
-	}
 
 	template<const variable_info_type vit>
 	typename maybe_const<vit, config>::type& get_child_at(typename maybe_const<vit, config>::type& cfg, const std::string& key, int index = 0);
@@ -57,7 +49,6 @@ namespace
 	config& get_child_at<vit_create_if_not_existent>(config& cfg, const std::string& key, int index)
 	{
 		assert(index >= 0);
-		check_valid_name(key);
 		// the 'create_if_not_existent' logic.
 		while(static_cast<int>(cfg.child_count(key)) <= index)
 		{
@@ -72,7 +63,6 @@ namespace
 	const config& get_child_at<vit_const>(const config& cfg, const std::string& key, int index)
 	{
 		assert(index >= 0);
-		check_valid_name(key);
 		//cfg.child_or_empty does not support index parameter
 		if(const config& child = cfg.child(key, index))
 		{
@@ -88,7 +78,6 @@ namespace
 	config& get_child_at<vit_throw_if_not_existent>(config& cfg, const std::string& key, int index)
 	{
 		assert(index >= 0);
-		check_valid_name(key);
 		if(config& child = cfg.child(key, index))
 		{
 			return child;
@@ -170,10 +159,7 @@ namespace
 		char* endptr;
 		int res = strtol(index_str, &endptr, 10);
 
-		if (*endptr != ']') {
-			res = 0;//default
-		}
-		if(res > int(game_config::max_loop))
+		if (*endptr != ']' || res > int(game_config::max_loop) || endptr == index_str)
 		{
 			throw invalid_variablename_exception();
 		}
@@ -186,7 +172,11 @@ namespace
 		: public variable_info_visitor<vit, void>
 	{
 	public:
-		get_variable_key_visitor(const std::string& key) : key_(key) {}
+		get_variable_key_visitor(const std::string& key) : key_(key) {
+			if (!config::valid_id(key_)) {
+				throw invalid_variablename_exception();
+			}
+		}
 		void from_named(typename get_variable_key_visitor::param_type state) const
 		{
 			if(key_ == "length")
@@ -248,7 +238,6 @@ namespace
 	public:
 		typename as_skalar_visitor::result_type from_named(typename as_skalar_visitor::param_type state) const
 		{
-			check_valid_name(state.key_);
 			return (*state.child_)[state.key_];
 		}
 		///Defined below for different cases.
@@ -325,7 +314,9 @@ namespace {
 		typename as_range_visitor_base::result_type from_indexed(typename as_range_visitor_base::param_type state) const
 		{
 			//Ensure we have a config at the given explicit position.
-			get_child_at<vit>(*state.child_, state.key_, state.index_);
+			if(state.index_ > 0) {
+				get_child_at<vit>(*state.child_, state.key_, state.index_ - 1);
+			}
 			return this->handler_(*state.child_, state.key_, state.index_, state.index_ + 1);
 		}
 	};
@@ -342,7 +333,7 @@ namespace {
 		typename as_range_visitor_base::result_type from_indexed(typename as_range_visitor_base::param_type state) const
 		{
 			//calling get_child_at<vit>(*state.child_, state.key_, state.index_) like above would have no effect
-			if(int(state.child_->child_count(state.key_)) < state.index_)
+			if(int(state.child_->child_count(state.key_)) <= state.index_)
 			{
 				return this->handler_(non_empty_const_cfg, "_", 0, 1);
 			}

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2003 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2003 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -21,7 +21,7 @@
 #include "util.hpp"
 #include "sdl/compat.hpp"
 
-#include "SDL.h"
+#include <SDL.h>
 
 #include <cstdlib>
 #include <iosfwd>
@@ -55,21 +55,21 @@ struct surface
 private:
 	static void sdl_add_ref(SDL_Surface *surf)
 	{
-		if (surf != NULL)
+		if (surf != nullptr)
 			++surf->refcount;
 	}
 
 	struct free_sdl_surface {
 		void operator()(SDL_Surface *surf) const
 		{
-			if (surf != NULL)
+			if (surf != nullptr)
 				 SDL_FreeSurface(surf);
 		}
 	};
 
 	typedef util::scoped_resource<SDL_Surface*,free_sdl_surface> scoped_sdl_surface;
 public:
-	surface() : surface_(NULL)
+	surface() : surface_(nullptr)
 	{}
 
 	surface(SDL_Surface *surf) : surface_(surf)
@@ -101,7 +101,7 @@ public:
 
 	void assign(SDL_Surface* surf) { surface_.assign(surf); }
 
-	bool null() const { return surface_.get() == NULL; }
+	bool null() const { return surface_.get() == nullptr; }
 
 private:
 	scoped_sdl_surface surface_;
@@ -111,6 +111,13 @@ bool operator<(const surface& a, const surface& b);
 
 inline void sdl_blit(const surface& src, SDL_Rect* src_rect, surface& dst, SDL_Rect* dst_rect){
 	SDL_BlitSurface(src, src_rect, dst, dst_rect);
+}
+
+inline void sdl_copy_portion(const surface& screen, SDL_Rect* screen_rect, surface& dst, SDL_Rect* dst_rect){
+	SDL_SetSurfaceBlendMode(screen, SDL_BLENDMODE_NONE);
+	SDL_SetSurfaceBlendMode(dst, SDL_BLENDMODE_NONE);
+	SDL_BlitSurface(screen, screen_rect, dst, dst_rect);
+	SDL_SetSurfaceBlendMode(screen, SDL_BLENDMODE_BLEND);
 }
 
 /**
@@ -205,20 +212,6 @@ surface scale_surface(const surface &surf, int w, int h, bool optimize /*=true*/
 surface scale_surface(const surface &surf, int w, int h);
 //commenting out the default parameter so that it is possible to make function pointers to the 3 parameter version
 
-/** Scale a surface (legacy (1.10, 1.12) version)
- *  @param surf              The source surface.
- *  @param w                 The width of the resulting surface.
- *  @param h                 The height of the resulting surface.
- *  @param optimize          Should the return surface be RLE optimized.
- *  @return                  A surface containing the scaled version of the source.
- *  @retval 0                Returned upon error.
- *  @retval surf             Returned if w == surf->w and h == surf->h
- *                           note this ignores the optimize flag.
- */
-surface scale_surface_legacy(const surface &surf, int w, int h, bool optimize /*=true*/);
-surface scale_surface_legacy(const surface &surf, int w, int h);
-//commenting out the default parameter so that it is possible to make function pointers to the 3 parameter version
-
 /** Scale a surface using modified nearest neighbour algorithm. Use only if
  * preserving sharp edges is a priority (e.g. minimap).
  *  @param surf              The source surface.
@@ -276,24 +269,20 @@ surface recolor_image(surface surf, const std::map<Uint32, Uint32>& map_rgb,
 surface brighten_image(const surface &surf, fixed_t amount, bool optimize=true);
 
 /** Get a portion of the screen.
- *  Send NULL if the portion is outside of the screen.
+ *  Send nullptr if the portion is outside of the screen.
  *  @param surf              The source surface.
  *  @param rect              The portion of the source surface to copy.
- *  @param optimize_format   Optimize by converting to result to display format.
- *                           Only useful if the source is not the screen and you
- *                           plan to blit the result on screen several times.
  *  @return                  A surface containing the portion of the source.
  *                           No RLE or Alpha bits are set.
  *  @retval 0                if error or the portion is outside of the surface.
  */
-surface get_surface_portion(const surface &surf, SDL_Rect &rect,
-	bool optimize_format=false);
+surface get_surface_portion(const surface &surf, SDL_Rect &rect);
 
 surface adjust_surface_alpha(const surface &surf, fixed_t amount, bool optimize=true);
 surface adjust_surface_alpha_add(const surface &surf, int amount, bool optimize=true);
 
 /** Applies a mask on a surface. */
-surface mask_surface(const surface &surf, const surface &mask, bool* empty_result = NULL, const std::string& filename = std::string());
+surface mask_surface(const surface &surf, const surface &mask, bool* empty_result = nullptr, const std::string& filename = std::string());
 
 /** Check if a surface fit into a mask */
 bool in_mask_surface(const surface &surf, const surface &mask);
@@ -367,8 +356,8 @@ surface blend_surface(
 /**
  * Rotates a surface by any degrees.
  *
- * @pre @zoom >= @offset          Otherwise @return will have empty pixels.
- * @pre @offset > 0               Otherwise the procedure will not return.
+ * @pre @p zoom >= @p offset      Otherwise @return will have empty pixels.
+ * @pre @p offset > 0             Otherwise the procedure will not return.
  *
  * @param surf                    The surface to rotate.
  * @param angle                   The angle of rotation.
@@ -432,13 +421,15 @@ SDL_Rect get_non_transparent_portion(const surface &surf);
 
 bool operator==(const SDL_Color& a, const SDL_Color& b);
 bool operator!=(const SDL_Color& a, const SDL_Color& b);
+
 SDL_Color inverse(const SDL_Color& color);
 SDL_Color int_to_color(const Uint32 rgb);
+SDL_Color string_to_color(const std::string& color_string);
 
 SDL_Color create_color(const unsigned char red
 		, unsigned char green
 		, unsigned char blue
-		, unsigned char alpha = 255);
+		, unsigned char alpha = SDL_ALPHA_OPAQUE);
 
 /**
  * Helper class for pinning SDL surfaces into memory.
@@ -473,8 +464,8 @@ private:
  *
  * @param surf           The image to get or receive the pixel from.
  * @param surf_lock      The locked surface to make sure the pointers are valid.
- * @x                    The position in the row of the pixel.
- * @y                    The row of the pixel.
+ * @param x              The position in the row of the pixel.
+ * @param y              The row of the pixel.
  */
 void put_pixel(const surface& surf, surface_lock& surf_lock, int x, int y, Uint32 pixel);
 Uint32 get_pixel(const surface& surf, const const_surface_lock& surf_lock, int x, int y);
@@ -500,7 +491,7 @@ private:
 
 struct clip_rect_setter
 {
-	// if r is NULL, clip to the full size of the surface.
+	// if r is nullptr, clip to the full size of the surface.
 	clip_rect_setter(const surface &surf, const SDL_Rect* r, bool operate = true) : surface_(surf), rect_(), operate_(operate)
 	{
 		if(operate_){

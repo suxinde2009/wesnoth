@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2010 - 2015 by Ignacio R. Morelle <shadowm2006@gmail.com>
+   Copyright (C) 2010 - 2016 by Ignacio R. Morelle <shadowm2006@gmail.com>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -59,7 +59,7 @@ private:
 	virtual const std::string& window_id() const;
 
 	/** Inherited from tdialog. */
-	void pre_show(CVideo& video, twindow& window);
+	void pre_show(twindow& window);
 
 	void browse_url_callback();
 	void copy_url_callback();

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2008 - 2015 by Jörg Hinrichs <joerg.hinrichs@alice-dsl.de>
+   Copyright (C) 2008 - 2016 by Jörg Hinrichs <joerg.hinrichs@alice-dsl.de>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -60,6 +60,8 @@ static void set_dont_ask_again(const bool ask_again)
 
 tgame_delete::tgame_delete()
 {
+	set_restore(true);
+
 	register_bool(
 			"dont_ask_again", true, &get_dont_ask_again, &set_dont_ask_again);
 }

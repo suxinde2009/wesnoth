@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2009 - 2015 by Tomasz Sniatowski <kailoran@gmail.com>
+   Copyright (C) 2009 - 2016 by Tomasz Sniatowski <kailoran@gmail.com>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -16,7 +16,7 @@
 #include "game.hpp"
 #include "player_network.hpp"
 #include "room.hpp"
-#include "../log.hpp"
+#include "log.hpp"
 #include "serialization/string_utils.hpp"
 #include "util.hpp"
 
@@ -130,7 +130,7 @@ void room::send_server_message(const char* message, network::connection sock,
 						   simple_wml::document* docptr) const
 {
 	simple_wml::document docbuf;
-	if(docptr == NULL) {
+	if(docptr == nullptr) {
 		docptr = &docbuf;
 	}
 	simple_wml::document& doc = *docptr;

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="windows-1250"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="wesnothlib"
 	ProjectGUID="{4A16638B-127B-4AE8-8E0B-4B211B96F976}"
 	RootNamespace="wesnothlib"
@@ -33,18 +33,12 @@
 				Name="VCXMLDataGeneratorTool"
 			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-			/>
-			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\src;..\..\..\external\include"
 				PreprocessorDefinitions="WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS;HAVE_PYTHON;USE_GZIP;NO_HAVE_FRIBIDI;NOMINMAX;_DEBUG;_SCL_SECURE_NO_WARNINGS"
 				MinimalRebuild="true"
-				BasicRuntimeChecks="3"
+				BasicRuntimeChecks="2"
 				RuntimeLibrary="3"
 				OpenMP="true"
 				WarningLevel="4"
@@ -97,12 +91,6 @@
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
@@ -163,12 +151,6 @@
 				Name="VCXMLDataGeneratorTool"
 			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-			/>
-			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\src;..\..\..\external\include"
@@ -227,12 +209,6 @@
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
@@ -422,7 +398,7 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\loadscreen_empty.cpp"
+			RelativePath="..\..\src\libc_error.hpp"
 			>
 		</File>
 		<File
@@ -434,7 +410,11 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\map.hpp"
+			RelativePath="..\..\src\log_windows.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\src\log_windows.hpp"
 			>
 		</File>
 		<File
@@ -455,14 +435,6 @@
 		</File>
 		<File
 			RelativePath="..\..\src\scoped_resource.hpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\src\simple_rng.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\src\simple_rng.hpp"
 			>
 		</File>
 		<File

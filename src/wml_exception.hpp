@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2007 - 2015 by Mark de Wever <koraq@xs4all.nl>
+   Copyright (C) 2007 - 2016 by Mark de Wever <koraq@xs4all.nl>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -26,7 +26,7 @@
 
 #include <string>
 
-class display;
+class CVideo;
 
 /**
  * The macro to use for the validation of WML
@@ -67,7 +67,7 @@ class display;
 
 #define FAIL(message)                                                     \
 	do {                                                                  \
-		wml_exception(NULL, __FILE__, __LINE__, __func__, message);       \
+		wml_exception(nullptr, __FILE__, __LINE__, __func__, message);       \
 		/* wml_exception never returns. */                                \
 		/* Help the compiler to figure that out */                        \
 		throw 42;                                                         \
@@ -75,7 +75,7 @@ class display;
 
 #define FAIL_WITH_DEV_MESSAGE(message, dev_message)                       \
 	do {                                                                  \
-		wml_exception(NULL                                                \
+		wml_exception(nullptr                                                \
 				, __FILE__                                                \
 				, __LINE__                                                \
 				, __func__                                                \
@@ -130,9 +130,10 @@ struct twml_exception
 
 	/**
 	 * Shows the error in a dialog.
-	 *  @param disp         The display object to show the message on.
+	 *
+	 * @param video          Target for rendering the UI message.
 	 */
-	void show(display &disp);
+	void show(CVideo& video);
 private:
 	IMPLEMENT_LUA_JAILBREAK_EXCEPTION(twml_exception)
 };

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2010 - 2015 by Gabriel Morin <gabrielmorin (at) gmail (dot) com>
+   Copyright (C) 2010 - 2016 by Gabriel Morin <gabrielmorin (at) gmail (dot) com>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org
 
    This program is free software; you can redistribute it and/or modify
@@ -22,8 +22,6 @@
 #include "game_display.hpp"
 #include "log.hpp"
 #include "resources.hpp"
-
-#include <boost/foreach.hpp>
 
 static lg::log_domain log_arrows("arrows");
 #define ERR_ARR LOG_STREAM(err, log_arrows)
@@ -289,7 +287,7 @@ void arrow::invalidate_arrow_path(arrow_path_t const& path)
 {
 	if(!SCREEN) return;
 
-	BOOST_FOREACH(map_location const& loc, path)
+	for (map_location const& loc : path)
 	{
 		SCREEN->invalidate(loc);
 	}

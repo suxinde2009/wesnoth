@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2012 - 2015 by Fabian Mueller <fabianmueller5@gmx.de>
+   Copyright (C) 2012 - 2016 by Fabian Mueller <fabianmueller5@gmx.de>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -66,7 +66,7 @@ public:
 		}
 	}
 
-	std::vector<gui::widget>* get_widgets() { return NULL; }
+	std::vector<gui::widget>* get_widgets() { return nullptr; }
 
 	//group
 	virtual void set_group(size_t /*index*/) {}

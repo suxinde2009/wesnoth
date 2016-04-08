@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2008 - 2015 by Mark de Wever <koraq@xs4all.nl>
+   Copyright (C) 2008 - 2016 by Mark de Wever <koraq@xs4all.nl>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -26,9 +26,7 @@
 
 #include <string>
 
-#if SDL_VERSION_ATLEAST(2,0,0)
 #include "sdl/image.hpp"
-#endif
 
 #ifdef SDL_GPU
 #include "sdl/gpu.hpp"

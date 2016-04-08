@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010 - 2015 by Gabriel Morin <gabrielmorin (at) gmail (dot) com>
+ Copyright (C) 2010 - 2016 by Gabriel Morin <gabrielmorin (at) gmail (dot) com>
  Part of the Battle for Wesnoth Project http://www.wesnoth.org
 
  This program is free software; you can redistribute it and/or modify
@@ -18,8 +18,9 @@
 
 #include <algorithm>
 #include <iterator>
+#include <boost/range/adaptor/reversed.hpp>
 
-#include <boost/bind.hpp>
+#include "utils/functional.hpp"
 
 #include "highlighter.hpp"
 
@@ -29,6 +30,7 @@
 #include "move.hpp"
 #include "recall.hpp"
 #include "recruit.hpp"
+#include "resources.hpp"
 #include "side_actions.hpp"
 #include "suppose_dead.hpp"
 #include "utility.hpp"
@@ -41,18 +43,15 @@
 #include "game_errors.hpp"
 #include "play_controller.hpp"
 #include "resources.hpp"
-#include "unit.hpp"
-#include "unit_animation_component.hpp"
-#include "unit_map.hpp"
-
-#include <boost/foreach.hpp>
+#include "units/unit.hpp"
+#include "units/animation_component.hpp"
+#include "units/map.hpp"
 
 namespace wb
 {
 
-highlighter::highlighter(unit_map& unit_map, side_actions_ptr side_actions)
-	: unit_map_(unit_map)
-	, mouseover_hex_()
+highlighter::highlighter(side_actions_ptr side_actions)
+	: mouseover_hex_()
 	, exclusive_display_hexes_()
 	, owner_unit_()
 	, selection_candidate_()
@@ -83,8 +82,8 @@ void highlighter::set_mouseover_hex(const map_location& hex)
 	real_map ensure_real_map;
 	mouseover_hex_ = hex;
 	//if we're right over a unit, just highlight all of this unit's actions
-	unit_map::iterator it = unit_map_.find(hex);
-	if(it != unit_map_.end()) {
+	unit_map::iterator it = get_unit_map().find(hex);
+	if(it != get_unit_map().end()) {
 		selection_candidate_ = it.get_shared_ptr();
 
 		if(resources::teams->at(it->side()-1).get_side_actions()->unit_has_actions(*it)) {
@@ -111,7 +110,7 @@ void highlighter::set_mouseover_hex(const map_location& hex)
 	if(side_actions_->empty()) {
 		return;
 	}
-	BOOST_REVERSE_FOREACH(action_ptr act, *side_actions_) {
+	for(action_ptr act : boost::adaptors::reverse(*side_actions_)) {
 		/**@todo "is_numbering_hex" is not the "correct" criterion by which to
 		 * select the hightlighted/selected action. It's just convenient for me
 		 * to use at the moment since it happens to coincide with the "correct"
@@ -154,7 +153,7 @@ void highlighter::highlight()
 		if(!secondary_highlights_.empty()) {
 			//Highlight secondary highlights
 			highlight_secondary_visitor hs_visitor(*this);
-			BOOST_FOREACH(weak_action_ptr weak, secondary_highlights_) {
+			for(weak_action_ptr weak : secondary_highlights_) {
 				if(action_ptr action = weak.lock()) {
 					action->accept(hs_visitor);
 				}
@@ -173,14 +172,14 @@ void highlighter::unhighlight()
 	}
 
 	//unhighlight secondary highlights
-	BOOST_FOREACH(weak_action_ptr weak, secondary_highlights_) {
+	for(weak_action_ptr weak : secondary_highlights_) {
 		if(action_ptr action = weak.lock()) {
 			action->accept(uh_visitor);
 		}
 	}
 
 	//unhide other units if needed
-	BOOST_FOREACH(map_location hex, exclusive_display_hexes_) {
+	for(map_location hex : exclusive_display_hexes_) {
 		resources::screen->remove_exclusive_draw(hex);
 	}
 	exclusive_display_hexes_.clear();
@@ -224,7 +223,7 @@ void highlighter::find_secondary_highlights()
 	assert(owner_unit_);
 	assert(secondary_highlights_.empty());
 
-	if(owner_unit_ == NULL) {
+	if(owner_unit_ == nullptr) {
 		return;
 	}
 
@@ -349,6 +348,11 @@ void highlighter::unhighlight_visitor::visit(recall_ptr recall)
 		resources::screen->add_exclusive_draw(recall->get_fake_unit()->get_location(), *recall->get_fake_unit());
 		highlighter_.exclusive_display_hexes_.insert(recall->get_fake_unit()->get_location());
 	}
+}
+unit_map& highlighter::get_unit_map()
+{
+	assert(resources::units);
+	return *resources::units;
 }
 
 } // end namespace wb

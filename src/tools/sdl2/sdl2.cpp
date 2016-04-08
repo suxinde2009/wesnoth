@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2014 - 2015 by Mark de Wever <koraq@xs4all.nl>
+   Copyright (C) 2014 - 2016 by Mark de Wever <koraq@xs4all.nl>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org
 
    This program is free software; you can redistribute it and/or modify
@@ -26,10 +26,9 @@
 
 #include <SDL.h>
 
-#include <boost/foreach.hpp>
-
 #include <iostream>
 #include <deque>
+#include <boost/range/adaptor/reversed.hpp>
 
 std::vector<sdl::twindow*> windows;
 
@@ -95,7 +94,7 @@ static void draw_command_history(sdl::twindow& window,
 								 const std::deque<std::string>& history)
 {
 	unsigned offset = 535;
-	BOOST_REVERSE_FOREACH(const std::string & item, history)
+	for(const std::string & item : boost::adaptors::reverse(history))
 	{
 		draw_text(window, item, 25, offset);
 		offset -= 25;
@@ -168,7 +167,7 @@ int main()
 				dirty = false;
 			}
 			window.render();
-			BOOST_FOREACH(sdl::twindow * window, windows)
+			for(sdl::twindow * window : windows)
 			{
 				if(window) {
 					window->render();

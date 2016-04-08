@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2014 - 2015 by Chris Beck <render787@gmail.com>
+   Copyright (C) 2014 - 2016 by Chris Beck <render787@gmail.com>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -21,7 +21,7 @@
 #define INCLUDED_PLUGINS_MANAGER_HPP_
 
 #include "config.hpp"
-#include "make_enum.hpp"
+#include "utils/make_enum.hpp"
 
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/scoped_ptr.hpp>

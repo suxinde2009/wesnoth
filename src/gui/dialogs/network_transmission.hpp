@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2011 - 2015 by Sergey Popov <loonycyborg@gmail.com>
+   Copyright (C) 2011 - 2016 by Sergey Popov <loonycyborg@gmail.com>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -66,7 +66,7 @@ public:
 
 protected:
 	/** Inherited from tdialog. */
-	void pre_show(CVideo& video, twindow& window);
+	void pre_show(twindow& window);
 
 	/** Inherited from tdialog. */
 	void post_show(twindow& window);

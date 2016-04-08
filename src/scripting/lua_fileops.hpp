@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2014 - 2015 by Chris Beck <render787@gmail.com>
+   Copyright (C) 2014 - 2016 by Chris Beck <render787@gmail.com>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -16,7 +16,7 @@
 #define LUA_FILEOPS_HPP_INCLUDED
 
 /**
- * This namespace contains the implementations for wesnoth's 
+ * This namespace contains the implementations for wesnoth's
  * safe fileops for lua.
  */
 
@@ -25,6 +25,7 @@ struct lua_State;
 namespace lua_fileops {
 
 int intf_have_file(lua_State*);
+int intf_read_file(lua_State*);
 int load_file(lua_State*);
 
 } // end namespace lua_fileops

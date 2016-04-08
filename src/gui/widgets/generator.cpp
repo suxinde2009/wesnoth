@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2008 - 2015 by Mark de Wever <koraq@xs4all.nl>
+   Copyright (C) 2008 - 2016 by Mark de Wever <koraq@xs4all.nl>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -17,7 +17,6 @@
 #include "gui/widgets/generator_private.hpp"
 
 #include "gui/widgets/window.hpp"
-#include "utils/foreach.tpp"
 #include "wml_exception.hpp"
 
 namespace gui2
@@ -38,9 +37,10 @@ void tone::set_item_shown(const unsigned index, const bool show)
 	} else if(!show && is_selected(index)) {
 		do_deselect_item(index);
 
-		for(unsigned i = index + 1; i < get_item_count(); ++i) {
-			if(get_item_shown(i)) {
-				do_select_item(i);
+		for(unsigned i = 1; i < get_item_count(); ++i) {
+			unsigned new_index = (index + i) % get_item_count(); 
+			if(get_item_shown(new_index)) {
+				do_select_item(new_index);
 				break;
 			}
 		}
@@ -74,14 +74,15 @@ void tone::delete_item(const unsigned index)
 
 			// Are there items left?
 			const unsigned item_count = get_item_count();
+			const unsigned visible_index = get_ordered_index(index);
 			if(item_count > 1) {
 				// Is the last item deselected?
-				if(index == item_count - 1) {
+				if(visible_index == item_count - 1) {
 					// Select the second last.
-					do_select_item(index - 1);
+					do_select_item(get_item_at_ordered(visible_index - 1));
 				} else {
 					// Select the next item.
-					do_select_item(index + 1);
+					do_select_item(get_item_at_ordered(visible_index + 1));
 				}
 			}
 		}
@@ -226,7 +227,7 @@ twidget* thorizontal_list::find_at(const tpoint& coordinate,
 			return widget;
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 const twidget* thorizontal_list::find_at(const tpoint& coordinate,
@@ -249,7 +250,7 @@ const twidget* thorizontal_list::find_at(const tpoint& coordinate,
 			return widget;
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 void thorizontal_list::handle_key_left_arrow(SDLMod /*modifier*/, bool& handled)
@@ -426,7 +427,7 @@ twidget* tvertical_list::find_at(const tpoint& coordinate,
 			return widget;
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 const twidget* tvertical_list::find_at(const tpoint& coordinate,
@@ -449,7 +450,7 @@ const twidget* tvertical_list::find_at(const tpoint& coordinate,
 			return widget;
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 void tvertical_list::handle_key_up_arrow(SDLMod /*modifier*/, bool& handled)
@@ -483,7 +484,7 @@ void tvertical_list::handle_key_down_arrow(SDLMod /*modifier*/, bool& handled)
 	handled = true;
 
 	for(size_t i = get_ordered_index(get_selected_item()) + 1; i < get_item_count(); ++i) {
-		
+
 		// why do we do this check here but not in handle_key_up_arrow?
 		if(item_ordered(i).get_visible() == twidget::tvisible::invisible
 		   || !get_item_shown(get_item_at_ordered(i))) {
@@ -575,7 +576,7 @@ twidget* tindependent::find_at(const tpoint& coordinate,
 
 	const int selected_item = get_selected_item();
 	if(selected_item < 0) {
-		return NULL;
+		return nullptr;
 	}
 
 	tgrid& grid = item(selected_item);
@@ -589,7 +590,7 @@ const twidget* tindependent::find_at(const tpoint& coordinate,
 
 	const int selected_item = get_selected_item();
 	if(selected_item < 0) {
-		return NULL;
+		return nullptr;
 	}
 
 	const tgrid& grid = item(selected_item);
@@ -605,7 +606,7 @@ twidget* tindependent::find(const std::string& id, const bool must_be_active)
 			}
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 const twidget* tindependent::find(const std::string& id,
@@ -619,7 +620,7 @@ const twidget* tindependent::find(const std::string& id,
 			}
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 void tindependent::set_visible_rectangle(const SDL_Rect& rectangle)
@@ -655,7 +656,7 @@ void tselect::select(tgrid& grid, const bool select)
 void
 tselect::init(tgrid* grid,
 			  const std::map<std::string /* widget id */, string_map>& data,
-			  const boost::function<void(twidget&)>& callback)
+			  const std::function<void(twidget&)>& callback)
 {
 	for(unsigned row = 0; row < grid->get_rows(); ++row) {
 		for(unsigned col = 0; col < grid->get_cols(); ++col) {
@@ -693,11 +694,11 @@ tselect::init(tgrid* grid,
 
 void tshow::init(tgrid* grid,
 				 const std::map<std::string /* widget id */, string_map>& data,
-				 const boost::function<void(twidget&)>& callback)
+				 const std::function<void(twidget&)>& callback)
 {
 	assert(!callback);
 
-	FOREACH(const AUTO & item, data)
+	for(const auto & item : data)
 	{
 		if(item.first.empty()) {
 			for(unsigned row = 0; row < grid->get_rows(); ++row) {
@@ -803,7 +804,7 @@ tgenerator_* tgenerator_::build(const bool has_minimum,
 								const tplacement placement,
 								const bool select)
 {
-	tgenerator_* result = NULL;
+	tgenerator_* result = nullptr;
 	GENERATE_BODY;
 	return result;
 }

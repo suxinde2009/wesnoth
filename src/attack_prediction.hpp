@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2007 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2007 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -30,7 +30,7 @@ struct battle_context_unit_stats;
 struct combatant
 {
 	/** Construct a combatant. */
-	combatant(const battle_context_unit_stats &u, const combatant *prev = NULL);
+	combatant(const battle_context_unit_stats &u, const combatant *prev = nullptr);
 
 	/** Copy constructor */
 	combatant(const combatant &that, const battle_context_unit_stats &u);

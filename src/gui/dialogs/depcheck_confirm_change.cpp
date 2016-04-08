@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2012 - 2015 by Boldizsár Lipka <lipkab@zoho.com>
+   Copyright (C) 2012 - 2016 by Boldizsár Lipka <lipkab@zoho.com>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -18,7 +18,7 @@
 
 #include "gui/widgets/settings.hpp"
 #include "gui/widgets/window.hpp"
-#include "formula_string_utils.hpp"
+#include "formula/string_utils.hpp"
 #include "gettext.hpp"
 
 namespace gui2

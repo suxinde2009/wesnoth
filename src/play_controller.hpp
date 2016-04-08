@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2006 - 2015 by Joerg Hinrichs <joerg.hinrichs@alice-dsl.de>
+   Copyright (C) 2006 - 2016 by Joerg Hinrichs <joerg.hinrichs@alice-dsl.de>
    wesnoth playlevel Copyright (C) 2003 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
@@ -19,14 +19,14 @@
 #include "controller_base.hpp"
 #include "floating_label.hpp"
 #include "game_end_exceptions.hpp"
-#include "game_state.hpp"
 #include "help/help.hpp"
 #include "hotkey/command_executor.hpp"
 #include "menu_events.hpp"
 #include "mouse_events.hpp"
 #include "persist_manager.hpp"
-#include "terrain_type_data.hpp"
+#include "terrain/type_data.hpp"
 #include "tod_manager.hpp"
+#include "game_state.hpp"
 
 #include <boost/scoped_ptr.hpp>
 #include <boost/shared_ptr.hpp>
@@ -53,10 +53,6 @@ namespace game_events {
 	class wml_menu_item;
 } // namespace game_events
 
-namespace preferences {
-	struct display_manager;
-}
-
 namespace soundsource {
 	class manager;
 } // namespace soundsource
@@ -80,12 +76,12 @@ namespace wb {
 // Holds gamestate related objects
 class game_state;
 
-class play_controller : public controller_base, public events::observer, public savegame::savegame_config
+class play_controller : public controller_base, public events::observer, public quit_confirmation
 {
 public:
 	play_controller(const config& level, saved_game& state_of_game,
-		const int ticks, const config& game_config,
-		const tdata_cache & tdata,
+		const config& game_config,
+		const tdata_cache& tdata,
 		CVideo& video, bool skip_replay);
 	virtual ~play_controller();
 
@@ -102,75 +98,98 @@ public:
 	void load_game();
 
 	void save_game();
-	void save_game_auto(const std::string & filename);
+	void save_game_auto(const std::string& filename);
 	void save_replay();
-	void save_replay_auto(const std::string & filename);
+	void save_replay_auto(const std::string& filename);
 	void save_map();
 
-	void init_side_begin(bool is_replay);
+	void init_side_begin();
+
+	/**
+	 * Called by turn_info::process_network_data() or init_side() to call do_init_side() if necessary.
+	 */
 	void maybe_do_init_side();
+
+	/**
+	 * Called by replay handler or init_side() to do actual work for turn change.
+	 */
 	void do_init_side();
+
 	void init_side_end();
 
 	virtual void force_end_turn() = 0;
 	virtual void check_objectives() = 0;
 
 	virtual void on_not_observer() = 0;
+
 	/**
 	 * Asks the user whether to continue on an OOS error.
+	 *
 	 * @throw quit_game_exception If the user wants to abort.
 	 */
 	virtual void process_oos(const std::string& msg) const;
 
 	void set_end_level_data(const end_level_data& data) {
-		end_level_data_ = data;
+		gamestate().end_level_data_ = data;
 	}
 	void reset_end_level_data() {
-		end_level_data_ = boost::none_t();
+		gamestate().end_level_data_ = boost::none;
 	}
-	bool is_regular_game_end() const { 
-		return end_level_data_.get_ptr() != NULL;
+	bool is_regular_game_end() const {
+		return gamestate().end_level_data_.get_ptr() != nullptr;
 	}
 	const end_level_data& get_end_level_data_const() const {
-		return *end_level_data_;
+		return *gamestate().end_level_data_;
 	}
 	const std::vector<team>& get_teams_const() const {
-		return gamestate_.board_.teams_;
+		return gamestate().board_.teams_;
 	}
 
-	const unit_map & get_units_const() const {
-		return gamestate_.board_.units();
+	const unit_map& get_units_const() const {
+		return gamestate().board_.units();
 	}
 
 	const gamemap& get_map_const() const{
-		return gamestate_.board_.map();
+		return gamestate().board_.map();
 	}
 	const tod_manager& get_tod_manager_const() const{
-			return gamestate_.tod_manager_;
+			return gamestate().tod_manager_;
 		}
 
 	bool is_observer() const {
-		return gamestate_.board_.is_observer();
+		return gamestate().board_.is_observer();
 	}
 
-	game_state & gamestate() {
-		return gamestate_;
+	game_state& gamestate() {
+		return *gamestate_;
+	}
+	const game_state& gamestate() const {
+		return *gamestate_;
 	}
 
 	/**
 	 * Checks to see if a side has won.
-	 * Will also remove control of villages from sides with dead leaders.
+	 *
+	 * This will also remove control of villages from sides with dead leaders.
 	 */
 	void check_victory();
 
-	size_t turn() const {return gamestate_.tod_manager_.turn();}
+	size_t turn() const {return gamestate().tod_manager_.turn();}
 
-	/** Returns the number of the side whose turn it is. Numbering starts at one. */
-	int current_side() const { return player_number_; }
+	/**
+	 * Returns the number of the side whose turn it is.
+	 *
+	 * Numbering starts at one.
+	 */
+	int current_side() const { return gamestate_->player_number_; }
 
+	/**
+	 * Builds the snapshot config from members and their respective configs.
+	 */
 	config to_config() const;
 
-	bool is_skipping_replay() const { return skip_replay_;}
+	bool is_skipping_replay() const { return skip_replay_; }
+	void toggle_skipping_replay() { skip_replay_ = !skip_replay_; }
 	bool is_linger_mode() const { return linger_; }
 	void do_autosave();
 
@@ -181,43 +200,80 @@ public:
 
 	boost::shared_ptr<wb::manager> get_whiteboard();
 	const mp_game_settings& get_mp_settings();
-	const game_classification & get_classification();
-	int get_server_request_number() const { return server_request_number_; }
-	void increase_server_request_number() { ++server_request_number_; }
+	const game_classification& get_classification();
+	int get_server_request_number() const { return gamestate().server_request_number_; }
+	void increase_server_request_number() { ++gamestate().server_request_number_; }
 
-	game_events::t_pump & pump();
+	game_events::t_pump& pump();
 
 	int get_ticks();
 
-	virtual soundsource::manager * get_soundsource_man();
-	virtual plugins_context * get_plugins_context();
-	hotkey::command_executor * get_hotkey_command_executor();
+	virtual soundsource::manager* get_soundsource_man();
+	virtual plugins_context* get_plugins_context();
+	hotkey::command_executor* get_hotkey_command_executor();
 
-	actions::undo_list & get_undo_stack() { return *undo_stack_; }
+	actions::undo_list& get_undo_stack() { return undo_stack(); }
 
-	bool is_browsing() const OVERRIDE;
+	bool is_browsing() const override;
 	bool is_lingering() const { return linger_; }
 
 	class hotkey_handler;
+
 	virtual bool is_replay() { return false; }
+
 	t_string get_scenario_name()
-	{ return level_["name"].t_str(); }
+	{
+		return level_["name"].t_str();
+	}
+
 	bool get_disallow_recall()
-	{ return level_["disallow_recall"].to_bool(); }
-	void update_savegame_snapshot() const;
+	{
+		return level_["disallow_recall"].to_bool();
+	}
+
+	std::string theme()
+	{
+		return level_["theme"].str();
+	}
+
 	virtual bool should_return_to_play_side()
-	{ return is_regular_game_end(); }
+	{
+		return is_regular_game_end();
+	}
+
 	void maybe_throw_return_to_play_side()
-	{ if(should_return_to_play_side() && !linger_ ) { throw return_to_play_side_exception(); } }
+	{
+		if(should_return_to_play_side() && !linger_ ) {
+			throw return_to_play_side_exception();
+		}
+	}
+
+	virtual void play_side_impl() {}
+
+	void play_side();
 
 	team& current_team();
 	const team& current_team() const;
 
 	bool can_use_synced_wml_menu() const;
 	std::set<std::string> all_players() const;
-protected:
-	void play_slice_catch();
+	int ticks() const { return ticks_; }
 	game_display& get_display();
+
+	void update_savegame_snapshot() const;
+	/**
+	 * Changes the UI for this client to the passed side index.
+	 */
+	void update_gui_to_player(const int team_index, const bool observe = false);
+protected:
+	struct scoped_savegame_snapshot
+	{
+		scoped_savegame_snapshot(const play_controller& controller);
+		~scoped_savegame_snapshot();
+		const play_controller& controller_;
+	};
+	friend struct scoped_savegame_snapshot;
+	void play_slice_catch();
 	bool have_keyboard_focus();
 	void process_focus_keydown_event(const SDL_Event& event);
 	void process_keydown_event(const SDL_Event& event);
@@ -242,13 +298,17 @@ protected:
 	/// returns 0 if no such team was found.
 	int find_last_visible_team() const;
 
+private:
+	const int ticks_;
+
+protected:
 	//gamestate
-	game_state gamestate_;
-	const config & level_;
-	saved_game & saved_game_;
+	const tdata_cache& tdata_;
+	boost::scoped_ptr<game_state> gamestate_;
+	config level_;
+	saved_game& saved_game_;
 
 	//managers
-	boost::scoped_ptr<preferences::display_manager> prefs_disp_manager_;
 	boost::scoped_ptr<tooltips::manager> tooltips_manager_;
 
 	//whiteboard manager
@@ -270,48 +330,42 @@ protected:
 	boost::scoped_ptr<game_display> gui_;
 	boost::scoped_ptr<unit_experience_accelerator> xp_mod_;
 	boost::scoped_ptr<const statistics::scenario_context> statistics_context_;
-	/// undo_stack_ is never NULL. It is implemented as a pointer so that
-	/// undo_list can be an incomplete type at this point (which reduces the
-	/// number of files that depend on actions/undo.hpp).
-	boost::scoped_ptr<actions::undo_list> undo_stack_;
+	actions::undo_list& undo_stack() { return *gamestate().undo_stack_; };
+	const actions::undo_list& undo_stack() const { return *gamestate().undo_stack_; };
 	boost::scoped_ptr<replay> replay_;
 
-	/// if a team is specified whose turn it is, it means we're loading a game instead of starting a fresh one.
-	bool loading_game_;
-
-	int player_number_;
-	unsigned int start_turn_;
 	bool skip_replay_;
 	bool linger_;
-	bool it_is_a_new_turn_;
-	bool init_side_done_;
-	/// whether we did init side in this session ( false = we did init side before we reloaded the game).
+	/**
+	 * Whether we did init sides in this session
+	 * (false = we did init sides before we reloaded the game).
+	 */
 	bool init_side_done_now_;
-	const int ticks_;
 	const std::string& select_victory_music() const;
 	const std::string& select_defeat_music()  const;
 	void set_victory_music_list(const std::string& list);
 	void set_defeat_music_list(const std::string& list);
 
-	/*
-	 * Changes the UI for this client to the passed side index.
-	 */
-	void update_gui_to_player(const int team_index, const bool observe = false);
+	void reset_gamestate(const config& level, int replay_pos);
 
 private:
 
-	void init(CVideo &video);
+	void init(CVideo& video, const config& level);
 
 	bool victory_when_enemies_defeated_;
 	bool remove_from_carryover_on_defeat_;
-	typedef boost::optional<end_level_data> t_possible_end_level_data;
-	t_possible_end_level_data end_level_data_;
 	std::vector<std::string> victory_music_;
 	std::vector<std::string> defeat_music_;
 
 	hotkey::scope_changer scope_;
-	// used to sync with the mpserver, not persistent in savefiles.
-	int server_request_number_;
+
+protected:
+	mutable bool ignore_replay_errors_;
+	bool player_type_changed_;
+	virtual void sync_end_turn() {};
+	virtual void check_time_over();
+	virtual void update_viewing_player() = 0;
+	void play_turn();
 };
 
 

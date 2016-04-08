@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2003 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2003 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -20,15 +20,11 @@
 #include <SDL_version.h>
 
 CKey::CKey() :
-	key_list(SDL_GetKeyState(NULL))
+	key_list(SDL_GetKeyState(nullptr))
 {
 }
 
 bool CKey::operator[](int k) const
 {
-#if SDL_VERSION_ATLEAST(2,0,0)
 	return key_list[SDL_GetScancodeFromKey(k)] > 0;
-#else
-	return key_list[k] > 0;
-#endif
 }

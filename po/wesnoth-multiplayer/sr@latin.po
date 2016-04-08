@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: wesnoth-multiplayer\n"
 "Report-Msgid-Bugs-To: http://bugs.wesnoth.org/\n"
-"POT-Creation-Date: 2015-06-27 20:18-0300\n"
+"POT-Creation-Date: 2016-03-01 19:50-0300\n"
 "PO-Revision-Date: 2011-12-26 13:33+0100\n"
 "Last-Translator: Chusslove Illich <caslav.ilic@gmx.net>\n"
 "Language-Team: Serbian\n"
@@ -91,12 +91,12 @@ msgid ""
 msgstr ""
 
 #. [lua]: f
-#: data/multiplayer/eras.lua:65
+#: data/multiplayer/eras.lua:921
 msgid "<span strikethrough='true' foreground='#%02x%02x%02x'>Side %d</span>"
 msgstr ""
 
 #. [lua]: f
-#: data/multiplayer/eras.lua:81
+#: data/multiplayer/eras.lua:937
 msgid ""
 "<span foreground='#%02x%02x%02x'>Side %d</span>:  Income score = %d  Unit "
 "score = %d  Gold = %d"
@@ -105,12 +105,12 @@ msgstr ""
 "rezultat jedinica = %d  zlato = %d"
 
 #. [lua]: f
-#: data/multiplayer/eras.lua:81
+#: data/multiplayer/eras.lua:937
 msgid "Grand total: <b>%d</b>"
 msgstr "Sveukupno: <b>%d</b>"
 
 #. [lua]: f
-#: data/multiplayer/eras.lua:91
+#: data/multiplayer/eras.lua:947
 msgid "<span foreground='%s'>Side %d</span> has the advantage."
 msgstr "<span foreground='%s'>Strana %d</span> ima prednost."
 
@@ -978,70 +978,25 @@ msgstr ""
 "Napomena: Morate ostaviti podrazumevane postavke mape da bi scenario "
 "pravilno radio."
 
-#. [message]: speaker=narrator
-#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:371
-msgid ""
-"The screams and pleas for mercy are finally silenced, as you remove your "
-"blood soaked blade from the last of the rebels. There will be no more "
-"resistance from the local scum. Your reign has finally earned stability."
-msgstr ""
-"Krici i molbe za milost napokon su ugušeni, dok uklanjaš krvlju natopljeno "
-"sečivo iz poslednjeg pobunjenika. Neće se više opirati ova mesna bagra. "
-"Vladavina tvoja napokon je zaradila stabilnost."
-
-#. [message]
-#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:703
-msgid ""
-"The last and most powerful of these creatures are almost upon us. I feel "
-"that if we can finish them off in time, we shall be victorious."
-msgstr ""
-"Pristižu poslednja i najmoćnija međ' ovim stvorenjima. Osećam, dokrajčimo li "
-"ih na vreme, pobeda je naša."
-
-#. [case]
-#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:870
-msgid "Heavy Snowfall"
-msgstr "teška mećava"
-
-#. [case]
-#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:880
-msgid "Snowfall"
-msgstr "mećava"
-
-#. [case]
-#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:896
-msgid "Heavy Rains"
-msgstr "težak pljusak"
-
-#. [case]
-#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:906
-msgid "Drought"
-msgstr "suša"
-
-#. [else]
-#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:915
-msgid "Clear Weather"
-msgstr "čisto nebo"
-
 #. [side]
-#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:1010
-#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:1042
+#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:19
+#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:32
 msgid "teamname^Revolt"
 msgstr "Bundžije"
 
 #. [side]
-#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:1061
-#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:1078
+#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:51
+#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:68
 msgid "teamname^Human"
 msgstr "Ljudi"
 
 #. [then]
-#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:1233
+#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:100
 msgid "Death of your leader"
 msgstr "Strada li vam vođ"
 
 #. [then]
-#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:1234
+#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:101
 msgid ""
 "Since your team has only one leader, the enemy waves will not be at full "
 "strength."
@@ -1050,29 +1005,29 @@ msgstr ""
 "jačine."
 
 #. [else]
-#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:1237
+#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:104
 msgid "Death of both of your team’s leaders"
 msgstr "Stradaju li vam vođi oba tima"
 
 #. [else]
-#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:1238
+#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:105
 msgid ""
 "Since your team has two leaders, the enemy waves will be at full strength."
 msgstr ""
 "Pošto tvoj tim ima dva vođa, neprijateljski naleti će biti pune jačine."
 
 #. [objective]: condition=win
-#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:1259
+#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:126
 msgid "Survive and defeat all enemy waves"
 msgstr "Preživite li i porazite li sve neprijateljske nalete"
 
 #. [message]: speaker=narrator
-#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:1279
+#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:146
 msgid "Dark Forecast — a random survival scenario"
 msgstr "Mračna prognoza — nasumični scenario opstanka"
 
 #. [message]: speaker=narrator
-#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:1284
+#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:151
 msgid ""
 "Your aim is to survive the spawning waves of units and defeat the final "
 "archenemies.\n"
@@ -1116,12 +1071,12 @@ msgstr ""
 "• izvedba WML-a"
 
 #. [message]
-#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:1304
+#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:171
 msgid "So this is the accursed valley — a land ours for the taking."
 msgstr "Ovo je, dakle, ta kleta dolina — zemlja naša za zauzimanje."
 
 #. [message]
-#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:1308
+#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:175
 msgid ""
 "The inhabitants are rumored to be a strange alliance of man and beast, and "
 "our claim is not going to be unopposed. We must be prepared for the "
@@ -1131,14 +1086,14 @@ msgstr ""
 "zahtevi neće proći bez otpora. Moramo biti spremni na iznenađenja ove zemlje."
 
 #. [message]
-#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:1312
+#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:179
 msgid ""
 "Then let us discover what lies in waiting and teach them not to oppose our "
 "claim."
 msgstr "Otkrijmo onda šta vreba pritajeno i naučimo ih da nama nema otpora."
 
 #. [message]: speaker=unit
-#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:1349
+#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:198
 msgid ""
 "Ugh! How can this be? Defeated by mere barbarians! My gods have forsaken "
 "me..."
@@ -1146,7 +1101,7 @@ msgstr ""
 "Ah! Kako ovo može biti? Poraziše nas obični varvari! Bogovi me napustiše..."
 
 #. [message]: speaker=second_unit
-#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:1363
+#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:212
 msgid ""
 "Cheers of your enemy are the last thing you hear as you slip into death..."
 "their joy fills your last moments with pure hate."
@@ -1155,7 +1110,7 @@ msgstr ""
 "njihova ispunjava ti poslednje trenutke čistom mržnjom."
 
 #. [message]
-#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:1385
+#: data/multiplayer/scenarios/2p_Dark_Forecast.cfg:234
 msgid ""
 "The enemy cheers as a dark mist rises from the land, engulfing you. As "
 "ghostly wisps drain away your will, you realize that your time in this land "
@@ -2019,88 +1974,88 @@ msgid "2 vs. 2 or 3 vs. 3 team game."
 msgstr "Timska igra 2 na 2 ili 3 na 3."
 
 #. [multiplayer]: id=multiplayer_6p_Team_Survival
-#: data/multiplayer/scenarios/6p_Team_Survival.cfg:319
+#: data/multiplayer/scenarios/6p_Team_Survival.cfg:246
 msgid "6p — Team Survival"
 msgstr "6i: Timski opstanak"
 
 #. [multiplayer]: id=multiplayer_6p_Team_Survival
-#: data/multiplayer/scenarios/6p_Team_Survival.cfg:321
+#: data/multiplayer/scenarios/6p_Team_Survival.cfg:248
 msgid "Scenario where the objective is to survive for as long as possible."
 msgstr "Scenario u kome je cilj preživeti koliko je dugo moguće."
 
 #. [side]
-#: data/multiplayer/scenarios/6p_Team_Survival.cfg:334
+#: data/multiplayer/scenarios/6p_Team_Survival.cfg:261
 msgid "Attacker"
 msgstr "napadač"
 
 #. [side]
-#: data/multiplayer/scenarios/6p_Team_Survival.cfg:351
-#: data/multiplayer/scenarios/6p_Team_Survival.cfg:364
-#: data/multiplayer/scenarios/6p_Team_Survival.cfg:377
-#: data/multiplayer/scenarios/6p_Team_Survival.cfg:390
-#: data/multiplayer/scenarios/6p_Team_Survival.cfg:403
-#: data/multiplayer/scenarios/6p_Team_Survival.cfg:416
+#: data/multiplayer/scenarios/6p_Team_Survival.cfg:278
+#: data/multiplayer/scenarios/6p_Team_Survival.cfg:291
+#: data/multiplayer/scenarios/6p_Team_Survival.cfg:304
+#: data/multiplayer/scenarios/6p_Team_Survival.cfg:317
+#: data/multiplayer/scenarios/6p_Team_Survival.cfg:330
+#: data/multiplayer/scenarios/6p_Team_Survival.cfg:343
 msgid "Defender"
 msgstr "branilac"
 
 #. [objective]: condition=win
-#: data/multiplayer/scenarios/6p_Team_Survival.cfg:434
+#: data/multiplayer/scenarios/6p_Team_Survival.cfg:361
 msgid "Survive all enemy attacks"
 msgstr "Preživiš li sve neprijateljske nalete"
 
 #. [objective]: condition=lose
-#: data/multiplayer/scenarios/6p_Team_Survival.cfg:440
+#: data/multiplayer/scenarios/6p_Team_Survival.cfg:367
 msgid "Death of your team leaders"
 msgstr "Stradaju li vam vođi timova"
 
 #. [note]
-#: data/multiplayer/scenarios/6p_Team_Survival.cfg:445
+#: data/multiplayer/scenarios/6p_Team_Survival.cfg:372
 msgid "Hint: Learning the enemy spawn points and types helps a lot."
 msgstr ""
 "Savet: Upoznavanje neprijateljskih mesta izranjanja i tipova dosta pomaže."
 
 #. [label]
-#: data/multiplayer/scenarios/6p_Team_Survival.cfg:451
+#: data/multiplayer/scenarios/6p_Team_Survival.cfg:378
 msgid "Turn 2: Loyalists"
 msgstr "Potez 2: Lojalisti"
 
 #. [label]
-#: data/multiplayer/scenarios/6p_Team_Survival.cfg:456
+#: data/multiplayer/scenarios/6p_Team_Survival.cfg:383
 msgid "Turn 5: Knalgans"
 msgstr "Potez 5: Knalganci"
 
 #. [label]
-#: data/multiplayer/scenarios/6p_Team_Survival.cfg:461
+#: data/multiplayer/scenarios/6p_Team_Survival.cfg:388
 msgid "Turn 8: Rebels"
 msgstr "Potez 8: Pobunjenici"
 
 #. [label]
-#: data/multiplayer/scenarios/6p_Team_Survival.cfg:466
+#: data/multiplayer/scenarios/6p_Team_Survival.cfg:393
 msgid "Turn 11: Northerners"
 msgstr "Potez 11: Severnjaci"
 
 #. [label]
-#: data/multiplayer/scenarios/6p_Team_Survival.cfg:471
+#: data/multiplayer/scenarios/6p_Team_Survival.cfg:398
 msgid "Turn 14: Drakes"
 msgstr "Potez 14: Zmagovi"
 
 #. [label]
-#: data/multiplayer/scenarios/6p_Team_Survival.cfg:476
+#: data/multiplayer/scenarios/6p_Team_Survival.cfg:403
 msgid "Turn 17: Undead"
 msgstr "Potez 17: Nemrtvi"
 
 #. [label]
-#: data/multiplayer/scenarios/6p_Team_Survival.cfg:481
+#: data/multiplayer/scenarios/6p_Team_Survival.cfg:408
 msgid "Tower of Doom"
 msgstr "Kula propasti"
 
 #. [message]: speaker=narrator
-#: data/multiplayer/scenarios/6p_Team_Survival.cfg:588
+#: data/multiplayer/scenarios/6p_Team_Survival.cfg:515
 msgid "Faery"
 msgstr "Vila"
 
 #. [message]: speaker=narrator
-#: data/multiplayer/scenarios/6p_Team_Survival.cfg:589
+#: data/multiplayer/scenarios/6p_Team_Survival.cfg:516
 msgid ""
 "Congratulations for surviving the map that so many people claim is "
 "impossible. Frankly, I haven’t got a clue as to how you did it, so send me "
@@ -2111,13 +2066,13 @@ msgstr ""
 "mine.nu — hvala vam!"
 
 #. [message]: speaker=narrator
-#: data/multiplayer/scenarios/6p_Team_Survival.cfg:603
+#: data/multiplayer/scenarios/6p_Team_Survival.cfg:530
 msgid "Death"
 msgstr "Smrt"
 
 # well-spelled: Бвахахахаааа
 #. [message]: speaker=narrator
-#: data/multiplayer/scenarios/6p_Team_Survival.cfg:605
+#: data/multiplayer/scenarios/6p_Team_Survival.cfg:532
 msgid ""
 "You have lost this game, but fear not. You can always try again. And again. "
 "And again. *Muahahaha*"
@@ -2332,6 +2287,37 @@ msgid ""
 msgstr ""
 "Proba performansi, upotrebite: --no-delay --multiplayer --"
 "scenario=wesbench_shroud_walk --exit-at-end"
+
+#~ msgid ""
+#~ "The screams and pleas for mercy are finally silenced, as you remove your "
+#~ "blood soaked blade from the last of the rebels. There will be no more "
+#~ "resistance from the local scum. Your reign has finally earned stability."
+#~ msgstr ""
+#~ "Krici i molbe za milost napokon su ugušeni, dok uklanjaš krvlju "
+#~ "natopljeno sečivo iz poslednjeg pobunjenika. Neće se više opirati ova "
+#~ "mesna bagra. Vladavina tvoja napokon je zaradila stabilnost."
+
+#~ msgid ""
+#~ "The last and most powerful of these creatures are almost upon us. I feel "
+#~ "that if we can finish them off in time, we shall be victorious."
+#~ msgstr ""
+#~ "Pristižu poslednja i najmoćnija međ' ovim stvorenjima. Osećam, dokrajčimo "
+#~ "li ih na vreme, pobeda je naša."
+
+#~ msgid "Heavy Snowfall"
+#~ msgstr "teška mećava"
+
+#~ msgid "Snowfall"
+#~ msgstr "mećava"
+
+#~ msgid "Heavy Rains"
+#~ msgstr "težak pljusak"
+
+#~ msgid "Drought"
+#~ msgstr "suša"
+
+#~ msgid "Clear Weather"
+#~ msgstr "čisto nebo"
 
 #, fuzzy
 #~| msgid "Random map"

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2011 - 2015 by Tommy Schmitz
+ Copyright (C) 2011 - 2016 by Tommy Schmitz
  Part of the Battle for Wesnoth Project http://www.wesnoth.org
 
  This program is free software; you can redistribute it and/or modify
@@ -31,10 +31,9 @@
 #include "play_controller.hpp"
 #include "replay.hpp"
 #include "resources.hpp"
-#include "team.hpp"
-#include "unit.hpp"
-#include "unit_display.hpp"
-#include "unit_map.hpp"
+#include "units/unit.hpp"
+#include "units/udisplay.hpp"
+#include "units/map.hpp"
 
 namespace wb
 {

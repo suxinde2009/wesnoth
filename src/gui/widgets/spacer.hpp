@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2008 - 2015 by Mark de Wever <koraq@xs4all.nl>
+   Copyright (C) 2008 - 2016 by Mark de Wever <koraq@xs4all.nl>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -17,8 +17,14 @@
 
 #include "gui/widgets/control.hpp"
 
+#include "gui/auxiliary/formula.hpp"
+#include "gui/core/widget_definition.hpp"
+#include "gui/core/window_builder.hpp"
+
 namespace gui2
 {
+
+// ------------ WIDGET -----------{
 
 /**
  * An empty widget.
@@ -40,22 +46,22 @@ public:
 
 private:
 	/** See @ref twidget::calculate_best_size. */
-	virtual tpoint calculate_best_size() const OVERRIDE;
+	virtual tpoint calculate_best_size() const override;
 
 public:
 	/***** ***** ***** ***** Inherited ***** ***** ***** *****/
 
 	/** See @ref tcontrol::set_active. */
-	virtual void set_active(const bool active) OVERRIDE;
+	virtual void set_active(const bool active) override;
 
 	/** See @ref tcontrol::get_active. */
-	virtual bool get_active() const OVERRIDE;
+	virtual bool get_active() const override;
 
 	/** See @ref tcontrol::get_state. */
-	virtual unsigned get_state() const OVERRIDE;
+	virtual unsigned get_state() const override;
 
 	/** See @ref twidget::disable_click_dismiss. */
-	bool disable_click_dismiss() const OVERRIDE;
+	bool disable_click_dismiss() const override;
 
 	/***** ***** ***** setters / getters for members ***** ****** *****/
 
@@ -69,17 +75,47 @@ private:
 	tpoint best_size_;
 
 	/** See @ref twidget::impl_draw_background. */
-	virtual void impl_draw_background(surface& frame_buffer) OVERRIDE;
-
-	/** See @ref twidget::impl_draw_background. */
 	virtual void impl_draw_background(surface& frame_buffer,
 									  int x_offset,
-									  int y_offset) OVERRIDE;
+									  int y_offset) override;
 
 	/** See @ref tcontrol::get_control_type. */
-	virtual const std::string& get_control_type() const OVERRIDE;
+	virtual const std::string& get_control_type() const override;
 };
 
+// }---------- DEFINITION ---------{
+
+struct tspacer_definition : public tcontrol_definition
+{
+	explicit tspacer_definition(const config& cfg);
+
+	struct tresolution : public tresolution_definition_
+	{
+		explicit tresolution(const config& cfg);
+	};
+};
+
+// }---------- BUILDER -----------{
+
+namespace implementation
+{
+
+struct tbuilder_spacer : public tbuilder_control
+{
+	explicit tbuilder_spacer(const config& cfg);
+
+	using tbuilder_control::build;
+
+	twidget* build() const;
+
+private:
+	tformula<unsigned> width_;
+	tformula<unsigned> height_;
+};
+
+} // namespace implementation
+
+// }------------ END --------------
 
 } // namespace gui2
 

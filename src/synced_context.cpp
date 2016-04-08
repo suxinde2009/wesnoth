@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2014 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2014 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -27,6 +27,7 @@
 #include "resources.hpp"
 #include "synced_checkup.hpp"
 #include "game_data.hpp"
+#include "game_board.hpp"
 #include "network.hpp"
 #include "log.hpp"
 #include "lua_jailbreak_exception.hpp"
@@ -35,7 +36,7 @@
 #include "game_end_exceptions.hpp"
 #include "seed_rng.hpp"
 #include "syncmp_handler.hpp"
-#include "unit_id.hpp"
+#include "units/id.hpp"
 #include "whiteboard/manager.hpp"
 #include <boost/lexical_cast.hpp>
 
@@ -52,6 +53,8 @@ static lg::log_domain log_replay("replay");
 
 synced_context::synced_state synced_context::state_ = synced_context::UNSYNCED;
 int synced_context::last_unit_id_ = 0;
+synced_context::event_list synced_context::undo_commands_;
+synced_context::event_list synced_context::redo_commands_;
 bool synced_context::is_simultaneously_ = false;
 
 bool synced_context::run(const std::string& commandname, const config& data, bool use_undo, bool show, synced_command::error_handler_function error_handler)
@@ -88,6 +91,12 @@ bool synced_context::run(const std::string& commandname, const config& data, boo
 
 bool synced_context::run_and_store(const std::string& commandname, const config& data, bool use_undo, bool show, synced_command::error_handler_function error_handler)
 {
+	if(resources::controller->is_replay())
+	{
+		ERR_REPLAY << "ignored attempt to invoke a synced command during replay\n";
+		return false;
+	}
+
 	assert(resources::recorder->at_end());
 	resources::recorder->add_synced_command(commandname, data);
 	bool success = run(commandname, data, use_undo, show, error_handler);
@@ -114,11 +123,6 @@ bool synced_context::run_in_synced_context_if_not_already(const std::string& com
 	{
 	case(synced_context::UNSYNCED):
 	{
-		if(resources::controller->is_replay())
-		{
-			ERR_REPLAY << "ignored attempt to invoke a synced command during replay\n";
-			return false;
-		}
 		return run_and_throw(commandname, data, use_undo, show, error_handler);
 	}
 	case(synced_context::LOCAL_CHOICE):
@@ -177,7 +181,7 @@ void synced_context::set_synced_state(synced_state newstate)
 	state_ = newstate;
 }
 
-namespace 
+namespace
 {
 	class random_server_choice : public synced_context::server_choice
 	{
@@ -239,7 +243,7 @@ int synced_context::get_unit_id_diff()
 {
 	//this method only works in a synced context.
 	assert(is_synced());
-	return n_unit::id_manager::instance().get_save_id() - last_unit_id_;
+	return resources::gameboard->unit_id_manager().get_save_id() - last_unit_id_;
 }
 
 namespace
@@ -257,15 +261,7 @@ namespace
 
 void synced_context::pull_remote_user_input()
 {
-	//code copied form persist_var, feels strange to call ai::.. functions for something where the ai isn't involved....
-	//note that ai::manager::raise_sync_network isn't called by the ai at all anymore (one more reason to put it somehwere else)
 	try{
-		if(resources::gamedata->phase() == game_data::PLAY || resources::gamedata->phase() == game_data::START)
-		{
-			//during the prestart/preload event the screen is locked and we shouldn't call user_interact.
-			//because that might result in crashs if someone clicks anywhere during screenlock.
-			ai::manager::raise_user_interact();
-		}
 		syncmp_registry::pull_remote_choice();
 	}
 	catch(network::error& err)
@@ -348,7 +344,7 @@ config synced_context::ask_server_choice(const server_choice& sch)
 				we don't want to send multiple "require_random" to the server.
 			*/
 			if(!did_require)
-			{	
+			{
 				sch.send_request();
 				did_require = true;
 			}
@@ -387,6 +383,26 @@ config synced_context::ask_server_choice(const server_choice& sch)
 	}
 }
 
+void synced_context::add_undo_commands(const config& commands, const game_events::queued_event& ctx)
+{
+	undo_commands_.emplace_front(commands, ctx);
+}
+
+void synced_context::add_redo_commands(const config& commands, const game_events::queued_event& ctx)
+{
+	redo_commands_.emplace_front(commands, ctx);
+}
+
+void synced_context::reset_undo_commands()
+{
+	undo_commands_.clear();
+}
+
+void synced_context::reset_redo_commands()
+{
+	redo_commands_.clear();
+}
+
 set_scontext_synced_base::set_scontext_synced_base()
 	: new_rng_(synced_context::get_rng_for_action())
 	, old_rng_(random_new::generator)
@@ -396,7 +412,9 @@ set_scontext_synced_base::set_scontext_synced_base()
 	assert(synced_context::get_synced_state() == synced_context::UNSYNCED);
 	synced_context::set_synced_state(synced_context::SYNCED);
 	synced_context::reset_is_simultaneously();
-	synced_context::set_last_unit_id(n_unit::id_manager::instance().get_save_id());
+	synced_context::set_last_unit_id(resources::gameboard->unit_id_manager().get_save_id());
+	synced_context::reset_undo_commands();
+	synced_context::reset_redo_commands();
 	old_rng_ = random_new::generator;
 	random_new::generator = new_rng_.get();
 }
@@ -417,7 +435,7 @@ set_scontext_synced::set_scontext_synced()
 
 set_scontext_synced::set_scontext_synced(int number)
 	: set_scontext_synced_base()
-	, new_checkup_(generate_checkup("checkup" + boost::lexical_cast<std::string>(number))), disabler_()
+	, new_checkup_(generate_checkup("checkup" + std::to_string(number))), disabler_()
 {
 	init();
 }
@@ -452,7 +470,7 @@ void set_scontext_synced::do_final_checkup(bool dont_throw)
 	config co;
 	config cn = config_of
 		("random_calls", new_rng_->get_random_calls())
-		("next_unit_id", n_unit::id_manager::instance().get_save_id() + 1);
+		("next_unit_id", resources::gameboard->unit_id_manager().get_save_id() + 1);
 	if(checkup_instance->local_checkup(cn, co))
 	{
 		return;
@@ -521,7 +539,7 @@ leave_synced_context::~leave_synced_context()
 }
 
 set_scontext_unsynced::set_scontext_unsynced()
-	: leaver_(synced_context::is_synced() ? new leave_synced_context() : NULL)
+	: leaver_(synced_context::is_synced() ? new leave_synced_context() : nullptr)
 {
 
 }

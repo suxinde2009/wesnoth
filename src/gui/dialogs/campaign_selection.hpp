@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2009 - 2015 by Mark de Wever <koraq@xs4all.nl>
+   Copyright (C) 2009 - 2016 by Mark de Wever <koraq@xs4all.nl>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -17,7 +17,6 @@
 
 #include "gui/dialogs/dialog.hpp"
 
-#include "config.hpp"
 #include "game_initialization/create_engine.hpp"
 
 namespace gui2
@@ -31,6 +30,7 @@ public:
 		choice_(-1),
 		deterministic_(false)
 	{
+		set_restore(true);
 	}
 
 	/***** ***** ***** setters / getters for members ***** ****** *****/
@@ -55,7 +55,7 @@ private:
 	void show_settings(CVideo& video);
 
 	/** Inherited from tdialog. */
-	void pre_show(CVideo& video, twindow& window);
+	void pre_show(twindow& window);
 
 	/** Inherited from tdialog. */
 	void post_show(twindow& window);

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2003 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2003 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -42,7 +42,7 @@ bool map_generator::allow_user_config() const
 	return false;
 }
 
-void map_generator::user_config(display& /*disp*/)
+void map_generator::user_config(CVideo& /*v*/)
 {
 }
 
@@ -82,7 +82,7 @@ int main(int argc, char** argv)
 		nplayers = atoi(argv[7]);
 	}
 
-	srand(time(NULL));
+	srand(time(nullptr));
 	std::cout << generate_map(x,y,iterations,hill_size,lakes,nvillages,nplayers) << "\n";
 }
 

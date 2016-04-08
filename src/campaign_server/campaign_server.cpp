@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2003 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2003 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -35,13 +35,15 @@
 #include "campaign_server/control.hpp"
 #include "version.hpp"
 #include "util.hpp"
+#include "hash.hpp"
 
 #include <csignal>
 #include <ctime>
 
-#include <boost/foreach.hpp>
 #include <boost/iostreams/filter/gzip.hpp>
 #include <boost/exception/get_error_info.hpp>
+#include <boost/random.hpp>
+#include <boost/generator_iterator.hpp>
 
 // the fork execute is unix specific only tested on Linux quite sure it won't
 // work on Windows not sure which other platforms have a problem with it.
@@ -98,8 +100,36 @@ time_t monotonic_clock()
 	return ts.tv_sec;
 #else
 	#warning monotonic_clock() is not truly monotonic!
-	return time(NULL);
+	return time(nullptr);
 #endif
+}
+
+/* Secure password storage functions */
+bool authenticate(config& campaign, const config::attribute_value& passphrase)
+{
+	return util::create_hash(passphrase, campaign["passsalt"]) == campaign["passhash"];
+}
+
+std::string generate_salt(size_t len)
+{
+	static const std::string itoa64 = "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+	boost::mt19937 mt(time(0));
+	std::string salt = std::string(len, '0');
+	boost::uniform_int<> from_str(0, itoa64.length() - 1);
+	boost::variate_generator< boost::mt19937, boost::uniform_int<> > get_char(mt, from_str);
+
+	for(size_t i = 0; i < len; i++) {
+		salt[i] = itoa64[get_char()];
+	}
+
+	return salt;
+}
+
+void set_passphrase(config& campaign, std::string passphrase)
+{
+	std::string salt = generate_salt(16);
+	campaign["passsalt"] = salt;
+	campaign["passhash"] = util::create_hash(passphrase, salt);
 }
 
 } // end anonymous namespace
@@ -129,6 +159,21 @@ server::server(const std::string& cfg_file, size_t min_threads, size_t max_threa
 
 	LOG_CS << "Port: " << port_ << "  Worker threads min/max: " << min_threads
 		   << '/' << max_threads << '\n';
+
+	// Ensure all campaigns to use secure hash passphrase storage
+	if(!read_only_) {
+		for(config& campaign : campaigns().child_range("campaign")) {
+			// Campaign already has a hashed password
+			if (campaign["passphrase"].empty()) {
+				continue;
+			}
+
+			LOG_CS << "Campaign '" << campaign["title"] << "' uses unhashed passphrase. Fixing.\n";
+			set_passphrase(campaign, campaign["passphrase"]);
+			campaign["passphrase"] = "";
+		}
+		write_config();
+	}
 
 	register_handlers();
 }
@@ -251,7 +296,7 @@ void server::fire(const std::string& hook, const std::string& addon)
 		// We are the child process. Execute the script. We run as a
 		// separate thread sharing stdout/stderr, which will make the
 		// log look ugly.
-		execlp(script.c_str(), script.c_str(), addon.c_str(), static_cast<char *>(NULL));
+		execlp(script.c_str(), script.c_str(), addon.c_str(), static_cast<char *>(nullptr));
 
 		// exec() and family never return; if they do, we have a problem
 		std::cerr << "ERROR: exec failed with errno " << errno << " for addon " << addon
@@ -343,9 +388,8 @@ void server::run()
 							// Shouldn't happen!
 							ERR_CS << "Add-on passphrases may not be empty!\n";
 						} else {
-							campaign["passphrase"] = newpass;
+							set_passphrase(campaign, newpass);
 							write_config();
-
 							LOG_CS << "New passphrase set for '" << addon_id << "'\n";
 						}
 					}
@@ -402,7 +446,7 @@ void server::run()
 			network::connection err_sock = 0;
 			network::connection const * err_connection = boost::get_error_info<network::connection_info>(e);
 
-			if(err_connection != NULL) {
+			if(err_connection != nullptr) {
 				err_sock = *err_connection;
 			}
 
@@ -444,7 +488,7 @@ void server::handle_request_campaign_list(const server::request& req)
 {
 	LOG_CS << "sending campaign list to " << req.addr << " using gzip";
 
-	time_t epoch = time(NULL);
+	time_t epoch = time(nullptr);
 	config campaign_list;
 
 	campaign_list["timestamp"] = epoch;
@@ -469,7 +513,7 @@ void server::handle_request_campaign_list(const server::request& req)
 	const std::string& name = req.cfg["name"];
 	const std::string& lang = req.cfg["language"];
 
-	BOOST_FOREACH(const config& i, campaigns().child_range("campaign"))
+	for(const config& i : campaigns().child_range("campaign"))
 	{
 		if(!name.empty() && name != i["name"]) {
 			continue;
@@ -487,7 +531,7 @@ void server::handle_request_campaign_list(const server::request& req)
 		if(!lang.empty()) {
 			bool found = false;
 
-			BOOST_FOREACH(const config& j, i.child_range("translation"))
+			for(const config& j : i.child_range("translation"))
 			{
 				if(j["language"] == lang) {
 					found = true;
@@ -503,9 +547,11 @@ void server::handle_request_campaign_list(const server::request& req)
 		campaign_list.add_child("campaign", i);
 	}
 
-	BOOST_FOREACH(config& j, campaign_list.child_range("campaign"))
+	for(config& j : campaign_list.child_range("campaign"))
 	{
 		j["passphrase"] = "";
+		j["passhash"] = "";
+		j["passsalt"] = "";
 		j["upload_ip"] = "";
 		j["email"] = "";
 		j["feedback_url"] = "";
@@ -580,7 +626,7 @@ void server::handle_upload(const server::request& req)
 	config data = upload.child("data");
 
 	const std::string& name = upload["name"];
-	config *campaign = NULL;
+	config *campaign = nullptr;
 
 	bool passed_name_utf8_check = false;
 
@@ -588,7 +634,7 @@ void server::handle_upload(const server::request& req)
 		const std::string& lc_name = utf8::lowercase(name);
 		passed_name_utf8_check = true;
 
-		BOOST_FOREACH(config& c, campaigns().child_range("campaign"))
+		for(config& c : campaigns().child_range("campaign"))
 		{
 			if(utf8::lowercase(c["name"]) == lc_name) {
 				campaign = &c;
@@ -647,11 +693,11 @@ void server::handle_upload(const server::request& req)
 		send_error("Add-on rejected: The add-on contains an illegal file or directory name."
 				   " File or directory names may not contain whitespace or any of the following characters: '/ \\ : ~'",
 				   req.sock);
-	} else if(campaign && (*campaign)["passphrase"].str() != upload["passphrase"]) {
+	} else if(campaign && !authenticate(*campaign, upload["passphrase"])) {
 		LOG_CS << "Upload aborted - incorrect passphrase.\n";
 		send_error("Add-on rejected: The add-on already exists, and your passphrase was incorrect.", req.sock);
 	} else {
-		const time_t upload_ts = time(NULL);
+		const time_t upload_ts = time(nullptr);
 
 		LOG_CS << "Upload is owner upload.\n";
 
@@ -674,9 +720,11 @@ void server::handle_upload(const server::request& req)
 			return;
 		}
 
+		const bool existing_upload = campaign != nullptr;
+
 		std::string message = "Add-on accepted.";
 
-		if(campaign == NULL) {
+		if(campaign == nullptr) {
 			campaign = &campaigns().add_child("campaign");
 			(*campaign)["original_timestamp"] = upload_ts;
 		}
@@ -684,7 +732,6 @@ void server::handle_upload(const server::request& req)
 		(*campaign)["title"] = upload["title"];
 		(*campaign)["name"] = upload["name"];
 		(*campaign)["filename"] = "data/" + upload["name"].str();
-		(*campaign)["passphrase"] = upload["passphrase"];
 		(*campaign)["author"] = upload["author"];
 		(*campaign)["description"] = upload["description"];
 		(*campaign)["version"] = upload["version"];
@@ -694,6 +741,10 @@ void server::handle_upload(const server::request& req)
 		(*campaign)["upload_ip"] = req.addr;
 		(*campaign)["type"] = upload["type"];
 		(*campaign)["email"] = upload["email"];
+
+		if(!existing_upload) {
+			set_passphrase(*campaign, upload["passphrase"]);
+		}
 
 		if((*campaign)["downloads"].empty()) {
 			(*campaign)["downloads"] = 0;
@@ -752,14 +803,14 @@ void server::handle_delete(const server::request& req)
 
 	LOG_CS << "deleting campaign '" << erase["name"] << "' requested from " << req.addr << "\n";
 
-	const config& campaign = get_campaign(erase["name"]);
+	config& campaign = get_campaign(erase["name"]);
 
 	if(!campaign) {
 		send_error("The add-on does not exist.", req.sock);
 		return;
 	}
 
-	if(campaign["passphrase"] != erase["passphrase"]
+	if(!authenticate(campaign, erase["passphrase"])
 	   && (campaigns()["master_password"].empty()
 	   || campaigns()["master_password"] != erase["passphrase"]))
 	{
@@ -806,15 +857,13 @@ void server::handle_change_passphrase(const server::request& req)
 
 	if(!campaign) {
 		send_error("No add-on with that name exists.", req.sock);
-	} else if(campaign["passphrase"] != cpass["passphrase"]) {
+	} else if(!authenticate(campaign, cpass["passphrase"])) {
 		send_error("Your old passphrase was incorrect.", req.sock);
 	} else if(cpass["new_passphrase"].empty()) {
 		send_error("No new passphrase was supplied.", req.sock);
 	} else {
-		campaign["passphrase"] = cpass["new_passphrase"];
-
+		set_passphrase(campaign, cpass["new_passphrase"]);
 		write_config();
-
 		send_message("Passphrase changed.", req.sock);
 	}
 }
@@ -825,7 +874,7 @@ int main(int argc, char**argv)
 {
 	game_config::path = filesystem::get_cwd();
 
-	lg::set_log_domain_severity("campaignd", lg::info);
+	lg::set_log_domain_severity("campaignd", lg::info());
 	lg::timestamps(true);
 
 	try {
@@ -847,7 +896,7 @@ int main(int argc, char**argv)
 	} catch(network::error& e) {
 		std::cerr << "Aborted with network error: " << e.message << '\n';
 		return 3;
-	} catch(boost::bad_function_call& /*e*/) {
+	} catch(std::bad_function_call& /*e*/) {
 		std::cerr << "Bad request handler function call\n";
 		return 4;
 	}

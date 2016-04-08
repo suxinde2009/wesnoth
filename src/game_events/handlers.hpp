@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2003 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2003 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -24,8 +24,8 @@
 #ifndef GAME_EVENTS_HANDLERS_H_INCLUDED
 #define GAME_EVENTS_HANDLERS_H_INCLUDED
 
-#include "../config.hpp"
-#include "../utils/smart_list.hpp"
+#include "config.hpp"
+#include "utils/smart_list.hpp"
 
 #include <boost/noncopyable.hpp>
 #include <boost/scoped_ptr.hpp>

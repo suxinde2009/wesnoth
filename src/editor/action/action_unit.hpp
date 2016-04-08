@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2008 - 2015 by Fabian Mueller <fabianmueller5@gmx.de>
+   Copyright (C) 2008 - 2016 by Fabian Mueller <fabianmueller5@gmx.de>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -28,9 +28,7 @@
 
 #include "editor/action/action.hpp"
 
-#include "../../unit_types.hpp"
-#include "../../unit.hpp"
-
+#include "units/unit.hpp"
 
 namespace editor {
 

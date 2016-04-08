@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2003 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2003 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -24,7 +24,6 @@
 #include "util.hpp"                     // for lexical_cast, etc
 #include "video.hpp"                    // for update_rect, CVideo
 
-#include <stddef.h>                     // for NULL
 #include <algorithm>                    // for max, min, find_if
 #include <ostream>                      // for operator<<, stringstream, etc
 #include <vector>                       // for vector, etc
@@ -40,7 +39,7 @@ help_text_area::help_text_area(CVideo &video, const section &toplevel) :
 	items_(),
 	last_row_(),
 	toplevel_(toplevel),
-	shown_topic_(NULL),
+	shown_topic_(nullptr),
 	title_spacing_(16),
 	curr_loc_(0, 0),
 	min_row_height_(font::get_max_height(normal_font_size)),
@@ -108,7 +107,7 @@ void help_text_area::set_items()
 		font::make_text_ellipsis(shown_topic_->title, title_size, inner_location().w);
 	surface surf(font::get_rendered_text(show_title, title_size,
 					     font::NORMAL_COLOR, TTF_STYLE_BOLD));
-	if (surf != NULL) {
+	if (surf != nullptr) {
 		add_item(item(surf, 0, 0, show_title));
 		curr_loc_.second = title_spacing_;
 		contents_height_ = title_spacing_;
@@ -172,7 +171,7 @@ void help_text_area::handle_ref_cfg(const config &cfg)
 		throw parse_error(msg.str());
 	}
 
-	if (find_topic(toplevel_, dst) == NULL && !force) {
+	if (find_topic(toplevel_, dst) == nullptr && !force) {
 		// detect the broken link but quietly silence the hyperlink for normal user
 		add_text_item(text, game_config::debug ? dst : "", true);
 
@@ -288,7 +287,7 @@ void help_text_area::handle_format_cfg(const config &cfg)
 	bool bold = cfg["bold"].to_bool();
 	bool italic = cfg["italic"].to_bool();
 	int font_size = cfg["font_size"].to_int(normal_font_size);
-	SDL_Color color = string_to_color(cfg["color"]);
+	SDL_Color color = help::string_to_color(cfg["color"]);
 	add_text_item(text, "", false, font_size, bold, italic, color);
 }
 
@@ -521,7 +520,7 @@ void help_text_area::draw_contents()
 {
 	SDL_Rect const &loc = inner_location();
 	bg_restore();
-	surface screen = video().getSurface();
+	surface& screen = video().getSurface();
 	clip_rect_setter clip_rect_set(screen, &loc);
 	for(std::list<item>::const_iterator it = items_.begin(), end = items_.end(); it != end; ++it) {
 		SDL_Rect dst = it->rect;
@@ -537,7 +536,7 @@ void help_text_area::draw_contents()
 					++dst.y;
 				}
 			}
-			sdl_blit(it->surf, NULL, screen, &dst);
+			sdl_blit(it->surf, nullptr, screen, &dst);
 		}
 	}
 	update_rect(loc);

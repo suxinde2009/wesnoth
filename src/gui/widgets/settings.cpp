@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2007 - 2015 by Mark de Wever <koraq@xs4all.nl>
+   Copyright (C) 2007 - 2016 by Mark de Wever <koraq@xs4all.nl>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -25,14 +25,13 @@
 #include "config_cache.hpp"
 #include "filesystem.hpp"
 #include "gettext.hpp"
-#include "gui/auxiliary/log.hpp"
-#include "gui/auxiliary/tips.hpp"
+#include "gui/core/log.hpp"
+#include "gui/core/tips.hpp"
 #include "gui/widgets/window.hpp"
 #include "serialization/parser.hpp"
 #include "serialization/preprocessor.hpp"
 #include "serialization/schema_validator.hpp"
-#include "formula_string_utils.hpp"
-#include "utils/foreach.tpp"
+#include "formula/string_utils.hpp"
 #include "wml_exception.hpp"
 
 namespace gui2
@@ -84,7 +83,7 @@ static std::vector<std::string>& registered_window_types()
 }
 
 typedef std::map<std::string,
-				 boost::function<void(tgui_definition&,
+				 std::function<void(tgui_definition&,
 									  const std::string&,
 									  const config&,
 									  const char* key)> >
@@ -347,13 +346,13 @@ const std::string& tgui_definition::read(const config& cfg)
 
 	/***** Control definitions *****/
 
-	FOREACH(AUTO & widget_type, registred_widget_type())
+	for(auto & widget_type : registred_widget_type())
 	{
-		widget_type.second(*this, widget_type.first, cfg, NULL);
+		widget_type.second(*this, widget_type.first, cfg, nullptr);
 	}
 
 	/***** Window types *****/
-	FOREACH(const AUTO & w, cfg.child_range("window"))
+	for(const auto & w : cfg.child_range("window"))
 	{
 		std::pair<std::string, twindow_builder> child;
 		child.first = child.second.read(w);
@@ -433,7 +432,7 @@ void tgui_definition::load_widget_definitions(
 		const std::string& definition_type,
 		const std::vector<tcontrol_definition_ptr>& definitions)
 {
-	FOREACH(const AUTO & def, definitions)
+	for(const auto & def : definitions)
 	{
 
 		// We assume all definitions are unique if not we would leak memory.
@@ -515,7 +514,7 @@ void load_settings()
 		ERR_GUI_P << e.message;
 	}
 	// Parse guis
-	FOREACH(const AUTO & g, cfg.child_range("gui"))
+	for(const auto & g : cfg.child_range("gui"))
 	{
 		std::pair<std::string, tgui_definition> child;
 		child.first = child.second.read(g);
@@ -537,7 +536,7 @@ void load_settings()
  * @begin{parent}{name="generic/"}
  * @begin{tag}{name="state"}{min=0}{max=1}
  * Definition of a state. A state contains the info what to do in a state.
- * Atm this is rather focussed on the drawing part, might change later.
+ * Atm this is rather focused on the drawing part, might change later.
  * Keys:
  * @begin{table}{config}
  *     draw & section & &                 Section with drawing directions for a
@@ -557,7 +556,7 @@ tstate_definition::tstate_definition(const config& cfg) : canvas()
 }
 
 void register_widget(const std::string& id,
-					 boost::function<void(tgui_definition& gui_definition,
+					 std::function<void(tgui_definition& gui_definition,
 										  const std::string& definition_type,
 										  const config& cfg,
 										  const char* key)> functor)

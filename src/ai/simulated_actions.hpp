@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2014 - 2015 by Guorui Xi <kevin.xgr@gmail.com>
+   Copyright (C) 2014 - 2016 by Guorui Xi <kevin.xgr@gmail.com>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -20,9 +20,9 @@
 #ifndef AI_SIMULATED_ACTIONS_HPP_INCLUDED
 #define AI_SIMULATED_ACTIONS_HPP_INCLUDED
 
-#include "game_info.hpp"
+#include "ai/game_info.hpp"
 
-#include "lua/unit_advancements_aspect.hpp"
+#include "lua/aspect_advancements.hpp"
 
 class unit_type;
 

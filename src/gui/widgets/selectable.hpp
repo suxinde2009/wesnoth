@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2007 - 2015 by Mark de Wever <koraq@xs4all.nl>
+   Copyright (C) 2007 - 2016 by Mark de Wever <koraq@xs4all.nl>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -15,7 +15,7 @@
 #ifndef GUI_WIDGETS_SELECTABLE_HPP_INCLUDED
 #define GUI_WIDGETS_SELECTABLE_HPP_INCLUDED
 
-#include "utils/boost_function_guarded.hpp"
+#include "utils/functional.hpp"
 #include <cassert>
 
 namespace gui2
@@ -44,7 +44,7 @@ public:
 
 	/** The number of states, that is 2 for normal buttons, 3 for tristate buttons. */
 	virtual unsigned num_states() const = 0;
-	
+
 	bool get_value_bool() const
 	{
 		assert(num_states() == 2);
@@ -61,7 +61,7 @@ public:
 	 * fired. Most of the time it will be a left click on the widget.
 	 */
 	virtual void
-	set_callback_state_change(boost::function<void(twidget&)> callback) = 0;
+	set_callback_state_change(std::function<void(twidget&)> callback) = 0;
 };
 
 } // namespace gui2

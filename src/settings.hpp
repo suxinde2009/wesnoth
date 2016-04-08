@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2007 - 2015 by Mark de Wever <koraq@xs4all.nl>
+   Copyright (C) 2007 - 2016 by Mark de Wever <koraq@xs4all.nl>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -58,7 +58,7 @@ namespace settings {
 	 *
 	 *  @returns            the village gold
 	 */
-	int get_village_gold(const std::string& value, const game_classification* classification = NULL);
+	int get_village_gold(const std::string& value, const game_classification* classification = nullptr);
 
 	/**
 	 *  Gets the village unit level support.

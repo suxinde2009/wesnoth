@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2007 - 2015 by Jeremy Rosen <jeremy.rosen@enst-bretagne.fr>
+   Copyright (C) 2007 - 2016 by Jeremy Rosen <jeremy.rosen@enst-bretagne.fr>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -17,12 +17,27 @@
  * Template instantiations for wesnoth-game.
  */
 
-#include "animated.tpp"
+#include "animated.hpp"
 // Force compilation of the following template instantiations
 
-#include "unit_frame.hpp"
+#include "units/frame.hpp"
 
 template class animated< image::locator >;
 template class animated< std::string >;
 template class animated< unit_frame >;
 
+// Put these here to ensure that there's only
+// one instance of the current_ticks variable
+namespace {
+	int current_ticks = 0;
+}
+
+void new_animation_frame()
+{
+	current_ticks = SDL_GetTicks();
+}
+
+int get_current_animation_tick()
+{
+	return current_ticks;
+}

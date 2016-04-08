@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2013 - 2015 by Andrius Silinskas <silinskas.andrius@gmail.com>
+   Copyright (C) 2013 - 2016 by Andrius Silinskas <silinskas.andrius@gmail.com>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -16,16 +16,15 @@
 #include "carryover.hpp"
 #include "config.hpp"
 #include "dialogs.hpp"
-#include "formula_string_utils.hpp"
+#include "formula/string_utils.hpp"
 #include "saved_game.hpp"
+#include "game_config.hpp"
 #include "game_config_manager.hpp"
 #include "gettext.hpp"
 #include "log.hpp"
 #include "mp_options.hpp"
 #include "savegame.hpp"
-#include "unit_id.hpp"
-
-#include <boost/foreach.hpp>
+#include "units/id.hpp"
 
 static lg::log_domain log_engine("engine");
 #define LOG_NG LOG_STREAM(info, log_engine)
@@ -55,6 +54,7 @@ static void add_multiplayer_classification(config& multiplayer, saved_game& stat
 config initial_level_config(saved_game& state)
 {
 	const mp_game_settings& params = state.mp_settings();
+	state.set_defaults();
 	//Also impliers state.expand_scenario()
 	//We need to call this before expand_mp_events/options oterwise they might be overwritten
 	state.expand_random_scenario();

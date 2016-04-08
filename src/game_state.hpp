@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2014 - 2015 by Chris Beck <render787@gmail.com>
+   Copyright (C) 2014 - 2016 by Chris Beck <render787@gmail.com>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -21,6 +21,7 @@ class config;
 #include "game_board.hpp"
 #include "game_data.hpp"
 #include "tod_manager.hpp"
+#include "units/id.hpp"
 
 #include <boost/scoped_ptr.hpp>
 #include <boost/shared_ptr.hpp>
@@ -37,14 +38,13 @@ namespace pathfind { class manager; }
 
 namespace wb { class manager; }
 
+namespace actions { class undo_list; }
+
 class game_state : public filter_context
 {
 private:
-	boost::shared_ptr<game_events::t_context> game_events_resources_; //!< This allows us to easily rebind the pointers used by the game events manager and pump
-
 	friend class replay_controller;
 public:
-	const config& level_;
 	game_data gamedata_;
 	game_board board_;
 	tod_manager tod_manager_;
@@ -52,21 +52,35 @@ public:
 	boost::scoped_ptr<reports> reports_;
 	boost::scoped_ptr<game_lua_kernel> lua_kernel_;
 	boost::scoped_ptr<game_events::manager> events_manager_;
+	/// undo_stack_ is never nullptr. It is implemented as a pointer so that
+	/// undo_list can be an incomplete type at this point (which reduces the
+	/// number of files that depend on actions/undo.hpp).
+	boost::scoped_ptr<actions::undo_list> undo_stack_;
+	int player_number_;
+
+	typedef boost::optional<end_level_data> t_possible_end_level_data;
+	t_possible_end_level_data end_level_data_;
+	bool init_side_done_;
+	bool start_event_fired_;
+	// used to sync with the mpserver
+	int server_request_number_;
+	bool& init_side_done() { return init_side_done_; }
 
 
 	game_events::wmi_container& get_wml_menu_items();
 	const game_events::wmi_container& get_wml_menu_items() const;
 	int first_human_team_; //needed to initialize the viewpoint during setup
+	bool has_human_sides() const { return first_human_team_ != -1; }
 
-	game_state(const config & level, const tdata_cache & tdata);
+	game_state(const config & level, play_controller &, const tdata_cache & tdata);
+	/// The third parameter is an optimisation.
+	game_state(const config & level, play_controller &, game_board& board);
 
 	~game_state();
 
-	void place_sides_in_preferred_locations();
+	void place_sides_in_preferred_locations(const config& level);
 
-	void init(int ticks, play_controller & );
-
-	void bind(wb::manager *, game_display *);
+	void init(const config& level, play_controller &);
 
 	void set_game_display(game_display *);
 

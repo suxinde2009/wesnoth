@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2012 - 2015 by Mark de Wever <koraq@xs4all.nl>
+   Copyright (C) 2012 - 2016 by Mark de Wever <koraq@xs4all.nl>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -82,11 +82,11 @@ struct ttracer
 #ifdef __GNUC__
 #define TRACER_ENTRY(interval)                                               \
 	static ttracer tracer(__PRETTY_FUNCTION__);                              \
-	ttracer::tprint print((++tracer.run % interval) == 0 ? &tracer : NULL)
+	ttracer::tprint print((++tracer.run % interval) == 0 ? &tracer : nullptr)
 #else
 #define TRACER_ENTRY(interval)                                               \
 	static ttracer tracer(__FUNCTION__);                                     \
-	ttracer::tprint print((++tracer.run % interval) == 0 ? &tracer : NULL)
+	ttracer::tprint print((++tracer.run % interval) == 0 ? &tracer : nullptr)
 #endif
 
 /**

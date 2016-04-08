@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2008 - 2015 by Tomasz Sniatowski <kailoran@gmail.com>
+   Copyright (C) 2008 - 2016 by Tomasz Sniatowski <kailoran@gmail.com>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -22,11 +22,11 @@
 #include "editor/map/map_fragment.hpp"
 #include "editor/toolkit/editor_toolkit.hpp"
 
-#include "../../controller_base.hpp"
+#include "controller_base.hpp"
 #include "help/help.hpp"
 #include "hotkey/command_executor.hpp"
-#include "../../mouse_handler_base.hpp"
-#include "../../tooltips.hpp"
+#include "mouse_handler_base.hpp"
+#include "tooltips.hpp"
 
 #include "sound_music_track.hpp"
 
@@ -40,10 +40,6 @@ namespace font {
 struct floating_label_context;
 }
 
-namespace preferences {
-	struct display_manager;
-} // namespace preferences
-
 namespace editor {
 
 class editor_map;
@@ -52,6 +48,7 @@ std::string get_left_button_function();
 
 enum menu_type {
 	MAP,
+	LOAD_MRU,
 	PALETTE,
 	AREA,
 	SIDE,
@@ -69,9 +66,10 @@ enum menu_type {
  * general logic.
  */
 class editor_controller : public controller_base,
-	public hotkey::command_executor,
+	public hotkey::command_executor_default,
 	public events::mouse_handler_base,
-	private boost::noncopyable
+	private boost::noncopyable,
+	quit_confirmation
 {
 	public:
 		/**
@@ -93,8 +91,8 @@ class editor_controller : public controller_base,
 		/** Process a hotkey quit command */
 		void hotkey_quit();
 
-		/** Show a quit confirmation dialog and if confirmed quit with the given exit status */
-		void quit_confirm(EXIT_STATUS status);
+		/** Show a quit confirmation dialog and returns true if the user pressed 'yes' */
+		bool quit_confirm();
 
 		/** Display the settings dialog, used to control e.g. the lighting settings */
 		void custom_tods_dialog();
@@ -166,20 +164,20 @@ class editor_controller : public controller_base,
 		/* controller_base overrides */
 		void process_keyup_event(const SDL_Event& event);
 		mouse_handler_base& get_mouse_handler_base() { return *this; }
-		editor_display& get_display() {return *gui_;}
+		editor_display& get_display() { return *gui_; }
 
 		/** Get the current mouse action */
 		mouse_action* get_mouse_action();
 
 		/**
 		 * Perform an action, then delete the action object.
-		 * The pointer can be NULL, in which case nothing will happen.
+		 * The pointer can be nullptr, in which case nothing will happen.
 		 */
 		void perform_delete(editor_action* action);
 
 		/**
 		 * Peform an action on the current map_context, then refresh the display
-		 * and delete the pointer. The pointer can be NULL, in which case nothing will happen.
+		 * and delete the pointer. The pointer can be nullptr, in which case nothing will happen.
 		 */
 		void perform_refresh_delete(editor_action* action, bool drag_part = false);
 
@@ -233,7 +231,6 @@ class editor_controller : public controller_base,
 		boost::scoped_ptr<context_manager> context_manager_;
 	private:
 		boost::scoped_ptr<editor_toolkit> toolkit_;
-		boost::scoped_ptr<preferences::display_manager> prefs_disp_manager_;
 		tooltips::manager tooltip_manager_;
 		boost::scoped_ptr<font::floating_label_context> floating_label_manager_;
 

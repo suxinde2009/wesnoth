@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2003 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2003 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -15,7 +15,7 @@
 
 #include <string>
 #include <cassert>
-#include "map_location.hpp"
+#include "map/location.hpp"
 #include "time_of_day.hpp"
 #include "resources.hpp"
 #include "play_controller.hpp"
@@ -146,7 +146,7 @@ config replay_helper::get_event(const std::string& name, const map_location& loc
 		config& source = ev.add_child("source");
 		loc.write(source);
 	}
-	if(last_select_loc != NULL && last_select_loc->valid())
+	if(last_select_loc != nullptr && last_select_loc->valid())
 	{
 		config& source = ev.add_child("last_select");
 		last_select_loc->write(source);

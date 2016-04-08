@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2007 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2007 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org
 
    This program is free software; you can redistribute it and/or modify
@@ -14,17 +14,18 @@
 #include "multiplayer.hpp"
 
 #include "addon/manager.hpp" // for get_installed_addons
+#include "config_assign.hpp"
 #include "dialogs.hpp"
-#include "formula_string_utils.hpp"
+#include "formula/string_utils.hpp"
 #include "game_preferences.hpp"
 #include "generators/map_create.hpp"
 #include "generators/map_generator.hpp"
 #include "gettext.hpp"
-#include "gui/dialogs/lobby_main.hpp"
+#include "gui/dialogs/lobby/lobby.hpp"
 #include "gui/dialogs/message.hpp"
-#include "gui/dialogs/mp_connect.hpp"
-#include "gui/dialogs/mp_create_game.hpp"
-#include "gui/dialogs/mp_login.hpp"
+#include "gui/dialogs/multiplayer/mp_connect.hpp"
+#include "gui/dialogs/multiplayer/mp_create_game.hpp"
+#include "gui/dialogs/multiplayer/mp_login.hpp"
 #include "gui/widgets/settings.hpp"
 #include "gui/widgets/window.hpp"
 #include "hash.hpp"
@@ -40,16 +41,16 @@
 #include "multiplayer_wait.hpp"
 #include "multiplayer_lobby.hpp"
 #include "playcampaign.hpp"
-#include "playmp_controller.hpp"
 #include "settings.hpp"
 #include "scripting/plugins/context.hpp"
+#include "sdl/rect.hpp"
 #include "sound.hpp"
 #include "statistics.hpp"
-#include "unit_id.hpp"
+#include "units/id.hpp"
+#include "video.hpp"
 #include "game_config_manager.hpp"
 
-#include <boost/bind.hpp>
-#include <boost/foreach.hpp>
+#include "utils/functional.hpp"
 
 static lg::log_domain log_network("network");
 #define LOG_NW LOG_STREAM(info, log_network)
@@ -84,18 +85,18 @@ public:
 
 namespace mp {
 
-void run_lobby_loop(display& disp, mp::ui& ui)
+void run_lobby_loop(CVideo& video, mp::ui& ui)
 {
 	DBG_MP << "running lobby loop" << std::endl;
-	disp.video().modeChanged();
+	video.modeChanged();
 	bool first = true;
 	font::cache_mode(font::CACHE_LOBBY);
 	while (ui.get_result() == mp::ui::CONTINUE) {
-		if (disp.video().modeChanged() || first) {
+		if (video.modeChanged() || first) {
 			SDL_Rect lobby_pos = sdl::create_rect(0
 					, 0
-					, disp.video().getx()
-					, disp.video().gety());
+					, video.getx()
+					, video.gety());
 			ui.set_location(lobby_pos);
 			first = false;
 		}
@@ -113,8 +114,8 @@ void run_lobby_loop(display& disp, mp::ui& ui)
 		events::raise_process_event();
 		events::raise_draw_event();
 
-		disp.flip();
-		disp.delay(20);
+		video.flip();
+		CVideo::delay(20);
 	}
 	font::cache_mode(font::CACHE_GAME);
 }
@@ -131,7 +132,7 @@ enum server_type {
 
 }
 
-static server_type open_connection(game_display& disp, const std::string& original_host)
+static server_type open_connection(CVideo& video, const std::string& original_host)
 {
 	DBG_MP << "opening connection" << std::endl;
 	std::string h = original_host;
@@ -139,7 +140,7 @@ static server_type open_connection(game_display& disp, const std::string& origin
 	if(h.empty()) {
 		gui2::tmp_connect dlg;
 
-		dlg.show(disp.video());
+		dlg.show(video);
 		if(dlg.get_retval() == gui2::twindow::OK) {
 			h = preferences::network_host();
 		} else {
@@ -168,7 +169,7 @@ static server_type open_connection(game_display& disp, const std::string& origin
 	shown_hosts.insert(hostpair(host, port));
 
 	config data;
-	sock = dialogs::network_connect_dialog(disp,_("Connecting to Server..."),host,port);
+	sock = dialogs::network_connect_dialog(video,_("Connecting to Server..."),host,port);
 
 	do {
 
@@ -178,7 +179,7 @@ static server_type open_connection(game_display& disp, const std::string& origin
 
 		data.clear();
 		network::connection data_res = dialogs::network_receive_dialog(
-				disp,_("Reading from Server..."),data);
+				video, _("Reading from Server..."), data);
 		if (!data_res) return ABORT_SERVER;
 		mp::check_response(data_res, data);
 
@@ -211,7 +212,7 @@ static server_type open_connection(game_display& disp, const std::string& origin
 
 			if(network::nconnections() > 0)
 				network::disconnect();
-			sock = dialogs::network_connect_dialog(disp,_("Connecting to Server..."),host,port);
+			sock = dialogs::network_connect_dialog(video,_("Connecting to Server..."),host,port);
 			continue;
 		}
 
@@ -275,7 +276,7 @@ static server_type open_connection(game_display& disp, const std::string& origin
 					warning_msg += "\n\n";
 					warning_msg += _("Do you want to continue?");
 
-					if(gui2::show_message(disp.video(), _("Warning"), warning_msg, gui2::tmessage::yes_no_buttons) != gui2::twindow::OK) {
+					if(gui2::show_message(video, _("Warning"), warning_msg, gui2::tmessage::yes_no_buttons) != gui2::twindow::OK) {
 						return ABORT_SERVER;
 					}
 				}
@@ -289,7 +290,7 @@ static server_type open_connection(game_display& disp, const std::string& origin
 					std::string password = preferences::password();
 
 					bool fall_through = (*error)["force_confirmation"].to_bool() ?
-						(gui2::show_message(disp.video(), _("Confirm"), (*error)["message"], gui2::tmessage::ok_cancel_buttons) == gui2::twindow::CANCEL) :
+						(gui2::show_message(video, _("Confirm"), (*error)["message"], gui2::tmessage::ok_cancel_buttons) == gui2::twindow::CANCEL) :
 						false;
 
 					const bool is_pw_request = !((*error)["password_request"].empty()) && !(password.empty());
@@ -393,7 +394,7 @@ static server_type open_connection(game_display& disp, const std::string& origin
 					}
 
 					gui2::tmp_login dlg(error_message, !((*error)["password_request"].empty()));
-					dlg.show(disp.video());
+					dlg.show(video);
 
 					switch(dlg.get_retval()) {
 						//Log in with password
@@ -412,7 +413,7 @@ static server_type open_connection(game_display& disp, const std::string& origin
 
 				// Somewhat hacky...
 				// If we broke out of the do-while loop above error
-				// is still going to be NULL
+				// is still going to be nullptr
 				if(!*error) break;
 			} // end login loop
 		}
@@ -442,8 +443,8 @@ static server_type open_connection(game_display& disp, const std::string& origin
 // creating the dialogs, then, according to the dialog result, of calling other
 // of those screen functions.
 
-static void enter_wait_mode(game_display& disp, const config& game_config,
-	saved_game& state, bool observe)
+static void enter_wait_mode(CVideo& video, const config& game_config,
+	saved_game& state, bool observe, int current_turn = 0)
 {
 	DBG_MP << "entering wait mode" << std::endl;
 
@@ -452,43 +453,46 @@ static void enter_wait_mode(game_display& disp, const config& game_config,
 
 	gamelist.clear();
 	statistics::fresh_stats();
-	n_unit::id_manager::instance().clear(); /* reset the unit underlying_id counter back to zero */
+	mp_campaign_info campaign_info;
+	campaign_info.is_host = false;
+	if(preferences::skip_mp_replay() || preferences::blindfold_replay()) {
+		campaign_info.skip_replay_until_turn = current_turn;
+		campaign_info.skip_replay_blindfolded = preferences::blindfold_replay();
+	}
 
 	{
-		mp::wait ui(disp, game_config, state, gamechat, gamelist);
+		mp::wait ui(video, game_config, state, gamechat, gamelist);
 
 		ui.join_game(observe);
 
-		run_lobby_loop(disp, ui);
+		run_lobby_loop(video, ui);
 		res = ui.get_result();
+		campaign_info.connected_players.insert(ui.user_list().begin(), ui.user_list().end());
 
 		if (res == mp::ui::PLAY) {
 			ui.start_game();
-			// FIXME commented a pointeless if since the else does exactly the same thing
-			//if (preferences::skip_mp_replay()){
-				//FIXME implement true skip replay
-				//state = ui.request_snapshot();
-			//}
 		} else {
 			DBG_MP << "skipped wait mode, result = " << res << std::endl;
 		}
 	}
 
 	switch (res) {
-	case mp::ui::PLAY:
-		play_game(disp, state, game_config, game_config_manager::get()->terrain_types(), IO_CLIENT,
-			preferences::skip_mp_replay() && observe, true, preferences::blindfold_replay() && observe);
+	case mp::ui::PLAY: {
+		campaign_controller controller(video, state, game_config, game_config_manager::get()->terrain_types());
+		controller.set_mp_info(&campaign_info);
+		controller.play_game();
 		break;
+	}
 	case mp::ui::QUIT:
 	default:
 		break;
 	}
 }
 
-static void enter_create_mode(game_display& disp, const config& game_config,
+static void enter_create_mode(CVideo& video, const config& game_config,
 	saved_game& state, bool local_players_only = false);
 
-static bool enter_connect_mode(game_display& disp, const config& game_config,
+static bool enter_connect_mode(CVideo& video, const config& game_config,
 	saved_game& state,
 	bool local_players_only = false)
 {
@@ -500,12 +504,18 @@ static bool enter_connect_mode(game_display& disp, const config& game_config,
 
 	gamelist.clear();
 	statistics::fresh_stats();
+	boost::optional<mp_campaign_info> campaign_info;
+	if(!local_players_only) {
+		campaign_info = mp_campaign_info();
+		campaign_info->connected_players.insert(preferences::login());
+		campaign_info->is_host = true;
+	}
 
 	{
-		ng::connect_engine_ptr connect_engine(new ng::connect_engine(state, local_players_only, true));
-		mp::connect ui(disp, state.mp_settings().name, game_config, gamechat, gamelist,
+		ng::connect_engine_ptr connect_engine(new ng::connect_engine(state, true, campaign_info.get_ptr()));
+		mp::connect ui(video, state.mp_settings().name, game_config, gamechat, gamelist,
 			*connect_engine);
-		run_lobby_loop(disp, ui);
+		run_lobby_loop(video, ui);
 
 		res = ui.get_result();
 
@@ -517,12 +527,14 @@ static bool enter_connect_mode(game_display& disp, const config& game_config,
 	} // end connect_engine_ptr scope
 
 	switch (res) {
-	case mp::ui::PLAY:
-		play_game(disp, state, game_config, game_config_manager::get()->terrain_types(), IO_SERVER, false,
-			!local_players_only);
+	case mp::ui::PLAY: {
+		campaign_controller controller(video, state, game_config, game_config_manager::get()->terrain_types());
+		controller.set_mp_info(campaign_info.get_ptr());
+		controller.play_game();
 		break;
+	}
 	case mp::ui::CREATE:
-		enter_create_mode(disp, game_config, state, local_players_only);
+		enter_create_mode(video, game_config, state, local_players_only);
 		break;
 	case mp::ui::QUIT:
 	default:
@@ -533,11 +545,11 @@ static bool enter_connect_mode(game_display& disp, const config& game_config,
 	return true;
 }
 
-static bool enter_configure_mode(game_display& disp, const config& game_config,
-	saved_game& state, 
+static bool enter_configure_mode(CVideo& video, const config& game_config,
+	saved_game& state,
 	bool local_players_only = false);
 
-static void enter_create_mode(game_display& disp, const config& game_config,
+static void enter_create_mode(CVideo& video, const config& game_config,
 	saved_game& state, bool local_players_only)
 {
 	DBG_MP << "entering create mode" << std::endl;
@@ -553,7 +565,7 @@ static void enter_create_mode(game_display& disp, const config& game_config,
 
 			gui2::tmp_create_game dlg(game_config);
 
-			dlg.show(disp.video());
+			dlg.show(video);
 
 			network::send_data(config("refresh_lobby"), 0);
 		} else {
@@ -561,19 +573,19 @@ static void enter_create_mode(game_display& disp, const config& game_config,
 			mp::ui::result res;
 
 			{
-				mp::create ui(disp, game_config, state, gamechat, gamelist);
-				run_lobby_loop(disp, ui);
+				mp::create ui(video, game_config, state, gamechat, gamelist);
+				run_lobby_loop(video, ui);
 				res = ui.get_result();
 				ui.get_parameters();
 			}
 
 			switch (res) {
 			case mp::ui::CREATE:
-				configure_canceled = !enter_configure_mode(disp, game_config,
+				configure_canceled = !enter_configure_mode(video, game_config,
 					state, local_players_only);
 				break;
 			case mp::ui::LOAD_GAME:
-				connect_canceled = !enter_connect_mode(disp, game_config,
+				connect_canceled = !enter_connect_mode(video, game_config,
 					state, local_players_only);
 				break;
 			case mp::ui::QUIT:
@@ -586,7 +598,7 @@ static void enter_create_mode(game_display& disp, const config& game_config,
 	} while(configure_canceled || connect_canceled);
 }
 
-static bool enter_configure_mode(game_display& disp, const config& game_config,
+static bool enter_configure_mode(CVideo& video, const config& game_config,
 	saved_game& state, bool local_players_only)
 {
 	DBG_MP << "entering configure mode" << std::endl;
@@ -600,20 +612,20 @@ static bool enter_configure_mode(game_display& disp, const config& game_config,
 
 		{
 			if (state.get_starting_pos().child("side")) {
-				mp::configure ui(disp, game_config, gamechat, gamelist, state,
+				mp::configure ui(video, game_config, gamechat, gamelist, state,
 					local_players_only);
-				run_lobby_loop(disp, ui);
+				run_lobby_loop(video, ui);
 				res = ui.get_result();
 				ui.get_parameters();
 			} else {
-				gui2::show_error_message(disp.video(), _("No sides found. At least one side or starting position must be defined."));
+				gui2::show_error_message(video, _("No sides found. At least one side or starting position must be defined."));
 				res = mp::ui::QUIT;
 			}
 		}
 
 		switch (res) {
 		case mp::ui::CREATE:
-			connect_canceled = !enter_connect_mode(disp, game_config,
+			connect_canceled = !enter_connect_mode(video, game_config,
 				state, local_players_only);
 			break;
 		case mp::ui::QUIT:
@@ -627,11 +639,10 @@ static bool enter_configure_mode(game_display& disp, const config& game_config,
 	return true;
 }
 
-static void do_preferences_dialog(game_display& disp, const config& game_config)
+static void do_preferences_dialog(CVideo& video, const config& game_config)
 {
 	DBG_MP << "displaying preferences dialog" << std::endl;
-	const preferences::display_manager disp_manager(&disp);
-	preferences::show_preferences_dialog(disp,game_config);
+	preferences::show_preferences_dialog(video, game_config);
 
 	/**
 	 * The screen size might have changed force an update of the size.
@@ -639,7 +650,8 @@ static void do_preferences_dialog(game_display& disp, const config& game_config)
 	 * @todo This might no longer be needed when gui2 is done.
 	 */
 	const SDL_Rect rect = screen_area();
-	preferences::set_resolution(disp.video(), rect.w, rect.h);
+
+	video.set_resolution(rect.w, rect.h);
 
 	gui2::settings::gamemap_width += rect.w - gui2::settings::screen_width ;
 	gui2::settings::gamemap_height += rect.h - gui2::settings::screen_height ;
@@ -647,17 +659,17 @@ static void do_preferences_dialog(game_display& disp, const config& game_config)
 	gui2::settings::screen_height = rect.h;
 }
 
-static void enter_lobby_mode(game_display& disp, const config& game_config,
+static void enter_lobby_mode(CVideo& video, const config& game_config,
 	saved_game& state, const std::vector<std::string> & installed_addons)
 {
 	DBG_MP << "entering lobby mode" << std::endl;
 
 	mp::ui::result res;
-
+	int current_turn = 0;
 	while (true) {
 		const config &cfg = game_config.child("lobby_music");
 		if (cfg) {
-			BOOST_FOREACH(const config &i, cfg.child_range("music")) {
+			for (const config &i : cfg.child_range("music")) {
 				sound::play_music_config(i);
 			}
 			sound::commit_music_changes();
@@ -668,20 +680,20 @@ static void enter_lobby_mode(game_display& disp, const config& game_config,
 		lobby_info li(game_config);
 
 		// Force a black background
-		const Uint32 color = SDL_MapRGBA(disp.video().getSurface()->format
+		const Uint32 color = SDL_MapRGBA(video.getSurface()->format
 				, 0
 				, 0
 				, 0
-				, 255);
+				, SDL_ALPHA_OPAQUE);
 
-		sdl::fill_rect(disp.video().getSurface(), NULL, color);
+		sdl::fill_rect(video.getSurface(), nullptr, color);
 
 		if(preferences::new_lobby()) {
-			gui2::tlobby_main dlg(game_config, li, disp);
+			gui2::tlobby_main dlg(game_config, li, video);
 			dlg.set_preferences_callback(
-				boost::bind(do_preferences_dialog,
-					boost::ref(disp), boost::ref(game_config)));
-			dlg.show(disp.video());
+				std::bind(do_preferences_dialog,
+					std::ref(video), std::ref(game_config)));
+			dlg.show(video);
 			//ugly kludge for launching other dialogs like the old lobby
 			switch (dlg.get_legacy_result()) {
 				case gui2::tlobby_main::CREATE:
@@ -697,41 +709,31 @@ static void enter_lobby_mode(game_display& disp, const config& game_config,
 					res = mp::ui::QUIT;
 			}
 		} else {
-			mp::lobby ui(disp, game_config, gamechat, gamelist, installed_addons);
-			run_lobby_loop(disp, ui);
+			mp::lobby ui(video, game_config, gamechat, gamelist, installed_addons);
+			run_lobby_loop(video, ui);
 			res = ui.get_result();
+			current_turn = ui.current_turn;
 		}
 
 		switch (res) {
 		case mp::ui::JOIN:
+		case mp::ui::OBSERVE:
 			try {
-				enter_wait_mode(disp, game_config, state, false);
+				enter_wait_mode(video, game_config, state, res == mp::ui::OBSERVE, current_turn);
 			} catch(config::error& error) {
 				if(!error.message.empty()) {
-					gui2::show_error_message(disp.video(), error.message);
+					gui2::show_error_message(video, error.message);
 				}
 				//update lobby content
 				network::send_data(config("refresh_lobby"), 0);
 			}
 			break;
-		case mp::ui::OBSERVE:
-			try {
-				enter_wait_mode(disp, game_config, state, true);
-			} catch(config::error& error) {
-				if(!error.message.empty()) {
-					gui2::show_error_message(disp.video(), error.message);
-				}
-			}
-			// update lobby content unconditionally because we might have left only after the
-			// game ended in which case we ignored the gamelist and need to request it again
-			network::send_data(config("refresh_lobby"), 0);
-			break;
 		case mp::ui::CREATE:
 			try {
-				enter_create_mode(disp, game_config, state, false);
+				enter_create_mode(video, game_config, state, false);
 			} catch(config::error& error) {
 				if (!error.message.empty())
-					gui2::show_error_message(disp.video(), error.message);
+					gui2::show_error_message(video, error.message);
 				//update lobby content
 				network::send_data(config("refresh_lobby"), 0);
 			}
@@ -740,7 +742,7 @@ static void enter_lobby_mode(game_display& disp, const config& game_config,
 			return;
 		case mp::ui::PREFERENCES:
 			{
-				do_preferences_dialog(disp, game_config);
+				do_preferences_dialog(video, game_config);
 				//update lobby content
 				network::send_data(config("refresh_lobby"), 0);
 			}
@@ -753,18 +755,17 @@ static void enter_lobby_mode(game_display& disp, const config& game_config,
 
 namespace mp {
 
-void start_local_game(game_display& disp, const config& game_config,
+void start_local_game(CVideo& video, const config& game_config,
 	saved_game& state)
 {
 	DBG_MP << "starting local game" << std::endl;
 	gamechat.clear_history();
 	gamelist.clear();
-	playmp_controller::set_replay_last_turn(0);
 	preferences::set_message_private(false);
-	enter_create_mode(disp, game_config, state, true);
+	enter_create_mode(video, game_config, state, true);
 }
 
-void start_local_game_commandline(game_display& disp, const config& game_config,
+void start_local_game_commandline(CVideo& video, const config& game_config,
 	saved_game& state, const commandline_options& cmdline_opts)
 {
 	DBG_MP << "starting local MP game from commandline" << std::endl;
@@ -774,7 +775,6 @@ void start_local_game_commandline(game_display& disp, const config& game_config,
 	// needed in commandline mode, but they are required by the functions called.
 	gamechat.clear_history();
 	gamelist.clear();
-	playmp_controller::set_replay_last_turn(0);
 	preferences::set_message_private(false);
 
 	DBG_MP << "entering create mode" << std::endl;
@@ -803,74 +803,36 @@ void start_local_game_commandline(game_display& disp, const config& game_config,
 	// None of the other parameters need to be set, as their creation values above are good enough for CL mode.
 	// In particular, we do not want to use the preferences values.
 
-	// scope for config objects that will become invalid after reload
-	{
-		// Override era, faction (side) and scenario if set on the commandline
-		if (cmdline_opts.multiplayer_era)
-			parameters.mp_era = *cmdline_opts.multiplayer_era;
-		const config& era_cfg_preload = game_config.find_child("era", "id", parameters.mp_era);
-		if (!era_cfg_preload) {
-			std::cerr << "Could not find era '" << parameters.mp_era << "'\n";
-			return;
-		}
-
-		if (cmdline_opts.multiplayer_scenario)
-			parameters.name = *cmdline_opts.multiplayer_scenario;
-		const config &level_preload = game_config.find_child("multiplayer", "id", parameters.name);
-		if (!level_preload) {
-			std::cerr << "Could not find scenario '" << parameters.name << "'\n";
-			return;
-		}
-
-		game_classification classification;
-		classification.campaign_type = game_classification::CAMPAIGN_TYPE::MULTIPLAYER;
-		classification.scenario_define = level_preload["define"].str();
-		classification.era_define = era_cfg_preload["define"].str();
-		game_config_manager::get()->load_game_config_for_game(classification);
+	state.classification().campaign_type = game_classification::CAMPAIGN_TYPE::MULTIPLAYER;
+	//[era] define.
+	if (cmdline_opts.multiplayer_era) {
+		parameters.mp_era = *cmdline_opts.multiplayer_era;
 	}
-
-	const config& era_cfg = game_config_manager::get()->game_config().find_child("era", "id", parameters.mp_era);
-	const config& level = game_config_manager::get()->game_config().find_child("multiplayer", "id", parameters.name);
-
-	if (cmdline_opts.multiplayer_side) {
-		for(std::vector<boost::tuple<unsigned int, std::string> >::const_iterator
-			it=cmdline_opts.multiplayer_side->begin(); it!=cmdline_opts.multiplayer_side->end(); ++it)
-		{
-			const config *faction = &era_cfg.find_child("multiplayer_side", "id", it->get<1>());
-			if (!*faction) {
-				std::cerr << "Could not find faction '" << it->get<1>() << "'\n";
-				return;
-			}
-		}
+	if (const config& cfg_era = game_config.find_child("era", "id", parameters.mp_era)) {
+		state.classification().era_define = cfg_era["define"].str();
 	}
-
-
-	// Should the map be randomly generated?
-	if (level["map_generation"].empty()) {
-		DBG_MP << "using scenario map" << std::endl;
-		state.set_scenario(level);
-	} else {
-		DBG_MP << "generating random map" << std::endl;
-		util::scoped_ptr<map_generator> generator(NULL);
-		generator.assign(create_map_generator(level["map_generation"], level.child("generator")));
-		state.set_scenario(generator->create_scenario());
-
-		// Set the scenario to have placing of sides
-		// based on the terrain they prefer
-		state.get_starting_pos()["modify_placing"] = "true";
-
-		util::unique_ptr<gamemap> map;
-		const int map_positions = level.child("generator")["players"];
-		DBG_MP << "map positions: " << map_positions << std::endl;
-
-		for (int pos = state.get_starting_pos().child_count("side"); pos < map_positions; ++pos) {
-			config& side = state.get_starting_pos().add_child("side");
-			side["side"] = pos + 1;
-			side["team_name"] = pos + 1;
-			side["canrecruit"] = true;
-			side["controller"] = "human";
-		}
+	else {
+		std::cerr << "Could not find era '" << parameters.mp_era << "'\n";
+		return;
 	}
+	//[multiplayer] define.
+	if (cmdline_opts.multiplayer_scenario) {
+		parameters.name = *cmdline_opts.multiplayer_scenario;
+	}
+	if (const config& cfg_multiplayer = game_config.find_child("multiplayer", "id", parameters.name)) {
+		state.classification().scenario_define = cfg_multiplayer["define"].str();
+	}
+	else {
+		std::cerr << "Could not find [multiplayer] '" << parameters.name << "'\n";
+		return;
+	}
+	game_config_manager::get()->load_game_config_for_game(state.classification());
+	state.set_carryover_sides_start(
+		config_of("next_scenario", parameters.name)
+	);
+	state.expand_random_scenario();
+	state.expand_mp_events();
+	state.expand_mp_options();
 
 	// Should number of turns be determined from scenario data?
 	if (parameters.use_map_settings && state.get_starting_pos()["turns"]) {
@@ -883,8 +845,8 @@ void start_local_game_commandline(game_display& disp, const config& game_config,
 	statistics::fresh_stats();
 
 	{
-		ng::connect_engine_ptr connect_engine(new ng::connect_engine(state, true, true));
-		mp::connect ui(disp, parameters.name, game_config, gamechat, gamelist,
+		ng::connect_engine_ptr connect_engine(new ng::connect_engine(state, true, nullptr));
+		mp::connect ui(video, parameters.name, game_config, gamechat, gamelist,
 			*connect_engine);
 
 		// Update the parameters to reflect game start conditions
@@ -899,11 +861,13 @@ void start_local_game_commandline(game_display& disp, const config& game_config,
 	unsigned int repeat = (cmdline_opts.multiplayer_repeat) ? *cmdline_opts.multiplayer_repeat : 1;
 	for(unsigned int i = 0; i < repeat; i++){
 		saved_game state_copy(state);
-		play_game(disp, state_copy, game_config, game_config_manager::get()->terrain_types(), IO_SERVER, false, false);
+		campaign_controller controller(video, state_copy, game_config, game_config_manager::get()->terrain_types());
+		controller.play_game();
+		break;
 	}
 }
 
-void start_client(game_display& disp, const config& game_config,
+void start_client(CVideo& video, const config& game_config,
 	saved_game& state, const std::string& host)
 {
 	const config * game_config_ptr = &game_config;
@@ -919,7 +883,7 @@ void start_client(game_display& disp, const config& game_config,
 
 	gamechat.clear_history();
 	gamelist.clear();
-	server_type type = open_connection(disp, host);
+	server_type type = open_connection(video, host);
 
 	switch(type) {
 	case WESNOTHD_SERVER:
@@ -927,7 +891,7 @@ void start_client(game_display& disp, const config& game_config,
 		do {
 			re_enter = false;
 			try {
-				enter_lobby_mode(disp, *game_config_ptr, state, installed_addons);
+				enter_lobby_mode(video, *game_config_ptr, state, installed_addons);
 			} catch (lobby_reload_request_exception &) {
 				re_enter = true;
 				game_config_manager * gcm = game_config_manager::get();
@@ -943,24 +907,23 @@ void start_client(game_display& disp, const config& game_config,
 		} while (re_enter);
 		break;
 	case SIMPLE_SERVER:
-		playmp_controller::set_replay_last_turn(0);
 		preferences::set_message_private(false);
-		enter_wait_mode(disp, *game_config_ptr, state, false);
+		enter_wait_mode(video, *game_config_ptr, state, false);
 		break;
 	case ABORT_SERVER:
 		break;
 	}
 }
 
-mp::ui::result goto_mp_connect(game_display& disp, ng::connect_engine& engine,
+mp::ui::result goto_mp_connect(CVideo& video, ng::connect_engine& engine,
 	const config& game_config, const std::string& game_name)
 {
 	mp::ui::result res;
 
 	{
-		mp::connect ui(disp, game_name, game_config, gamechat, gamelist,
+		mp::connect ui(video, game_name, game_config, gamechat, gamelist,
 			engine);
-		run_lobby_loop(disp, ui);
+		run_lobby_loop(video, ui);
 
 		res = ui.get_result();
 		if (res == mp::ui::PLAY) {
@@ -971,16 +934,16 @@ mp::ui::result goto_mp_connect(game_display& disp, ng::connect_engine& engine,
 	return res;
 }
 
-mp::ui::result goto_mp_wait(saved_game& state, game_display& disp,
+mp::ui::result goto_mp_wait(saved_game& state, CVideo& video,
 	const config& game_config, bool observe)
 {
 	mp::ui::result res;
 
 	{
-		mp::wait ui(disp, game_config, state, gamechat, gamelist, false);
+		mp::wait ui(video, game_config, state, gamechat, gamelist, false);
 
 		ui.join_game(observe);
-		run_lobby_loop(disp, ui);
+		run_lobby_loop(video, ui);
 
 		res = ui.get_result();
 		if (res == mp::ui::PLAY) {

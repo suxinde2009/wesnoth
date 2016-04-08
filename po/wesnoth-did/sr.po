@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: wesnoth-did\n"
 "Report-Msgid-Bugs-To: http://bugs.wesnoth.org/\n"
-"POT-Creation-Date: 2015-06-27 20:18-0300\n"
+"POT-Creation-Date: 2016-03-01 19:50-0300\n"
 "PO-Revision-Date: 2011-12-10 10:16+0100\n"
 "Last-Translator: Chusslove Illich <caslav.ilic@gmx.net>\n"
 "Language-Team: Serbian\n"
@@ -33,17 +33,21 @@ msgstr "ПуТ"
 
 #. [campaign]: id=Descent_into_Darkness
 #: data/campaigns/Descent_Into_Darkness/_main.cfg:17
-msgid "(Normal)"
-msgstr "(нормално)"
-
-#. [campaign]: id=Descent_into_Darkness
-#: data/campaigns/Descent_Into_Darkness/_main.cfg:17
 msgid "Neophyte"
 msgstr "новопосвећеник"
 
 #. [campaign]: id=Descent_into_Darkness
+#: data/campaigns/Descent_Into_Darkness/_main.cfg:17
+#, fuzzy
+#| msgid "(Normal)"
+msgid "Normal"
+msgstr "(нормално)"
+
+#. [campaign]: id=Descent_into_Darkness
 #: data/campaigns/Descent_Into_Darkness/_main.cfg:18
-msgid "(Challenging)"
+#, fuzzy
+#| msgid "(Challenging)"
+msgid "Challenging"
 msgstr "(изазовно)"
 
 #. [campaign]: id=Descent_into_Darkness
@@ -53,7 +57,9 @@ msgstr "подизач"
 
 #. [campaign]: id=Descent_into_Darkness
 #: data/campaigns/Descent_Into_Darkness/_main.cfg:19
-msgid "(Difficult)"
+#, fuzzy
+#| msgid "(Difficult)"
+msgid "Difficult"
 msgstr "(тешко)"
 
 #. [campaign]: id=Descent_into_Darkness
@@ -62,7 +68,7 @@ msgid "Summoner"
 msgstr "сазивач"
 
 #. [campaign]: id=Descent_into_Darkness
-#: data/campaigns/Descent_Into_Darkness/_main.cfg:20
+#: data/campaigns/Descent_Into_Darkness/_main.cfg:21
 msgid ""
 "Learn the dark arts of necromancy in order to save your people from an "
 "orcish incursion.\n"
@@ -73,22 +79,22 @@ msgstr ""
 "\n"
 
 #. [campaign]: id=Descent_into_Darkness
-#: data/campaigns/Descent_Into_Darkness/_main.cfg:22
+#: data/campaigns/Descent_Into_Darkness/_main.cfg:23
 msgid "(Intermediate level, 12 scenarios.)"
 msgstr "(Средњи ниво, 12 сценарија.)"
 
 #. [about]
-#: data/campaigns/Descent_Into_Darkness/_main.cfg:25
+#: data/campaigns/Descent_Into_Darkness/_main.cfg:26
 msgid "Campaign Design"
 msgstr "Дизајн похода"
 
 #. [about]
-#: data/campaigns/Descent_Into_Darkness/_main.cfg:31
+#: data/campaigns/Descent_Into_Darkness/_main.cfg:32
 msgid "Campaign Maintenance"
 msgstr "Одржавање похода"
 
 #. [about]
-#: data/campaigns/Descent_Into_Darkness/_main.cfg:44
+#: data/campaigns/Descent_Into_Darkness/_main.cfg:45
 msgid "Artwork and Graphics Design"
 msgstr "Графички дизајн и графика"
 
@@ -250,7 +256,7 @@ msgstr "Пробију ли се оркови кроз бедеме речне �
 #: data/campaigns/Descent_Into_Darkness/scenarios/05_Orc_War.cfg:183
 #: data/campaigns/Descent_Into_Darkness/scenarios/06_Return_to_Parthyn.cfg:190
 #: data/campaigns/Descent_Into_Darkness/scenarios/06_Return_to_Parthyn.cfg:464
-#: data/campaigns/Descent_Into_Darkness/scenarios/07_A_Small_Favor.cfg:273
+#: data/campaigns/Descent_Into_Darkness/scenarios/07_A_Small_Favor.cfg:272
 #: data/campaigns/Descent_Into_Darkness/scenarios/08_A_Small_Favor2.cfg:72
 #: data/campaigns/Descent_Into_Darkness/scenarios/08_A_Small_Favor2.cfg:391
 #: data/campaigns/Descent_Into_Darkness/scenarios/09_A_Small_Favor3.cfg:116
@@ -568,7 +574,7 @@ msgstr "Освојиш ли сва гоблинска села"
 #: data/campaigns/Descent_Into_Darkness/scenarios/03_A_Haunting_in_Winter.cfg:141
 #: data/campaigns/Descent_Into_Darkness/scenarios/04_Beginning_of_the_Revenge.cfg:125
 #: data/campaigns/Descent_Into_Darkness/scenarios/05_Orc_War.cfg:187
-#: data/campaigns/Descent_Into_Darkness/scenarios/07_A_Small_Favor.cfg:277
+#: data/campaigns/Descent_Into_Darkness/scenarios/07_A_Small_Favor.cfg:276
 #: data/campaigns/Descent_Into_Darkness/scenarios/08_A_Small_Favor2.cfg:76
 #: data/campaigns/Descent_Into_Darkness/scenarios/08_A_Small_Favor2.cfg:395
 #: data/campaigns/Descent_Into_Darkness/scenarios/09_A_Small_Favor3.cfg:120
@@ -636,8 +642,8 @@ msgstr "Биће то ваљана проба твојих нових вешти
 msgid "Beware the goblin guards in the villages."
 msgstr "Пази се гоблинских стража у селима."
 
-#. [unit]: id=guard_$x1|_$y1|_$guard_i, type=Goblin Spearman
-#: data/campaigns/Descent_Into_Darkness/scenarios/02_Peaceful_Valley.cfg:209
+#. [unit]: id=guard_$x1|_$y1|_$guard_location.n, type=Goblin Spearman
+#: data/campaigns/Descent_Into_Darkness/scenarios/02_Peaceful_Valley.cfg:196
 msgid "Villager"
 msgstr "сељанин"
 
@@ -646,18 +652,18 @@ msgstr "сељанин"
 #. If the names cannot be translated into your language so that the
 #. movie reference remains recognizable, then simply translate these the
 #. same as "Villager" above.
-#: data/campaigns/Descent_Into_Darkness/scenarios/02_Peaceful_Valley.cfg:258
+#: data/campaigns/Descent_Into_Darkness/scenarios/02_Peaceful_Valley.cfg:240
 msgid "Shaun"
 msgstr ""
 
 #. [modify_unit]
-#: data/campaigns/Descent_Into_Darkness/scenarios/02_Peaceful_Valley.cfg:264
+#: data/campaigns/Descent_Into_Darkness/scenarios/02_Peaceful_Valley.cfg:246
 msgid "Ed"
 msgstr ""
 
 # well-spelled: Ааах
 #. [message]: speaker=Darken Volk
-#: data/campaigns/Descent_Into_Darkness/scenarios/02_Peaceful_Valley.cfg:283
+#: data/campaigns/Descent_Into_Darkness/scenarios/02_Peaceful_Valley.cfg:265
 msgid ""
 "Ahhh... I did not realize there was a swamp near this village. Malin, I "
 "believe it would be beneficial for your training if you and I were to "
@@ -667,17 +673,17 @@ msgstr ""
 "ће користити твом подучавању да ти и ја испитамо ову мочвару."
 
 #. [message]: speaker=Darken Volk
-#: data/campaigns/Descent_Into_Darkness/scenarios/02_Peaceful_Valley.cfg:299
+#: data/campaigns/Descent_Into_Darkness/scenarios/02_Peaceful_Valley.cfg:281
 msgid "Rise, rise from the realms of death and decay!"
 msgstr "Дижите се, дижите се из царстава смрти и распада!"
 
 #. [message]: speaker=Malin Keshar
-#: data/campaigns/Descent_Into_Darkness/scenarios/02_Peaceful_Valley.cfg:327
+#: data/campaigns/Descent_Into_Darkness/scenarios/02_Peaceful_Valley.cfg:309
 msgid "What are those things?"
 msgstr "Какве су то ствари?"
 
 #. [message]: speaker=Darken Volk
-#: data/campaigns/Descent_Into_Darkness/scenarios/02_Peaceful_Valley.cfg:332
+#: data/campaigns/Descent_Into_Darkness/scenarios/02_Peaceful_Valley.cfg:314
 msgid ""
 "They are ghouls. Once, they were... evil men... murderers and outlaws. "
 "Through magic they have been transformed so their outsides match the spirits "
@@ -690,12 +696,12 @@ msgstr ""
 "природним стањем распада."
 
 #. [message]: speaker=Malin Keshar
-#: data/campaigns/Descent_Into_Darkness/scenarios/02_Peaceful_Valley.cfg:337
+#: data/campaigns/Descent_Into_Darkness/scenarios/02_Peaceful_Valley.cfg:319
 msgid "It seems cruel to turn men into such a hideous form."
 msgstr "Делује окрутно мењати људе у тако гнусна обличја."
 
 #. [message]: speaker=Darken Volk
-#: data/campaigns/Descent_Into_Darkness/scenarios/02_Peaceful_Valley.cfg:342
+#: data/campaigns/Descent_Into_Darkness/scenarios/02_Peaceful_Valley.cfg:324
 msgid ""
 "In their present form they can best serve the greater good. Even now they "
 "will aid you in defeating this goblin rabble. Besides, as I said, these were "
@@ -706,12 +712,12 @@ msgstr ""
 "су то врло зли људи. Нема те казне која би им била прекомерна."
 
 #. [message]: speaker=Malin Keshar
-#: data/campaigns/Descent_Into_Darkness/scenarios/02_Peaceful_Valley.cfg:347
+#: data/campaigns/Descent_Into_Darkness/scenarios/02_Peaceful_Valley.cfg:329
 msgid "I suppose so..."
 msgstr "Ако је тако..."
 
 #. [message]: speaker=Malin Keshar
-#: data/campaigns/Descent_Into_Darkness/scenarios/02_Peaceful_Valley.cfg:383
+#: data/campaigns/Descent_Into_Darkness/scenarios/02_Peaceful_Valley.cfg:365
 msgid ""
 "Sacking goblin villages is all well and good, but walking corpses and bats "
 "won’t stand up to full orcish warriors."
@@ -720,7 +726,7 @@ msgstr ""
 "шишмиши не могу се мерити са пунокрвним орковским ратницима."
 
 #. [message]: speaker=Darken Volk
-#: data/campaigns/Descent_Into_Darkness/scenarios/02_Peaceful_Valley.cfg:388
+#: data/campaigns/Descent_Into_Darkness/scenarios/02_Peaceful_Valley.cfg:370
 msgid ""
 "Your training is just beginning, Malin. With the souls from these goblins "
 "now available for our use, you will see your forces grow quickly."
@@ -729,7 +735,7 @@ msgstr ""
 "услузи, видећеш како ће твоје снаге брзо расти."
 
 #. [message]: speaker=Malin Keshar
-#: data/campaigns/Descent_Into_Darkness/scenarios/02_Peaceful_Valley.cfg:393
+#: data/campaigns/Descent_Into_Darkness/scenarios/02_Peaceful_Valley.cfg:375
 msgid "Excellent. I’m eager to move on to the real foes."
 msgstr "Изврсно. Нестрпљив сам да ударимо на праве противнике."
 
@@ -1533,6 +1539,7 @@ msgid "Taylor"
 msgstr "Тејлор"
 
 #. [side]: type=General, id=Taylor
+#: data/campaigns/Descent_Into_Darkness/scenarios/07_A_Small_Favor.cfg:165
 #: data/campaigns/Descent_Into_Darkness/scenarios/07_A_Small_Favor.cfg:166
 #: data/campaigns/Descent_Into_Darkness/scenarios/07_A_Small_Favor.cfg:167
 #: data/campaigns/Descent_Into_Darkness/scenarios/07_A_Small_Favor.cfg:168
@@ -1541,46 +1548,45 @@ msgstr "Тејлор"
 #: data/campaigns/Descent_Into_Darkness/scenarios/07_A_Small_Favor.cfg:171
 #: data/campaigns/Descent_Into_Darkness/scenarios/07_A_Small_Favor.cfg:172
 #: data/campaigns/Descent_Into_Darkness/scenarios/07_A_Small_Favor.cfg:173
-#: data/campaigns/Descent_Into_Darkness/scenarios/07_A_Small_Favor.cfg:174
+#: data/campaigns/Descent_Into_Darkness/scenarios/07_A_Small_Favor.cfg:183
 #: data/campaigns/Descent_Into_Darkness/scenarios/07_A_Small_Favor.cfg:184
-#: data/campaigns/Descent_Into_Darkness/scenarios/07_A_Small_Favor.cfg:185
+#: data/campaigns/Descent_Into_Darkness/scenarios/07_A_Small_Favor.cfg:189
 #: data/campaigns/Descent_Into_Darkness/scenarios/07_A_Small_Favor.cfg:190
-#: data/campaigns/Descent_Into_Darkness/scenarios/07_A_Small_Favor.cfg:191
+#: data/campaigns/Descent_Into_Darkness/scenarios/07_A_Small_Favor.cfg:196
 #: data/campaigns/Descent_Into_Darkness/scenarios/07_A_Small_Favor.cfg:197
 #: data/campaigns/Descent_Into_Darkness/scenarios/07_A_Small_Favor.cfg:198
-#: data/campaigns/Descent_Into_Darkness/scenarios/07_A_Small_Favor.cfg:199
 msgid "Night Watchman"
 msgstr "ноћна стража"
 
 #. [side]: type=General, id=Taylor
+#: data/campaigns/Descent_Into_Darkness/scenarios/07_A_Small_Favor.cfg:175
 #: data/campaigns/Descent_Into_Darkness/scenarios/07_A_Small_Favor.cfg:176
-#: data/campaigns/Descent_Into_Darkness/scenarios/07_A_Small_Favor.cfg:177
+#: data/campaigns/Descent_Into_Darkness/scenarios/07_A_Small_Favor.cfg:178
 #: data/campaigns/Descent_Into_Darkness/scenarios/07_A_Small_Favor.cfg:179
-#: data/campaigns/Descent_Into_Darkness/scenarios/07_A_Small_Favor.cfg:180
 msgid "Gate Guard"
 msgstr "капијска стража"
 
 #. [side]: type=General, id=Taylor
-#: data/campaigns/Descent_Into_Darkness/scenarios/07_A_Small_Favor.cfg:186
-#: data/campaigns/Descent_Into_Darkness/scenarios/07_A_Small_Favor.cfg:193
-#: data/campaigns/Descent_Into_Darkness/scenarios/07_A_Small_Favor.cfg:200
+#: data/campaigns/Descent_Into_Darkness/scenarios/07_A_Small_Favor.cfg:185
+#: data/campaigns/Descent_Into_Darkness/scenarios/07_A_Small_Favor.cfg:192
+#: data/campaigns/Descent_Into_Darkness/scenarios/07_A_Small_Favor.cfg:199
 msgid "Head Trainer"
 msgstr "главни инструктор"
 
 #. [side]: type=General, id=Taylor
-#: data/campaigns/Descent_Into_Darkness/scenarios/07_A_Small_Favor.cfg:192
+#: data/campaigns/Descent_Into_Darkness/scenarios/07_A_Small_Favor.cfg:191
 msgid "Townperson"
 msgstr "житељ"
 
 #. [objective]: condition=win
-#: data/campaigns/Descent_Into_Darkness/scenarios/07_A_Small_Favor.cfg:269
+#: data/campaigns/Descent_Into_Darkness/scenarios/07_A_Small_Favor.cfg:268
 #, fuzzy
 #| msgid "Malin and Darken Volk enter the Mage Lord’s manor"
 msgid "Move Malin and Darken Volk into the Mage Lord’s manor"
 msgstr "Уђу ли Малин и Даркен Волк у замак господара мага"
 
 #. [message]: speaker=Darken Volk
-#: data/campaigns/Descent_Into_Darkness/scenarios/07_A_Small_Favor.cfg:311
+#: data/campaigns/Descent_Into_Darkness/scenarios/07_A_Small_Favor.cfg:310
 msgid ""
 "The stolen book lies within Lord Karres’s manor on the north end of the "
 "city. We cannot defeat the entire city guard, so we must stay hidden as long "
@@ -1595,36 +1601,36 @@ msgstr ""
 "заузмемо цео град."
 
 #. [message]: speaker=narrator
-#: data/campaigns/Descent_Into_Darkness/scenarios/07_A_Small_Favor.cfg:316
+#: data/campaigns/Descent_Into_Darkness/scenarios/07_A_Small_Favor.cfg:315
 msgid ""
 "Note: Only the units you recruit now will be available to you once inside."
 msgstr "Напомена: Само јединице које унајмиш сада биће ти доступне пошто уђеш."
 
 #. [message]: speaker=second_unit
-#: data/campaigns/Descent_Into_Darkness/scenarios/07_A_Small_Favor.cfg:334
+#: data/campaigns/Descent_Into_Darkness/scenarios/07_A_Small_Favor.cfg:333
 msgid ""
 "Sir! Undead creatures are coming out of the forest! Wake the guard "
 "immediately!"
 msgstr "Сер! Немртва створења куљају из шуме! Из ових стопа будите гарду!"
 
 #. [message]: speaker=Taylor
-#: data/campaigns/Descent_Into_Darkness/scenarios/07_A_Small_Favor.cfg:339
+#: data/campaigns/Descent_Into_Darkness/scenarios/07_A_Small_Favor.cfg:338
 msgid "To arms, men!"
 msgstr "На оружје, људи!"
 
 # |, no-check-spell
 #. [message]: speaker=unit
-#: data/campaigns/Descent_Into_Darkness/scenarios/07_A_Small_Favor.cfg:358
+#: data/campaigns/Descent_Into_Darkness/scenarios/07_A_Small_Favor.cfg:357
 msgid "Ooouuuh! It burns... burrrrnnns..."
 msgstr "Оооо! Гори... гооорррриии..."
 
 #. [message]: speaker=Malin Keshar
-#: data/campaigns/Descent_Into_Darkness/scenarios/07_A_Small_Favor.cfg:380
+#: data/campaigns/Descent_Into_Darkness/scenarios/07_A_Small_Favor.cfg:379
 msgid "What in the name of all demons of hell was this thing?"
 msgstr "Свих му ђавола пакла, шта би та ствар?"
 
 #. [message]: speaker=Darken Volk
-#: data/campaigns/Descent_Into_Darkness/scenarios/07_A_Small_Favor.cfg:385
+#: data/campaigns/Descent_Into_Darkness/scenarios/07_A_Small_Favor.cfg:384
 msgid ""
 "This was the impact of what is known as holy water among common people. It "
 "is brewed in a complicated and mysterious procedure only known to a few "
@@ -1635,7 +1641,7 @@ msgstr ""
 "користи у борби против оживљених створења."
 
 #. [message]: speaker=unit
-#: data/campaigns/Descent_Into_Darkness/scenarios/07_A_Small_Favor.cfg:413
+#: data/campaigns/Descent_Into_Darkness/scenarios/07_A_Small_Favor.cfg:412
 msgid "Here is the entrance! Hurry!"
 msgstr "Ево улаза! Пожурите!"
 

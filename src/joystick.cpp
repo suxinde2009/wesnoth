@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2011 - 2015 by Fabian Mueller
+   Copyright (C) 2011 - 2016 by Fabian Mueller
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -35,13 +35,12 @@ joystick_manager::~joystick_manager() {
 	close();
 }
 
-#if SDL_VERSION_ATLEAST(2,0,0)
 
 static bool attached(
 		  const std::vector<SDL_Joystick*>& joysticks
 		, const size_t index)
 {
-	return SDL_JoystickGetAttached(joysticks[index]);
+	return SDL_JoystickGetAttached(joysticks[index]) == SDL_TRUE;
 }
 
 static const char* name(
@@ -51,19 +50,6 @@ static const char* name(
 	return SDL_JoystickName(joysticks[index]);
 }
 
-#else
-
-static bool attached(const std::vector<SDL_Joystick*>&, const size_t index)
-{
-	return SDL_JoystickOpened(index) == 1;
-}
-
-static const char* name(const std::vector<SDL_Joystick*>&, const size_t index)
-{
-	return SDL_JoystickName(index);
-}
-
-#endif
 
 bool joystick_manager::close() {
 	if(SDL_WasInit(SDL_INIT_JOYSTICK) == 0)

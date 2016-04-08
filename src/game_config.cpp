@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2003 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2003 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -27,8 +27,6 @@
 #include "revision.h"
 #endif
 
-#include <boost/foreach.hpp>
-
 static lg::log_domain log_engine("engine");
 #define DBG_NG LOG_STREAM(debug, log_engine)
 #define LOG_NG LOG_STREAM(info, log_engine)
@@ -49,7 +47,6 @@ namespace game_config
 	const int gold_carryover_percentage = 80;
 	const std::string version = VERSION;
 	std::string default_terrain;
-	bool spmp_hotfix = false;
 #ifdef REVISION
 	const std::string revision = VERSION " (" REVISION ")";
 #elif defined(VCS_SHORT_HASH) && defined(VCS_WC_MODIFIED)
@@ -59,6 +56,8 @@ namespace game_config
 #else
 	const std::string revision = VERSION;
 #endif
+
+
 	std::string wesnoth_program_dir;
 	bool debug = false, debug_lua = false, editor = false,
 		ignore_replay_errors = false, mp_debug = false, exit_at_end = false,
@@ -167,6 +166,12 @@ namespace game_config
 		menu_expand = "expand.wav",
 		menu_contract = "contract.wav",
 		menu_select = "select.wav";
+
+		namespace status {
+			std::string poisoned = "poison.ogg",
+			slowed = "slowed.wav",
+			petrified = "petrified.ogg";
+		}
 	}
 
 #ifdef WESNOTH_PATH
@@ -294,7 +299,7 @@ namespace game_config
 		}
 
 		server_list.clear();
-		BOOST_FOREACH(const config &server, v.child_range("server"))
+		for (const config &server : v.child_range("server"))
 		{
 			server_info sinf;
 			sinf.name = server["name"].str();
@@ -316,12 +321,19 @@ namespace game_config
 			if (s.has_attribute("game_user_leave")) 	game_user_leave = 		s["game_user_leave"].str();
 			if (s.has_attribute("ready_for_start")) 	ready_for_start = 		s["ready_for_start"].str();
 			if (s.has_attribute("game_has_begun")) 		game_has_begun = 		s["game_has_begun"].str();
+
+			if(const config & ss = s.child("status")) {
+				using namespace game_config::sounds::status;
+				if (ss.has_attribute("poisoned")) 		poisoned = 		ss["poisoned"].str();
+				if (ss.has_attribute("slowed")) 		slowed = 		ss["slowed"].str();
+				if (ss.has_attribute("petrified")) 		petrified = 		ss["petrified"].str();
+			}
 		}
 	}
 
 	void add_color_info(const config &v)
 	{
-		BOOST_FOREACH(const config &teamC, v.child_range("color_range"))
+		for (const config &teamC : v.child_range("color_range"))
 		{
 			const config::attribute_value *a1 = teamC.get("id"),
 				*a2 = teamC.get("rgb");
@@ -348,9 +360,9 @@ namespace game_config
 			team_rgb_colors.insert(std::make_pair(id,tp));
 		}
 
-		BOOST_FOREACH(const config &cp, v.child_range("color_palette"))
+		for (const config &cp : v.child_range("color_palette"))
 		{
-			BOOST_FOREACH(const config::attribute &rgb, cp.attribute_range())
+			for (const config::attribute &rgb : cp.attribute_range())
 			{
 				std::vector<Uint32> temp;
 				if(!string2rgb(rgb.second, temp)) {
@@ -406,6 +418,11 @@ namespace game_config
 		val = std::max<int>(0, std::min<int>(val, 100));
 		int lvl = (color_scale.size()-1) * val / 100;
 		return color_scale[lvl];
+	}
+
+	std::string get_default_title_string() {
+		 std::string ret = _("The Battle for Wesnoth") + " - " + revision;
+		 return ret;
 	}
 
 } // game_config

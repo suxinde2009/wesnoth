@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2003 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2003 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -15,10 +15,10 @@
 #ifndef IMAGE_HPP_INCLUDED
 #define IMAGE_HPP_INCLUDED
 
-#include "map_location.hpp"
+#include "map/location.hpp"
 #include "sdl/utils.hpp"
 #include "sdl/image.hpp"
-#include "terrain_translation.hpp"
+#include "terrain/translation.hpp"
 #include "game_config.hpp"
 
 #include <boost/unordered_map.hpp>
@@ -186,8 +186,8 @@ namespace image {
 
 	///set the team colors used by the TC image modification
 	///use a vector with one string for each team
-	///using NULL will reset to default TC
-	void set_team_colors(const std::vector<std::string>* colors = NULL);
+	///using nullptr will reset to default TC
+	void set_team_colors(const std::vector<std::string>* colors = nullptr);
 
 	const std::vector<std::string>& get_team_colors();
 

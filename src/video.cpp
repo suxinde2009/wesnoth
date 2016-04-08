@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2003 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2003 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -24,44 +24,29 @@
 #include "image.hpp"
 #include "log.hpp"
 #include "preferences.hpp"
-#include "preferences_display.hpp"
 #include "sdl/utils.hpp"
 #include "sdl/rect.hpp"
 #include "sdl/window.hpp"
 #include "video.hpp"
 #include "sdl/gpu.hpp"
-
-#include <boost/foreach.hpp>
+#include "display.hpp"
 
 #include <vector>
 #include <map>
 #include <algorithm>
 
+#include <assert.h>
+
 static lg::log_domain log_display("display");
 #define LOG_DP LOG_STREAM(info, log_display)
 #define ERR_DP LOG_STREAM(err, log_display)
 
+CVideo* CVideo::singleton_ = nullptr;
+
 namespace {
-	bool fullScreen = false;
-	int disallow_resize = 0;
+#ifdef SDL_GPU
 	GPU_Target *render_target_;
-}
-void resize_monitor::process(events::pump_info &info) {
-	if(info.resize_dimensions.first >= preferences::min_allowed_width()
-	&& info.resize_dimensions.second >= preferences::min_allowed_height()
-	&& disallow_resize == 0) {
-		preferences::set_resolution(info.resize_dimensions);
-	}
-}
-
-resize_lock::resize_lock()
-{
-	++disallow_resize;
-}
-
-resize_lock::~resize_lock()
-{
-	--disallow_resize;
+#endif
 }
 
 static unsigned int get_flags(unsigned int flags)
@@ -70,205 +55,79 @@ static unsigned int get_flags(unsigned int flags)
 #ifdef SDL_GPU
 	flags |= SDL_OPENGLBLIT;
 #endif
-#if !SDL_VERSION_ATLEAST(2, 0, 0)
-	// SDL under Windows doesn't seem to like hardware surfaces
-	// for some reason.
-#if !(defined(_WIN32) || defined(__APPLE__))
-		flags |= SDL_HWSURFACE;
-#endif
-#endif
 
-
-	if((flags&SDL_FULLSCREEN) == 0)
-#if SDL_VERSION_ATLEAST(2, 0, 0)
-		flags |= SDL_WINDOW_RESIZABLE;
-#else
-		flags |= SDL_RESIZABLE;
-#endif
+	flags |= SDL_WINDOW_RESIZABLE;
 
 	return flags;
 }
 
-namespace {
-struct event {
-	int x, y, w, h;
-	bool in;
-	event(const SDL_Rect& rect, bool i) : x(i ? rect.x : rect.x + rect.w), y(rect.y), w(rect.w), h(rect.h), in(i) { }
-};
-#if !SDL_GPU && !SDL_VERSION_ATLEAST(2, 0, 0)
-bool operator<(const event& a, const event& b) {
-	if (a.x != b.x) return a.x < b.x;
-	if (a.in != b.in) return a.in;
-	if (a.y != b.y) return a.y < b.y;
-	if (a.h != b.h) return a.h < b.h;
-	if (a.w != b.w) return a.w < b.w;
-	return false;
-}
-bool operator==(const event& a, const event& b) {
-	return a.x == b.x && a.y == b.y && a.w == b.w && a.h == b.h && a.in == b.in;
-}
-#endif
-
-struct segment {
-	int x, count;
-	segment() : x(0), count(0) { }
-	segment(int x, int count) : x(x), count(count) { }
-};
-
-
-std::vector<SDL_Rect> update_rects;
-std::vector<event> events;
-std::map<int, segment> segments;
-
-#if !SDL_GPU && !SDL_VERSION_ATLEAST(2, 0, 0)
-static void calc_rects()
-{
-	events.clear();
-
-	BOOST_FOREACH(SDL_Rect const &rect, update_rects) {
-		events.push_back(event(rect, true));
-		events.push_back(event(rect, false));
-	}
-
-	std::sort(events.begin(), events.end());
-	std::vector<event>::iterator events_end = std::unique(events.begin(), events.end());
-
-	segments.clear();
-	update_rects.clear();
-
-	for (std::vector<event>::iterator iter = events.begin(); iter != events_end; ++iter) {
-		std::map<int, segment>::iterator lower = segments.find(iter->y);
-		if (lower == segments.end()) {
-			lower = segments.insert(std::make_pair(iter->y, segment())).first;
-			if (lower != segments.begin()) {
-				std::map<int, segment>::iterator prev = lower;
-				--prev;
-				lower->second = prev->second;
-			}
-		}
-
-		if (lower->second.count == 0) {
-			lower->second.x = iter->x;
-		}
-
-		std::map<int, segment>::iterator upper = segments.find(iter->y + iter->h);
-		if (upper == segments.end()) {
-			upper = segments.insert(std::make_pair(iter->y + iter->h, segment())).first;
-			std::map<int, segment>::iterator prev = upper;
-			--prev;
-			upper->second = prev->second;
-		}
-
-		if (iter->in) {
-			while (lower != upper) {
-				++lower->second.count;
-				++lower;
-			}
-		} else {
-			while (lower != upper) {
-				lower->second.count--;
-				if (lower->second.count == 0) {
-					std::map<int, segment>::iterator next = lower;
-					++next;
-
-					int x = lower->second.x, y = lower->first;
-					unsigned w = iter->x - x;
-					unsigned h = next->first - y;
-					SDL_Rect a = sdl::create_rect(x, y, w, h);
-
-					if (update_rects.empty()) {
-						update_rects.push_back(a);
-					} else {
-						SDL_Rect& p = update_rects.back(), n;
-						int pa = p.w * p.h, aa = w * h, s = pa + aa;
-						int thresh = 51;
-
-						n.w = std::max<int>(x + w, p.x + p.w);
-						n.x = std::min<int>(p.x, x);
-						n.w -= n.x;
-						n.h = std::max<int>(y + h, p.y + p.h);
-						n.y = std::min<int>(p.y, y);
-						n.h -= n.y;
-
-						if (s * 100 < thresh * n.w * n.h) {
-							update_rects.push_back(a);
-						} else {
-							p = n;
-						}
-					}
-
-					if (lower == segments.begin()) {
-						segments.erase(lower);
-					} else {
-						std::map<int, segment>::iterator prev = lower;
-						--prev;
-						if (prev->second.count == 0) segments.erase(lower);
-					}
-
-					lower = next;
-				} else {
-					++lower;
-				}
-			}
-		}
-	}
-}
-#endif
-
-
-bool update_all = false;
-}
-#if !SDL_GPU && !SDL_VERSION_ATLEAST(2, 0, 0)
-static void clear_updates()
-{
-	update_all = false;
-	update_rects.clear();
-}
-#endif
 
 namespace {
 
-surface frameBuffer = NULL;
+surface frameBuffer = nullptr;
 bool fake_interactive = false;
-
-#if SDL_VERSION_ATLEAST(2, 0, 0)
-sdl::twindow* window = NULL;
-#endif
 }
 
-bool non_interactive()
+namespace video2 {
+
+std::list<events::sdl_handler *> draw_layers;
+
+draw_layering::draw_layering(const bool auto_join) :
+		sdl_handler(auto_join)
+{
+	draw_layers.push_back(this);
+}
+
+draw_layering::~draw_layering()
+{
+	draw_layers.remove(this);
+
+	video2::trigger_full_redraw();
+}
+
+void trigger_full_redraw() {
+	SDL_Event event;
+	event.type = SDL_WINDOWEVENT;
+	event.window.event = SDL_WINDOWEVENT_RESIZED;
+	event.window.data1 = (*frameBuffer).h;
+	event.window.data2 = (*frameBuffer).w;
+
+	for(std::list<events::sdl_handler*>::iterator it = draw_layers.begin(); it != draw_layers.end(); ++it) {
+		(*it)->handle_window_event(event);
+	}
+
+	SDL_Event drawEvent;
+	SDL_UserEvent data;
+
+	data.type = DRAW_ALL_EVENT;
+	data.code = 0;
+	data.data1 = nullptr;
+	data.data2 = nullptr;
+
+	drawEvent.type = DRAW_ALL_EVENT;
+	drawEvent.user = data;
+	SDL_FlushEvent(DRAW_ALL_EVENT);
+	SDL_PushEvent(&drawEvent);
+}
+}
+
+
+bool CVideo::non_interactive()
 {
 	if (fake_interactive)
 		return false;
-#if SDL_VERSION_ATLEAST(2, 0, 0)
-	return false;
-#else
-	return SDL_GetVideoSurface() == NULL;
-#endif
+	return window == nullptr;
 }
 
 
-
+#ifdef SDL_GPU
 GPU_Target *get_render_target()
 {
 	return render_target_;
 }
-
-surface display_format_alpha(surface surf)
-{
-#if !SDL_VERSION_ATLEAST(2, 0, 0)
-	if(SDL_GetVideoSurface() != NULL)
-		return SDL_DisplayFormatAlpha(surf);
-	else if(frameBuffer != NULL)
-		return SDL_ConvertSurface(surf,frameBuffer->format,0);
-	else
-#else
-		UNUSED(surf);
 #endif
-		return NULL;
-}
 
-surface get_video_surface()
+surface& get_video_surface()
 {
 	return frameBuffer;
 }
@@ -285,17 +144,11 @@ void update_rect(size_t x, size_t y, size_t w, size_t h)
 
 void update_rect(const SDL_Rect& rect_value)
 {
-	if(update_all)
-		return;
 
 	SDL_Rect rect = rect_value;
 
-#if SDL_VERSION_ATLEAST(2, 0, 0)
-	surface const fb = NULL;
-#else
-	surface const fb = SDL_GetVideoSurface();
-#endif
-	if(fb != NULL) {
+	surface const fb = nullptr;
+	if(fb != nullptr) {
 		if(rect.x < 0) {
 			if(rect.x*-1 >= int(rect.w))
 				return;
@@ -328,24 +181,49 @@ void update_rect(const SDL_Rect& rect_value)
 			return;
 		}
 	}
-
-	update_rects.push_back(rect);
 }
 
-void update_whole_screen()
+void CVideo::video_event_handler::handle_window_event(const SDL_Event &event)
 {
-	update_all = true;
+	if (event.type == SDL_WINDOWEVENT) {
+		switch (event.window.event) {
+			case SDL_WINDOWEVENT_RESIZED:
+			case SDL_WINDOWEVENT_RESTORED:
+			case SDL_WINDOWEVENT_SHOWN:
+			case SDL_WINDOWEVENT_EXPOSED:
+				//if (display::get_singleton())
+					//display::get_singleton()->redraw_everything();
+				SDL_Event drawEvent;
+				SDL_UserEvent data;
+
+				data.type = DRAW_ALL_EVENT;
+				data.code = 0;
+				data.data1 = nullptr;
+				data.data2 = nullptr;
+
+				drawEvent.type = DRAW_ALL_EVENT;
+				drawEvent.user = data;
+
+				SDL_FlushEvent(DRAW_ALL_EVENT);
+				SDL_PushEvent(&drawEvent);
+				break;
+		}
+	}
 }
+
+
 CVideo::CVideo(FAKE_TYPES type) :
+	window(),
 #ifdef SDL_GPU
 	shader_(),
 #endif
 	mode_changed_(false),
-	bpp_(0),
 	fake_screen_(false),
 	help_string_(0),
 	updatesLocked_(0)
 {
+	assert(!singleton_);
+	singleton_ = this;
 	initSDL();
 	switch(type)
 	{
@@ -366,7 +244,7 @@ void CVideo::initSDL()
 	//800x600 is a dummy value, the actual resolution is set in setMode
 	render_target_ = GPU_Init(800, 600, GPU_DEFAULT_INIT_FLAGS);
 
-	if(render_target_ == NULL) {
+	if(render_target_ == nullptr) {
 		ERR_DP << "Could not initialize window: " << SDL_GetError() << std::endl;
 		throw CVideo::error();
 	}
@@ -394,7 +272,7 @@ void CVideo::update_overlay(SDL_Rect *rect)
 	// Re-render the appropriate screen area so that overlay change is visible
 	static sdl::timage empty(image::get_texture("images/misc/blank.png"));
 	SDL_Rect whole = sdl::create_rect(0, 0, overlay_->w, overlay_->h);
-	SDL_Rect *r = rect == NULL ? &whole : rect;
+	SDL_Rect *r = rect == nullptr ? &whole : rect;
 	empty.set_scale(float(r->w) / empty.base_width(), float(r->h) / empty.base_height());
 	draw_texture(empty, r->x, r->y);
 }
@@ -404,18 +282,17 @@ CVideo::~CVideo()
 {
 	LOG_DP << "calling SDL_Quit()\n";
 	SDL_Quit();
-#if SDL_VERSION_ATLEAST(2, 0, 0)
-	delete window;
-#endif
+	assert(singleton_);
+	singleton_ = nullptr;
 	LOG_DP << "called SDL_Quit()\n";
 }
 
 void CVideo::blit_surface(int x, int y, surface surf, SDL_Rect* srcrect, SDL_Rect* clip_rect)
 {
-	surface target(getSurface());
+	surface& target(getSurface());
 	SDL_Rect dst = sdl::create_rect(x, y, 0, 0);
 
-	const clip_rect_setter clip_setter(target, clip_rect, clip_rect != NULL);
+	const clip_rect_setter clip_setter(target, clip_rect, clip_rect != nullptr);
 	sdl_blit(surf,srcrect,target,&dst);
 }
 
@@ -451,7 +328,7 @@ void CVideo::blit_to_overlay(surface surf, int x, int y)
 		return;
 	}
 	SDL_Rect r = sdl::create_rect(x, y, surf->w, surf->h);
-	SDL_BlitSurface(surf, NULL, overlay_, &r);
+	SDL_BlitSurface(surf, nullptr, overlay_, &r);
 	update_overlay(&r);
 }
 
@@ -493,117 +370,97 @@ void CVideo::make_test_fake(const unsigned width,
 
 }
 
-int CVideo::bppForMode( int x, int y, int flags)
-{
-	int test_values[3] = {getBpp(), 32, 16};
-	BOOST_FOREACH(int &bpp, test_values) {
-		if(modePossible(x, y, bpp, flags) > 0) {
-			return bpp;
-		}
-	}
 
-	return 0;
+
+void CVideo::update_framebuffer()
+{
+	if (!window)
+		return;
+
+	surface fb = SDL_GetWindowSurface(*window);
+	if (!frameBuffer)
+		frameBuffer = fb;
+	else
+		frameBuffer.assign(fb);
 }
 
-int CVideo::modePossible( int x, int y, int bits_per_pixel, int flags, bool current_screen_optimal )
+/**
+ * Creates a new window instance.
+ */
+bool CVideo::init_window()
 {
-#if SDL_VERSION_ATLEAST(2, 0, 0)
-	UNUSED(x);
-	UNUSED(y);
-	UNUSED(flags);
-	UNUSED(current_screen_optimal);
+	// Position
+	const int x = preferences::fullscreen() ? SDL_WINDOWPOS_UNDEFINED : SDL_WINDOWPOS_CENTERED;
+	const int y = preferences::fullscreen() ? SDL_WINDOWPOS_UNDEFINED : SDL_WINDOWPOS_CENTERED;
 
-	return bits_per_pixel;
-#else
-	int bpp = SDL_VideoModeOK( x, y, bits_per_pixel, get_flags(flags) );
-	if(current_screen_optimal)
-	{
-		const SDL_VideoInfo* const video_info = SDL_GetVideoInfo();
-		/* if current video_info is smaller than the mode checking and the checked mode is supported
-		(meaning that probably the video card supports higher resolutions than the monitor)
-		that means that we just need to adjust the resolution and the bpp is ok
-		*/
-		if(bpp==0 && video_info->current_h<y && video_info->current_w<x){
-			return bits_per_pixel;
-		}
+	// Dimensions
+	const int w = preferences::resolution().first;
+	const int h = preferences::resolution().second;
+
+	// Video flags
+	int video_flags = 0;
+
+	video_flags = get_flags(video_flags);
+
+	if (preferences::fullscreen()) {
+		video_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+	} else if (preferences::maximized()) {
+		video_flags |= SDL_WINDOW_MAXIMIZED;
 	}
-	return bpp;
-#endif
+
+	// Initialize window
+	window.reset(new sdl::twindow("", x, y, w, h, video_flags, SDL_RENDERER_SOFTWARE));
+
+	std::cerr << "Setting mode to " << w << "x" << h << std::endl;
+
+	window->set_minimum_size(
+		preferences::min_allowed_width(),
+		preferences::min_allowed_height()
+	);
+
+	event_handler_.join_global();
+
+	update_framebuffer();
+	if(frameBuffer) {
+		image::set_pixel_format(frameBuffer->format);
+	}
+
+	return true;
 }
 
-#if SDL_VERSION_ATLEAST(2, 0, 0)
-int CVideo::setMode( int x, int y, int bits_per_pixel, int flags )
+void CVideo::setMode(int x, int y, const MODE_EVENT mode)
 {
-	update_rects.clear();
-	if (fake_screen_) return 0;
+	assert(window);
+	if (fake_screen_) return;
 	mode_changed_ = true;
 
-	flags = get_flags(flags);
-
-	fullScreen = (flags & FULL_SCREEN) != 0;
-
-	if(!window) {
-		window = new sdl::twindow("", 0, 0, x, y, flags, SDL_RENDERER_SOFTWARE);
-	} else {
-		if(fullScreen) {
+	switch(mode) {
+		case TO_FULLSCREEN:
 			window->full_screen();
-		} else {
+			break;
+
+		case TO_WINDOWED:
+			window->to_window();
+			window->restore();
+			break;
+
+		case TO_MAXIMIZED_WINDOW:
+			window->to_window();
+			window->maximize();
+			break;
+
+		case TO_RES:
+			window->restore();
 			window->set_size(x, y);
-		}
+			window->center();
+			break;
 	}
 
-	frameBuffer = SDL_GetWindowSurface(*window);
-
-	if(frameBuffer != NULL) {
+	update_framebuffer();
+	if(frameBuffer) {
 		image::set_pixel_format(frameBuffer->format);
-		return bits_per_pixel;
-	} else	{
-		return 0;
 	}
 }
-#else
-int CVideo::setMode( int x, int y, int bits_per_pixel, int flags )
-{
-	update_rects.clear();
-	if (fake_screen_) return 0;
-	mode_changed_ = true;
-
-	flags = get_flags(flags);
-	const int res = SDL_VideoModeOK( x, y, bits_per_pixel, flags );
-#ifdef SDL_GPU
-	const bool toggle_fullscreen = ((flags & FULL_SCREEN) != 0) != fullScreen;
-#endif
-
-	if( res == 0 )
-		return 0;
-
-	fullScreen = (flags & FULL_SCREEN) != 0;
-#ifdef SDL_GPU
-	//NOTE: this surface is in fact unused now. Can be removed when possible.
-	frameBuffer = SDL_CreateRGBSurface(SDL_SWSURFACE, x, y, 32,
-									 0x00ff0000,
-									 0x0000ff00,
-									 0x000000ff,
-									 0xff000000);
-	overlay_ = SDL_CreateRGBSurface(SDL_SWSURFACE, x, y, 32,
-									0x00ff0000,
-									0x0000ff00,
-									0x000000ff,
-									0xff000000);
-	GPU_SetWindowResolution(x, y);
-	if (toggle_fullscreen) {
-		GPU_ToggleFullscreen(1);
-	}
-#else
-	frameBuffer = SDL_SetVideoMode( x, y, bits_per_pixel, flags );
-#endif
-
-	if( frameBuffer != NULL ) {
-		image::set_pixel_format(frameBuffer->format);
-		return bits_per_pixel;
-	} else	return 0;
-}
-#endif
 
 bool CVideo::modeChanged()
 {
@@ -630,6 +487,12 @@ int CVideo::gety() const
 #endif
 }
 
+void CVideo::delay(unsigned int milliseconds)
+{
+	if (!game_config::no_delay)
+		SDL_Delay(milliseconds);
+}
+
 void CVideo::flip()
 {
 	if(fake_screen_)
@@ -638,21 +501,8 @@ void CVideo::flip()
 	assert(render_target_);
 	GPU_Flip(render_target_);
 #else
-#if !SDL_VERSION_ATLEAST(2, 0, 0)
-	if(update_all) {
-		::SDL_Flip(frameBuffer);
-	} else if(update_rects.empty() == false) {
-		calc_rects();
-		if(!update_rects.empty()) {
-			SDL_UpdateRects(frameBuffer, update_rects.size(), &update_rects[0]);
-		}
-	}
-
-	clear_updates();
-#else
-	assert(window);
-	window->render();
-#endif
+	if (window)
+		window->render();
 #endif
 }
 
@@ -669,9 +519,7 @@ bool CVideo::update_locked() const
 	return updatesLocked_ > 0;
 }
 
-#if SDL_VERSION_ATLEAST(2, 0, 0)
-Uint8
-CVideo::window_state()
+Uint8 CVideo::window_state()
 {
 	Uint8 state = 0;
 	Uint32 flags = 0;
@@ -690,6 +538,12 @@ CVideo::window_state()
 	if (flags & SDL_WINDOW_MOUSE_FOCUS) {
 		state |= SDL_APPMOUSEFOCUS;
 	}
+	if (flags & SDL_WINDOW_MAXIMIZED) {
+		state |= SDL_WINDOW_MAXIMIZED;
+	}
+	if (flags & SDL_WINDOW_FULLSCREEN_DESKTOP) {
+		state |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+	}
 	return state;
 }
 
@@ -707,28 +561,24 @@ void CVideo::set_window_icon(surface& icon)
 
 sdl::twindow *CVideo::get_window()
 {
-	return window;
+	return window.get();
 }
 
-#endif
 
-#if SDL_VERSION_ATLEAST(2, 0, 0)
-static int sdl_display_index()
+static int sdl_display_index(sdl::twindow* window)
 {
 	if(window) {
 		return SDL_GetWindowDisplayIndex(*window);
 	}
 	return 0;
 }
-#endif
 
-#if SDL_VERSION_ATLEAST(2, 0, 0)
-std::vector<std::pair<int, int> > CVideo::get_available_resolutions()
+std::vector<std::pair<int, int> > CVideo::get_available_resolutions(const bool include_current)
 {
 	std::vector<std::pair<int, int> > result;
 
-	const int modes = SDL_GetNumDisplayModes(sdl_display_index());
-	if(modes <= 0) {
+	const int modes = SDL_GetNumDisplayModes(sdl_display_index(window.get()));
+	if (modes <= 0) {
 		std::cerr << "No modes supported\n";
 		return result;
 	}
@@ -736,67 +586,19 @@ std::vector<std::pair<int, int> > CVideo::get_available_resolutions()
 	const std::pair<int,int> min_res = std::make_pair(preferences::min_allowed_width(),preferences::min_allowed_height());
 
 	SDL_DisplayMode mode;
-	for(int i = 0; i < modes; ++i) {
+	for (int i = 0; i < modes; ++i) {
 		if(SDL_GetDisplayMode(0, i, &mode) == 0) {
 			if (mode.w >= min_res.first && mode.h >= min_res.second)
 				result.push_back(std::make_pair(mode.w, mode.h));
 		}
 	}
-	if(std::find(result.begin(), result.end(), min_res) == result.end())
+
+	if (std::find(result.begin(), result.end(), min_res) == result.end()) {
 		result.push_back(min_res);
-
-	std::sort(result.begin(), result.end());
-	result.erase(std::unique(result.begin(), result.end()), result.end());
-
-	return result;
-}
-#else
-std::vector<std::pair<int, int> > CVideo::get_available_resolutions()
-{
-	std::vector<std::pair<int, int> > result;
-	const SDL_Rect* const * modes;
-	if (const surface& surf = getSurface()) {
-		SDL_PixelFormat format = *surf->format;
-		format.BitsPerPixel = getBpp();
-		modes = SDL_ListModes(&format, FULL_SCREEN);
-	} else
-		modes = SDL_ListModes(NULL, FULL_SCREEN);
-
-	// The SDL documentation says that a return value of -1
-	// means that all dimensions are supported/possible.
-	if(modes == reinterpret_cast<SDL_Rect**>(-1)) {
-		// SDL says that all modes are possible, so it's OK to use a
-		// hardcoded list here. Include tiny and small gui since they
-		// will be filtered out later if not needed.
-		result.push_back(std::make_pair(800, 480));	// EeePC resolution
-		result.push_back(std::make_pair(800, 600));
-		result.push_back(std::make_pair(1024, 600)); // used on many netbooks
-		result.push_back(std::make_pair(1024, 768));
-		result.push_back(std::make_pair(1280, 960));
-		result.push_back(std::make_pair(1280, 1024));
-		result.push_back(std::make_pair(1366, 768)); // 16:9 notebooks
-		result.push_back(std::make_pair(1440, 900));
-		result.push_back(std::make_pair(1440, 1200));
-		result.push_back(std::make_pair(1600, 1200));
-		result.push_back(std::make_pair(1680, 1050));
-		result.push_back(std::make_pair(1920, 1080));
-		result.push_back(std::make_pair(1920, 1200));
-		result.push_back(std::make_pair(2560, 1600));
-
-		return result;
-	} else if(modes == NULL) {
-		std::cerr << "No modes supported\n";
-		return result;
 	}
 
-	const std::pair<int,int> min_res = std::make_pair(preferences::min_allowed_width(),preferences::min_allowed_height());
-
-	if (getSurface() && getSurface()->w >= min_res.first && getSurface()->h >= min_res.second)
-		result.push_back(std::make_pair(getSurface()->w, getSurface()->h));
-
-	for(int i = 0; modes[i] != NULL; ++i) {
-		if (modes[i]->w >= min_res.first && modes[i]->h >= min_res.second)
-			result.push_back(std::make_pair(modes[i]->w,modes[i]->h));
+	if(include_current) {
+		result.push_back(current_resolution());
 	}
 
 	std::sort(result.begin(), result.end());
@@ -804,24 +606,21 @@ std::vector<std::pair<int, int> > CVideo::get_available_resolutions()
 
 	return result;
 }
-#endif
 
 surface& CVideo::getSurface()
 {
 	return frameBuffer;
 }
 
-bool CVideo::isFullScreen() const { return fullScreen; }
-
-void CVideo::setBpp( int bpp )
+std::pair<int,int> CVideo::current_resolution()
 {
-	bpp_ = bpp;
+	return std::make_pair(getSurface()->w, getSurface()->h);
 }
 
-int CVideo::getBpp()
-{
-	return bpp_;
+bool CVideo::isFullScreen() const {
+	return (window->get_flags() & SDL_WINDOW_FULLSCREEN_DESKTOP) != 0;
 }
+
 
 int CVideo::set_help_string(const std::string& str)
 {
@@ -867,3 +666,53 @@ void CVideo::clear_all_help_strings()
 	clear_help_string(help_string_);
 }
 
+
+void CVideo::set_fullscreen(bool ison)
+{
+
+	if (window && isFullScreen() != ison) {
+
+		const std::pair<int,int>& res = preferences::resolution();
+
+		MODE_EVENT mode;
+
+		if (ison) {
+			mode = TO_FULLSCREEN;
+		} else {
+			mode = preferences::maximized() ? TO_MAXIMIZED_WINDOW : TO_WINDOWED;
+		}
+
+		setMode(res.first, res.second, mode);
+
+		if (display::get_singleton()) {
+			display::get_singleton()->redraw_everything();
+		}
+	}
+
+	// Change the config value.
+	preferences::_set_fullscreen(ison);
+}
+
+void CVideo::set_resolution(const std::pair<int,int>& resolution)
+{
+	set_resolution(resolution.first, resolution.second);
+}
+
+void CVideo::set_resolution(const unsigned width, const unsigned height)
+{
+	if (static_cast<unsigned int> (current_resolution().first)  == width &&
+		static_cast<unsigned int> (current_resolution().second) == height) {
+
+		return;
+	}
+
+	setMode(width, height, TO_RES);
+
+	if(display::get_singleton()) {
+		display::get_singleton()->redraw_everything();
+	}
+
+	// Change the config values.
+	preferences::_set_resolution(std::make_pair(width, height));
+	preferences::_set_maximized(false);
+}

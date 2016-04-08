@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2014 - 2015 by Chris Beck <render787@gmail.com>
+   Copyright (C) 2014 - 2016 by Chris Beck <render787@gmail.com>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -19,8 +19,9 @@
 
 #include "display_context.hpp"
 #include "team.hpp"
-#include "terrain_type_data.hpp"
-#include "unit_map.hpp"
+#include "terrain/type_data.hpp"
+#include "units/map.hpp"
+#include "units/id.hpp"
 
 #include <boost/optional.hpp>
 #include <boost/scoped_ptr.hpp>
@@ -51,12 +52,14 @@ namespace events {
  *
  **/
 
-class game_board : public display_context {
+class game_board : public display_context
+{
 
 	std::vector<team> teams_;
 	std::vector<std::string> labels_;
 
 	boost::scoped_ptr<gamemap> map_;
+	n_unit::id_manager unit_id_manager_;
 	unit_map units_;
 
 	//TODO: Remove these when we have refactored enough to make it possible.
@@ -84,8 +87,8 @@ class game_board : public display_context {
 	friend struct temporary_unit_mover;
 	friend struct temporary_unit_remover;
 
-	public:
-
+public:
+	n_unit::id_manager& unit_id_manager() { return unit_id_manager_; }
 	// Constructors, trivial dtor, and const accessors
 
 	game_board(const tdata_cache & tdata, const config & level);
@@ -94,6 +97,7 @@ class game_board : public display_context {
 	virtual const std::vector<team> & teams() const { return teams_; }
 	virtual const gamemap & map() const { return *map_; }
 	virtual const unit_map & units() const { return units_; }
+	unit_map & units() { return units_; }
 	virtual const std::vector<std::string> & hidden_label_categories() const { return labels_; }
 
 	// Copy and swap idiom, because we have a scoped pointer.
@@ -120,7 +124,7 @@ class game_board : public display_context {
 	// Manipulator from playturn
 
 	void side_drop_to (int side_num, team::CONTROLLER ctrl, team::PROXY_CONTROLLER proxy = team::PROXY_CONTROLLER::PROXY_HUMAN);
-	void side_change_controller (int side_num, team::CONTROLLER ctrl, const std::string& pname = "");
+	void side_change_controller (int side_num, bool is_local, const std::string& pname = "");
 
 	// Manipulator from actionwml
 

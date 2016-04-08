@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2014 - 2015 by Guorui Xi <kevin.xgr@gmail.com>
+   Copyright (C) 2014 - 2016 by Guorui Xi <kevin.xgr@gmail.com>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -17,19 +17,19 @@
  * @file
  */
 
-#include "simulated_actions.hpp"
+#include "ai/simulated_actions.hpp"
 
-#include "../game_board.hpp"
-#include "../game_config.hpp"
-#include "../log.hpp"
-#include "../map.hpp"
-#include "../recall_list_manager.hpp"
-#include "../resources.hpp"
-#include "../team.hpp"
-#include "../unit.hpp"
-#include "../unit_helper.hpp"
-#include "../unit_ptr.hpp"
-#include "../unit_types.hpp"
+#include "game_board.hpp"
+#include "game_config.hpp"
+#include "log.hpp"
+#include "map/map.hpp"
+#include "recall_list_manager.hpp"
+#include "resources.hpp"
+#include "team.hpp"
+#include "units/unit.hpp"
+#include "units/helper.hpp"
+#include "units/ptr.hpp"
+#include "units/types.hpp"
 
 namespace ai {
 
@@ -179,7 +179,7 @@ bool simulated_synced_command(){
 // Helper functions.
 void helper_check_village(const map_location& loc, int side){
 	std::vector<team> &teams = *resources::teams;
-	team *t = unsigned(side - 1) < teams.size() ? &teams[side - 1] : NULL;
+	team *t = unsigned(side - 1) < teams.size() ? &teams[side - 1] : nullptr;
 	if(t && t->owns_village(loc)){
 		return;
 	}
@@ -203,7 +203,7 @@ void helper_check_village(const map_location& loc, int side){
 	if (!t) return;
 
 	if(has_leader){
-		t->get_village(loc, old_owner_side, NULL);
+		t->get_village(loc, old_owner_side, nullptr);
 		DBG_AI_SIM_ACTIONS << "side " << side << " gets village at " << loc << std::endl;
 	}
 }
@@ -257,7 +257,7 @@ void helper_advance_unit(const map_location& loc){
 	}else{
 		const config &mod_option = mod_options[advance_choice-options.size()];
 		advanced_unit.set_experience(advanced_unit.experience()-advanced_unit.max_experience());
-		advanced_unit.add_modification("advance", mod_option);
+		advanced_unit.add_modification("advancement", mod_option);
 	}
 
 	resources::units->replace(loc, advanced_unit);

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010 - 2015 by Gabriel Morin <gabrielmorin (at) gmail (dot) com>
+ Copyright (C) 2010 - 2016 by Gabriel Morin <gabrielmorin (at) gmail (dot) com>
  Part of the Battle for Wesnoth Project http://www.wesnoth.org
 
  This program is free software; you can redistribute it and/or modify
@@ -20,7 +20,7 @@
 #define WB_MOVE_HPP_
 
 #include "action.hpp"
-#include "../game_errors.hpp"
+#include "game_errors.hpp"
 
 struct temporary_unit_mover;
 

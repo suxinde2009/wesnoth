@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2014 - 2015 by Chris Beck <render787@gmail.com>
+   Copyright (C) 2014 - 2016 by Chris Beck <render787@gmail.com>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -26,6 +26,9 @@ class vconfig;
 
 #include "config.hpp"
 #include "scripting/lua_types.hpp"
+#include "variable_info.hpp"
+#include "map/location.hpp"
+#include <vector>
 
 namespace lua_common {
 	int intf_textdomain(lua_State *L);
@@ -49,9 +52,14 @@ void luaW_pushvconfig(lua_State *L, vconfig const &cfg);
 void luaW_pushtstring(lua_State *L, t_string const &v);
 
 /**
- * Converts a string into a Lua object pushed at the top of the stack.
+ * Converts an attribute value into a Lua object pushed at the top of the stack.
  */
 void luaW_pushscalar(lua_State *L, config::attribute_value const &v);
+
+/**
+ * Converts the value at the top of the stack to an attribute value
+ */
+bool luaW_toscalar(lua_State *L, int index, config::attribute_value& v);
 
 
 /**
@@ -77,13 +85,32 @@ t_string luaW_checktstring(lua_State *L, int index);
 void luaW_filltable(lua_State *L, config const &cfg);
 
 /**
+ * Converts a map location object to a Lua table pushed at the top of the stack.
+ */
+void luaW_pushlocation(lua_State *L, map_location const &loc);
+
+/**
+ * Converts an optional table or pair of integers to a map location object.
+ * @param index stack position of the table or first integer.
+ * @return false if a map location couldn't be matched.
+ */
+bool luaW_tolocation(lua_State *L, int index, map_location &loc);
+
+/**
+ * Converts an optional table or pair of integers to a map location object.
+ * @note If a pair of integers was found, the first one will be removed
+ *       from the stack when the function returns.
+ */
+map_location luaW_checklocation(lua_State *L, int index);
+
+/**
  * Converts a config object to a Lua table pushed at the top of the stack.
  */
 void luaW_pushconfig(lua_State *L, config const &cfg);
 
 /**
  * Converts an optional table or vconfig to a config object.
- * @param index absolute stack position of t_string's metatable, or 0 if none.
+ * @param index stack position of the table.
  * @return false if some attributes had not the proper type.
  * @note If the table has holes in the integer keys or floating-point keys,
  *       some keys will be ignored and the error will go undetected.
@@ -113,9 +140,25 @@ vconfig luaW_checkvconfig(lua_State *L, int index, bool allow_missing = false);
  * value is not nil.
  * @return true if an element was pushed.
  */
-bool luaW_getglobal(lua_State *L, ...);
+bool luaW_getglobal(lua_State *L, const std::vector<std::string>& path);
+
+/**
+ * Pushes the value found by following the variadic names (char *), if the
+ * value is not nil.
+ * @return true if an element was pushed.
+ */
+template<typename... T>
+bool luaW_getglobal(lua_State *L, T... path) {
+	return luaW_getglobal(L, std::vector<std::string> {path...} );
+}
 
 bool luaW_toboolean(lua_State *L, int n);
+
+
+bool luaW_pushvariable(lua_State *L, variable_access_const& v);
+
+bool luaW_checkvariable(lua_State *L, variable_access_create& v, int n);
+
 
 #define return_tstring_attrib(name, accessor) \
 	if (strcmp(m, name) == 0) { \
@@ -130,7 +173,7 @@ bool luaW_toboolean(lua_State *L, int n);
 	}
 
 #define return_string_attrib(name, accessor) \
-	return_cstring_attrib(name, accessor.c_str())
+	return_cstring_attrib(name, (accessor).c_str())
 
 #define return_int_attrib(name, accessor) \
 	if (strcmp(m, name) == 0) { \
@@ -169,7 +212,7 @@ bool luaW_toboolean(lua_State *L, int n);
 		const std::vector<std::string>& vector = accessor; \
 		lua_createtable(L, vector.size(), 0); \
 		int i = 1; \
-		BOOST_FOREACH(const std::string& s, vector) { \
+		for (const std::string& s : vector) { \
 			lua_pushstring(L, s.c_str()); \
 			lua_rawseti(L, -2, i); \
 			++i; \

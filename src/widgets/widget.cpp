@@ -1,6 +1,6 @@
 /*
 
-   Copyright (C) 2003 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2003 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -41,7 +41,7 @@ widget::widget(const widget &o)
 }
 
 widget::widget(CVideo& video, const bool auto_join)
-	: sdl_handler(auto_join), focus_(true), video_(&video), rect_(EmptyRect), needs_restore_(false),
+	: events::sdl_handler(auto_join), focus_(true), video_(&video), rect_(EmptyRect), needs_restore_(false),
 	  state_(UNINIT), hidden_override_(false), enabled_(true), clip_(false),
 	  clip_rect_(EmptyRect), volatile_(false), help_string_(0), mouse_lock_local_(false)
 {
@@ -103,7 +103,7 @@ void widget::update_location(SDL_Rect const &rect)
 
 const SDL_Rect* widget::clip_rect() const
 {
-	return clip_ ? &clip_rect_ : NULL;
+	return clip_ ? &clip_rect_ : nullptr;
 }
 
 void widget::bg_register(SDL_Rect const &rect)
@@ -116,27 +116,27 @@ void widget::set_location(int x, int y)
 	set_location(sdl::create_rect(x, y, rect_.w, rect_.h));
 }
 
-void widget::set_width(unsigned w)
+void widget::set_width(int w)
 {
 	set_location(sdl::create_rect(rect_.x, rect_.y, w, rect_.h));
 }
 
-void widget::set_height(unsigned h)
+void widget::set_height(int h)
 {
 	set_location(sdl::create_rect(rect_.x, rect_.y, rect_.w, h));
 }
 
-void widget::set_measurements(unsigned w, unsigned h)
+void widget::set_measurements(int w, int h)
 {
 	set_location(sdl::create_rect(rect_.x, rect_.y, w, h));
 }
 
-unsigned widget::width() const
+int widget::width() const
 {
 	return rect_.w;
 }
 
-unsigned widget::height() const
+int widget::height() const
 {
 	return rect_.h;
 }
@@ -339,6 +339,25 @@ void widget::process_tooltip_string(int mousex, int mousey)
 	if (!hidden() && sdl::point_in_rect(mousex, mousey, rect_)) {
 		if (!tooltip_text_.empty())
 			tooltips::add_tooltip(rect_, tooltip_text_ );
+	}
+}
+
+void widget::handle_event(SDL_Event const &event) {
+	if (event.type == DRAW_ALL_EVENT) {
+		set_dirty();
+		draw();
+	}
+}
+
+void widget::handle_window_event(SDL_Event const &event) {
+	if (event.type == SDL_WINDOWEVENT) {
+		switch (event.window.event) {
+		case SDL_WINDOWEVENT_RESIZED:
+		case SDL_WINDOWEVENT_RESTORED:
+		case SDL_WINDOWEVENT_SHOWN:
+		case SDL_WINDOWEVENT_EXPOSED:
+			set_dirty();
+		}
 	}
 }
 

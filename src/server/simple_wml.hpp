@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2008 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2008 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org
 
    This program is free software; you can redistribute it and/or modify
@@ -34,7 +34,7 @@ struct error : public game::error {
 class string_span
 {
 public:
-	string_span() : str_(NULL), size_(0)
+	string_span() : str_(nullptr), size_(0)
 	{}
 	string_span(const char* str, int size) : str_(str), size_(size)
 	{}
@@ -92,7 +92,7 @@ public:
 
 	int size() const { return size_; }
 	bool empty() const { return size_ == 0; }
-	bool is_null() const { return str_ == NULL; }
+	bool is_null() const { return str_ == nullptr; }
 
 	bool to_bool(bool default_value=false) const;
 	int to_int() const;

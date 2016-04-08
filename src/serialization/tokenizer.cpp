@@ -1,6 +1,6 @@
 /*
    Copyright (C) 2004 - 2009 by Philippe Plantier <ayin@anathas.org>
-   Copyright (C) 2010 - 2015 by Guillaume Melquiond <guillaume.melquiond@gmail.com>
+   Copyright (C) 2010 - 2016 by Guillaume Melquiond <guillaume.melquiond@gmail.com>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org
 
    This program is free software; you can redistribute it and/or modify
@@ -179,7 +179,7 @@ void tokenizer::skip_comment()
 {
 	next_char_fast();
 	if (current_ == '\n' || current_ == EOF) return;
-	std::string *dst = NULL;
+	std::string *dst = nullptr;
 
 	if (current_ == 't')
 	{

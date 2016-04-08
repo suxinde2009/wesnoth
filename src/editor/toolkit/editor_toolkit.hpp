@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2012 - 2015 by Fabian Mueller <fabianmueller5@gmx.de>
+   Copyright (C) 2012 - 2016 by Fabian Mueller <fabianmueller5@gmx.de>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -16,13 +16,14 @@
 #define EDITOR_TOOLKIT_H_INCLUDED
 
 
-#include "config.hpp"
 #include "editor/map/context_manager.hpp"
 #include "editor/palette/palette_manager.hpp"
 #include "editor/toolkit/brush.hpp"
 #include "hotkey/hotkey_command.hpp"
 
 #include <boost/scoped_ptr.hpp>
+
+class config;
 
 namespace editor {
 

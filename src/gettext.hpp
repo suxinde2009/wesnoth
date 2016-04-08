@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2003 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2003 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -53,7 +53,7 @@
 #define UNUSEDNOWARN
 #endif
 
-namespace translation 
+namespace translation
 {
 	std::string dgettext(const char* domain, const char* msgid);
 	std::string egettext(const char*);
@@ -61,20 +61,21 @@ namespace translation
 	//const char* sngettext(const char *singular, const char *plural, int n);
 	std::string dsngettext(const char * domainname, const char *singular, const char *plural, int n);
 
-	inline UNUSEDNOWARN static std::string gettext(const char* str) 
+	inline UNUSEDNOWARN static std::string gettext(const char* str)
 	{ return translation::dgettext(GETTEXT_DOMAIN, str); }
-	inline UNUSEDNOWARN static std::string sgettext(const char* str) 
+	inline UNUSEDNOWARN static std::string sgettext(const char* str)
 	{ return translation::dsgettext(GETTEXT_DOMAIN, str); }
-	inline UNUSEDNOWARN static std::string sngettext(const char* str1, const char* str2, int n)  
+	inline UNUSEDNOWARN static std::string sngettext(const char* str1, const char* str2, int n)
 	{ return translation::dsngettext(GETTEXT_DOMAIN, str1, str2 , n); }
 
 
-	void bind_textdomain(const char* domain, const char* direcory, const char* encoding);
+	void bind_textdomain(const char* domain, const char* directory, const char* encoding);
 	void set_default_textdomain(const char* domain);
 
 	void set_language(const std::string& language, const std::vector<std::string>* alternates);
 
 	void init();
+	int compare(const std::string& s1,const std::string& s2);
 }
 
 //#define _(String) translation::dsgettext(GETTEXT_DOMAIN,String)

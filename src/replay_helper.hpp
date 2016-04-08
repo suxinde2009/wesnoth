@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2003 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2003 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -14,9 +14,9 @@
 #ifndef REPLAY_HELPER_H_INCLUDED
 #define REPLAY_HELPER_H_INCLUDED
 
-
-#include "config.hpp"
+#include <vector>
 #include <string>
+class config;
 struct map_location;
 struct time_of_day;
 

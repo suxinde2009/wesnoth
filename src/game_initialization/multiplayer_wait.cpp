@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2007 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2007 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org
 
    This program is free software; you can redistribute it and/or modify
@@ -19,7 +19,7 @@
 #include "game_config_manager.hpp"
 #include "game_preferences.hpp"
 #include "gui/dialogs/transient_message.hpp"
-#include "game_display.hpp"
+#include "image.hpp"
 #include "log.hpp"
 #include "marked-up_text.hpp"
 #include "mp_game_utils.hpp"
@@ -28,13 +28,14 @@
 #include "saved_game.hpp"
 #include "mp_ui_alerts.hpp"
 #include "scripting/plugins/context.hpp"
-#include "unit_types.hpp"
+#include "sdl/rect.hpp"
+#include "units/types.hpp"
 #include "wml_exception.hpp"
 #include "wml_separators.hpp"
-#include "formula_string_utils.hpp"
+#include "formula/string_utils.hpp"
+#include "video.hpp"
 
-#include <boost/bind.hpp>
-#include <boost/foreach.hpp>
+#include "utils/functional.hpp"
 
 static lg::log_domain log_network("network");
 #define DBG_NW LOG_STREAM(debug, log_network)
@@ -58,13 +59,13 @@ const int leader_pane_border = 10;
 
 namespace mp {
 
-wait::leader_preview_pane::leader_preview_pane(game_display& disp,
+wait::leader_preview_pane::leader_preview_pane(CVideo& v,
 	ng::flg_manager& flg, const std::string& color) :
-	gui::preview_pane(disp.video()),
+	gui::preview_pane(v),
 	flg_(flg),
 	color_(color),
-	combo_leader_(disp, std::vector<std::string>()),
-	combo_gender_(disp, std::vector<std::string>())
+	combo_leader_(v, std::vector<std::string>()),
+	combo_gender_(v, std::vector<std::string>())
 {
 	flg_.reset_leader_combo(combo_leader_, color_);
 	flg_.reset_gender_combo(combo_gender_, color_);
@@ -93,7 +94,7 @@ void wait::leader_preview_pane::draw_contents()
 {
 	bg_restore();
 
-	surface screen = video().getSurface();
+	surface& screen = video().getSurface();
 
 	SDL_Rect const &loc = location();
 	const SDL_Rect area = sdl::create_rect(loc.x + leader_pane_border,
@@ -141,7 +142,7 @@ void wait::leader_preview_pane::draw_contents()
 	if (!unit_image.null()) {
 		image_rect.w = unit_image->w;
 		image_rect.h = unit_image->h;
-		sdl_blit(unit_image, NULL, screen, &image_rect);
+		sdl_blit(unit_image, nullptr, screen, &image_rect);
 	}
 
 	font::draw_text(&video(), area, font::SIZE_PLUS, font::NORMAL_COLOR,
@@ -192,12 +193,12 @@ sdl_handler_vector wait::leader_preview_pane::handler_members() {
 }
 
 
-wait::wait(game_display& disp, const config& cfg, saved_game& state,
+wait::wait(CVideo& v, const config& cfg, saved_game& state,
 	mp::chat& c, config& gamelist, const bool first_scenario) :
-	ui(disp, _("Game Lobby"), cfg, c, gamelist),
-	cancel_button_(disp.video(), first_scenario ? _("Cancel") : _("Quit")),
-	start_label_(disp.video(), _("Waiting for game to start..."), font::SIZE_SMALL, font::LOBBY_COLOR),
-	game_menu_(disp.video(), std::vector<std::string>(), false, -1, -1, NULL, &gui::menu::bluebg_style),
+	ui(v, _("Game Lobby"), cfg, c, gamelist),
+	cancel_button_(video(), first_scenario ? _("Cancel") : _("Quit")),
+	start_label_(video(), _("Waiting for game to start..."), font::SIZE_SMALL, font::LOBBY_COLOR),
+	game_menu_(video(), std::vector<std::string>(), false, -1, -1, nullptr, &gui::menu::bluebg_style),
 	level_(),
 	state_(state),
 	first_scenario_(first_scenario),
@@ -209,8 +210,8 @@ wait::wait(game_display& disp, const config& cfg, saved_game& state,
 	plugins_context_.reset(new plugins_context("Multiplayer Wait"));
 
 	//These structure initializers create a lobby::process_data_event
-	plugins_context_->set_callback("quit", 		boost::bind(&wait::process_event_impl, this, true), 						false);
-	plugins_context_->set_callback("chat",		boost::bind(&wait::send_chat_message, this, boost::bind(get_str, _1, "message"), false),	true);
+	plugins_context_->set_callback("quit", 		std::bind(&wait::process_event_impl, this, true), 						false);
+	plugins_context_->set_callback("chat",		std::bind(&wait::send_chat_message, this, std::bind(get_str, _1, "message"), false),	true);
 }
 
 wait::~wait()
@@ -260,16 +261,16 @@ void wait::join_game(bool observe)
 
 	// Add the map name to the title.
 	append_to_title(": " + get_scenario()["name"].t_str());
-	
+
 	game_config::add_color_info(get_scenario());
 	if (!observe) {
 		//search for an appropriate vacant slot. If a description is set
 		//(i.e. we're loading from a saved game), then prefer to get the side
 		//with the same description as our login. Otherwise just choose the first
 		//available side.
-		const config *side_choice = NULL;
+		const config *side_choice = nullptr;
 		int side_num = -1, nb_sides = 0;
-		BOOST_FOREACH(const config &sd, get_scenario().child_range("side"))
+		for (const config &sd : get_scenario().child_range("side"))
 		{
 			DBG_MP << "*** side " << nb_sides << "***\n" << sd.debug() << "***\n";
 
@@ -279,7 +280,7 @@ void wait::join_game(bool observe)
 				side_num = nb_sides;
 				break;
 			}
-			if (sd["controller"] == "network" && sd["player_id"].empty())
+			if (sd["controller"] == "human" && sd["player_id"].empty())
 			{
 				if (!side_choice) { // found the first empty side
 					side_choice = &sd;
@@ -329,12 +330,13 @@ void wait::join_game(bool observe)
 			const std::string color = (*side_choice)["color"].str();
 
 			std::vector<const config*> era_factions;
-			BOOST_FOREACH(const config &side, possible_sides) {
+			for (const config &side : possible_sides) {
 				era_factions.push_back(&side);
 			}
 
+			const bool is_mp = state_.classification().is_normal_mp_game();
 			const bool lock_settings =
-				get_scenario()["force_lock_settings"].to_bool();
+				get_scenario()["force_lock_settings"].to_bool(!is_mp);
 			const bool use_map_settings =
 				level_.child("multiplayer")["mp_use_map_settings"].to_bool();
 			const bool saved_game =
@@ -344,7 +346,7 @@ void wait::join_game(bool observe)
 				saved_game);
 
 			std::vector<std::string> choices;
-			BOOST_FOREACH(const config *s, flg.choosable_factions())
+			for (const config *s : flg.choosable_factions())
 			{
 				const config &side = *s;
 				const std::string &name = side["name"];
@@ -362,13 +364,14 @@ void wait::join_game(bool observe)
 				}
 			}
 
+
 			std::vector<gui::preview_pane* > preview_panes;
-			leader_preview_pane leader_selector(disp(), flg, color);
+			leader_preview_pane leader_selector(video(), flg, color);
 			preview_panes.push_back(&leader_selector);
 
-			const int faction_choice = gui::show_dialog(disp(), NULL,
+			const int faction_choice = gui::show_dialog(video(), nullptr,
 				_("Choose your faction:"), _("Starting position: ") +
-				lexical_cast<std::string>(side_num + 1), gui::OK_CANCEL,
+				std::to_string(side_num + 1), gui::OK_CANCEL,
 				&choices, &preview_panes);
 			if(faction_choice < 0) {
 				set_result(QUIT);
@@ -431,7 +434,7 @@ void wait::process_network_data(const config& data, const network::connection so
 	ui::process_network_data(data, sock);
 
 	if(!data["message"].empty()) {
-		gui2::show_transient_message(disp().video()
+		gui2::show_transient_message(video()
 				, _("Response")
 				, data["message"]);
 	}
@@ -516,7 +519,7 @@ void wait::generate_menu()
 	std::vector<std::string> details;
 	std::set<std::string> playerlist;
 
-	BOOST_FOREACH(const config &sd, get_scenario().child_range("side"))
+	for (const config &sd : get_scenario().child_range("side"))
 	{
 		if (!sd["allow_player"].to_bool(true)) {
 			continue;
@@ -531,7 +534,7 @@ void wait::generate_menu()
 		// Hack: if there is a unit which can recruit, use it as a
 		// leader. Necessary to display leader information when loading
 		// saves.
-		BOOST_FOREACH(const config &side_unit, sd.child_range("unit"))
+		for (const config &side_unit : sd.child_range("unit"))
 		{
 			if (side_unit["canrecruit"].to_bool()) {
 				leader_type = side_unit["type"].str();
@@ -613,15 +616,6 @@ void wait::generate_menu()
 	}
 }
 
-bool wait::has_level_data() const
-{
-	if (first_scenario_) {
-		return level_.has_attribute("version") && get_scenario().has_child("side");
-	} else {
-		return level_.has_child("next_scenario");
-	}
-}
-
 bool wait::download_level_data()
 {
 	DBG_MP << "download_level_data()\n";
@@ -629,24 +623,37 @@ bool wait::download_level_data()
 		// Ask for the next scenario data.
 		network::send_data(config("load_next_scenario"), 0);
 	}
-
-	while (!has_level_data()) {
+	bool has_scenario_and_controllers = false;
+	while (!has_scenario_and_controllers) {
+		config revc;
 		network::connection data_res = dialogs::network_receive_dialog(
-			disp(), _("Getting game data..."), level_);
+			video(), _("Getting game data..."), revc);
 
 		if (!data_res) {
 			DBG_MP << "download_level_data bad results\n";
 			return false;
 		}
-		check_response(data_res, level_);
-		if (level_.child("leave_game")) {
+		check_response(data_res, revc);
+		if (revc.child("leave_game")) {
 			return false;
 		}
-	}
-
-	if (!first_scenario_) {
-		config cfg = level_.child("next_scenario");
-		level_ = cfg;
+		else if(config& next_scenario = revc.child("next_scenario")) {
+			level_.swap(next_scenario);
+		}
+		else if(revc.has_attribute("version")) {
+			level_.swap(revc);
+			has_scenario_and_controllers = true;
+		}
+		else if(config& controllers = revc.child("controllers")) {
+			int index = 0;
+			for (const config& controller : controllers.child_range("controller")) {
+				if(config& side = get_scenario().child("side", index)) {
+					side["is_local"] = controller["is_local"];
+				}
+				++index;
+			}
+			has_scenario_and_controllers = true;
+		}
 	}
 
 	DBG_MP << "download_level_data() success.\n";

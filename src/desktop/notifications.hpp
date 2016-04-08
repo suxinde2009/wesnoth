@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2003 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2003 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -24,7 +24,7 @@ namespace notifications
 	enum type {CHAT, TURN_CHANGED, OTHER};
 
 /**
- * Displays a desktop notification message @message, from @a owner, of type @t.
+ * Displays a desktop notification @a message, from @a owner, of type @a t.
  *
  * If it is an appropriate time to send a desktop notification (i.e. the window
  * does not have focus and the feature is not disabled by the preferences),

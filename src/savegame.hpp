@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2003 - 2015 by Jörg Hinrichs, refactored from various
+   Copyright (C) 2003 - 2016 by Jörg Hinrichs, refactored from various
    places formerly created by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
@@ -36,7 +36,7 @@ void clean_saves(const std::string& label);
 class loadgame
 {
 public:
-	loadgame(display& gui, const config& game_config, saved_game& gamestate);
+	loadgame(CVideo& video, const config& game_config, saved_game& gamestate);
 	virtual ~loadgame() {}
 
 	/* In any of the following three function, a bool value of false indicates
@@ -65,9 +65,14 @@ public:
 	/** GUI Dialog sequence which confirms attempts to load saves from previous game versions. */
 	static bool check_version_compatibility(const version_info & version, CVideo & video);
 
+	static bool is_replay_save(const config& cfg)
+	{
+		return cfg["replay"].to_bool() && !cfg["snapshot"].to_bool(true);
+	}
+
 private:
 	/** Display the load-game dialog. */
-	void show_dialog(bool show_replay, bool cancel_orders);
+	void show_dialog();
 	/** Display the difficulty dialog. */
 	void show_difficulty_dialog();
 	/** Call check_version_compatibility above, using the version of this savefile. */
@@ -76,7 +81,7 @@ private:
 	void copy_era(config& cfg);
 
 	const config& game_config_;
-	display& gui_;
+	CVideo& video_;
 
 	saved_game& gamestate_; /** Primary output information. */
 	std::string filename_; /** Name of the savefile to be loaded. */
@@ -85,6 +90,7 @@ private:
 	bool show_replay_; /** State of the "show_replay" checkbox in the load-game dialog. */
 	bool cancel_orders_; /** State of the "cancel_orders" checkbox in the load-game dialog. */
 	bool select_difficulty_; /** State of the "change_difficulty" checkbox in the load-game dialog. */
+	config summary_; /** Summary config of the save selected in the load game dialog. */
 };
 
 /**
@@ -122,7 +128,7 @@ protected:
 		or error messages to appear, you have to provide the gui parameter.
 		The return value denotes, if the save was successful or not.
 	*/
-	bool save_game(CVideo* video = NULL, const std::string& filename = "");
+	bool save_game(CVideo* video = nullptr, const std::string& filename = "");
 
 	/** Sets the filename and removes invalid characters. Don't set the filename directly but
 		use this method instead. */
@@ -166,7 +172,7 @@ private:
 	//before_save (write replay data) changes this so it cannot be const
 	saved_game& gamestate_;
 	/** Filename of the savegame file on disk */
-	std::string filename_; 
+	std::string filename_;
 
 	const std::string title_; /** Title of the savegame dialog */
 
@@ -225,11 +231,12 @@ private:
 class oos_savegame : public ingame_savegame
 {
 public:
-	oos_savegame(saved_game& gamestate, game_display& gui);
+	oos_savegame(saved_game& gamestate, game_display& gui, bool& ignore);
 
 private:
 	/** Display the save game dialog. */
 	virtual int show_save_dialog(CVideo& video, const std::string& message, const gui::DIALOG_TYPE dialog_type);
+	bool& ignore_;
 };
 
 /** Class for start-of-scenario saves */

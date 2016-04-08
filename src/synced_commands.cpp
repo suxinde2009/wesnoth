@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2014 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2014 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -16,9 +16,9 @@
 
 #include "log.hpp"
 #include "resources.hpp"
-#include "map_location.hpp"
+#include "map/location.hpp"
 #include "game_data.hpp"
-#include "unit.hpp"
+#include "units/unit.hpp"
 #include "team.hpp"
 #include "play_controller.hpp"
 #include "actions/create.hpp"
@@ -29,17 +29,13 @@
 #include "game_preferences.hpp"
 #include "game_events/manager.hpp"
 #include "game_events/pump.hpp"
-#include "dialogs.hpp"
-#include "unit_helper.hpp"
+#include "units/helper.hpp"
 #include "recall_list_manager.hpp"
-#include "replay.hpp" //user choice
 #include "resources.hpp"
 #include "scripting/game_lua_kernel.hpp"
-#include "formula_string_utils.hpp"
-#include "unit_types.hpp"
-#include "unit_display.hpp"
-
-#include <boost/foreach.hpp>
+#include "formula/string_utils.hpp"
+#include "units/types.hpp"
+#include "units/udisplay.hpp"
 
 static lg::log_domain log_replay("replay");
 #define DBG_REPLAY LOG_STREAM(debug, log_replay)
@@ -314,7 +310,7 @@ SYNCED_COMMAND_HANDLER_FUNCTION(move, child,  use_undo, show, error_handler)
 	{
 		show_move = show_move && preferences::show_ai_moves();
 	}
-	actions::move_unit_from_replay(steps, use_undo ? resources::undo_stack : NULL, skip_sighted, skip_ally_sighted, show_move);
+	actions::move_unit_from_replay(steps, use_undo ? resources::undo_stack : nullptr, skip_sighted, skip_ally_sighted, show_move);
 
 	return true;
 }
@@ -422,6 +418,24 @@ SYNCED_COMMAND_HANDLER_FUNCTION(debug_unit, child,  use_undo, /*show*/, /*error_
 				break;
 			}
 		}
+	} else if (name == "status" ) {
+		config cfg;
+		i->write(cfg);
+		resources::units->erase(loc);
+		config& statuses = cfg.child_or_add("status");
+		for (std::string status : utils::split(value)) {
+			bool add = true;
+			if (status.length() >= 1 && status[0] == '-') {
+				add = false;
+				status = status.substr(1);
+			}
+			if (status.empty()) {
+				continue;
+			}
+			statuses[status] = add;
+		}
+		unit new_u(cfg, true);
+		resources::units->add(loc, new_u);
 	} else {
 		config cfg;
 		i->write(cfg);
@@ -443,10 +457,10 @@ SYNCED_COMMAND_HANDLER_FUNCTION(debug_create_unit, child,  use_undo, /*show*/, e
 	if(use_undo) {
 		resources::undo_stack->clear();
 	}
-	
+
 	debug_notification("A unit was created using debug command during turn of $player");
 	map_location loc(child);
-	const unit_race::GENDER gender = string_gender(child["gender"], unit_race::NUM_GENDERS);	
+	const unit_race::GENDER gender = string_gender(child["gender"], unit_race::NUM_GENDERS);
 	const unit_type *u_type = unit_types.find(child["type"]);
 	if (!u_type) {
 		error_handler("Invalid unit type", true);
@@ -459,6 +473,7 @@ SYNCED_COMMAND_HANDLER_FUNCTION(debug_create_unit, child,  use_undo, /*show*/, e
 	// Add the unit to the board.
 	std::pair<unit_map::iterator, bool> add_result = resources::units->replace(loc, created);
 	resources::screen->invalidate_unit();
+	resources::game_events->pump().fire("unit placed", loc);
 	unit_display::unit_recruited(loc);
 
 	// Village capture?
@@ -492,7 +507,7 @@ SYNCED_COMMAND_HANDLER_FUNCTION(debug_next_level, child, use_undo, /*show*/, /*e
 	if(use_undo) {
 		resources::undo_stack->clear();
 	}
-	
+
 	debug_notification(":next_level debug command was used during turn of $player");
 
 	std::string next_level = child["next_level"];
@@ -504,7 +519,7 @@ SYNCED_COMMAND_HANDLER_FUNCTION(debug_next_level, child, use_undo, /*show*/, /*e
 	e.transient.linger_mode = false;
 	e.proceed_to_next_level = true;
 	e.is_victory = true;
-	
+
 	resources::controller->set_end_level_data(e);
 	resources::controller->force_end_turn();
 
@@ -516,7 +531,7 @@ SYNCED_COMMAND_HANDLER_FUNCTION(debug_turn_limit, child, use_undo, /*show*/, /*e
 	if(use_undo) {
 		resources::undo_stack->clear();
 	}
-	
+
 	debug_notification(":turn_limit debug command was used during turn of $player");
 
 	resources::tod_manager->set_number_of_turns(child["turn_limit"].to_int(-1));
@@ -529,10 +544,10 @@ SYNCED_COMMAND_HANDLER_FUNCTION(debug_turn, child, use_undo, /*show*/, /*error_h
 	if(use_undo) {
 		resources::undo_stack->clear();
 	}
-	
+
 	debug_notification(":turn debug command was used during turn of $player");
 
-	resources::tod_manager->set_turn(child["turn"].to_int(1), *resources::gamedata);
+	resources::tod_manager->set_turn(child["turn"].to_int(1), resources::gamedata);
 
 	resources::screen->new_turn();
 	resources::screen->redraw_everything();
@@ -545,7 +560,7 @@ SYNCED_COMMAND_HANDLER_FUNCTION(debug_set_var, child, use_undo, /*show*/, /*erro
 	if(use_undo) {
 		resources::undo_stack->clear();
 	}
-	
+
 	debug_notification(":set_var debug command was used during turn of $player");
 
 	try {
@@ -563,7 +578,7 @@ SYNCED_COMMAND_HANDLER_FUNCTION(debug_gold, child, use_undo, /*show*/, /*error_h
 	if(use_undo) {
 		resources::undo_stack->clear();
 	}
-	
+
 	debug_notification(":gold debug command was used during turn of $player");
 
 	resources::controller->current_team().spend_gold(-child["gold"].to_int(0));
@@ -577,7 +592,7 @@ SYNCED_COMMAND_HANDLER_FUNCTION(debug_event, child, use_undo, /*show*/, /*error_
 	if(use_undo) {
 		resources::undo_stack->clear();
 	}
-	
+
 	debug_notification(":throw debug command was used during turn of $player");
 
 	resources::controller->pump().fire(child["eventname"]);
@@ -592,13 +607,13 @@ SYNCED_COMMAND_HANDLER_FUNCTION(debug_fog, /*child*/, use_undo, /*show*/, /*erro
 	if(use_undo) {
 		resources::undo_stack->clear();
 	}
-	
+
 	debug_notification(":fog debug command was used during turn of $player");
 
 	team& current_team = resources::controller->current_team();
 	current_team.set_fog(!current_team.uses_fog());
 	actions::recalculate_fog(current_team.side());
-	
+
 	resources::screen->recalculate_minimap();
 	resources::screen->redraw_everything();
 
@@ -611,13 +626,13 @@ SYNCED_COMMAND_HANDLER_FUNCTION(debug_shroud, /*child*/, use_undo, /*show*/, /*e
 	if(use_undo) {
 		resources::undo_stack->clear();
 	}
-	
+
 	debug_notification(":shroud debug command was used during turn of $player");
 
 	team& current_team = resources::controller->current_team();
 	current_team.set_shroud(!current_team.uses_shroud());
 	actions::clear_shroud(current_team.side());
-	
+
 	resources::screen->recalculate_minimap();
 	resources::screen->redraw_everything();
 

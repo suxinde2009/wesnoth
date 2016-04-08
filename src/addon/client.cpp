@@ -17,8 +17,7 @@
 #include "addon/manager.hpp"
 #include "addon/validation.hpp"
 #include "cursor.hpp"
-#include "display.hpp"
-#include "formula_string_utils.hpp"
+#include "formula/string_utils.hpp"
 #include "gettext.hpp"
 #include "gui/dialogs/message.hpp"
 #include "log.hpp"
@@ -33,13 +32,13 @@ static lg::log_domain log_addons_client("addons-client");
 #define LOG_ADDONS LOG_STREAM(info,  log_addons_client)
 #define DBG_ADDONS LOG_STREAM(debug, log_addons_client)
 
-addons_client::addons_client(display& disp, const std::string& address)
-	: disp_(disp)
+addons_client::addons_client(CVideo& v, const std::string& address)
+	: v_(v)
 	, addr_(address)
 	, host_()
 	, port_()
-	, conn_(NULL)
-	, stat_(NULL)
+	, conn_(nullptr)
+	, stat_(nullptr)
 	, last_error_()
 {
 	const std::vector<std::string>& address_components =
@@ -52,7 +51,7 @@ addons_client::addons_client(display& disp, const std::string& address)
 	// FIXME: this parsing will break IPv6 numeric addresses! */
 	host_ = address_components[0];
 	port_ = address_components.size() == 2 ?
-		address_components[1] : str_cast(default_campaignd_port);
+		address_components[1] : std::to_string(default_campaignd_port);
 }
 
 void addons_client::connect()
@@ -211,7 +210,7 @@ bool addons_client::install_addon(config& archive_cfg, const addon_info& info)
 	i18n_symbols["addon_title"] = info.title;
 
 	if(!check_names_legal(archive_cfg)) {
-		gui2::show_error_message(disp_.video(),
+		gui2::show_error_message(v_,
 			vgettext("The add-on <i>$addon_title</i> has an invalid file or directory "
 				"name and cannot be installed.", i18n_symbols));
 		return false;
@@ -273,8 +272,8 @@ bool addons_client::update_last_error(config& response_cfg)
 
 void addons_client::check_connected() const
 {
-	assert(conn_ != NULL);
-	if(conn_ == NULL) {
+	assert(conn_ != nullptr);
+	if(conn_ == nullptr) {
 		ERR_ADDONS << "not connected to server" << std::endl;
 		throw not_connected_to_server();
 	}
@@ -306,7 +305,7 @@ void addons_client::wait_for_transfer_done(const std::string& status_message, bo
 		stat_->set_track_upload(track_upload);
 	}
 
-	if(!stat_->show(disp_.video())) {
+	if(!stat_->show(v_)) {
 		// Notify the caller chain that the user aborted the operation.
 		throw user_exit();
 	}

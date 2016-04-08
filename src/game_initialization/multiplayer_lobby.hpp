@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2007 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2007 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org
 
    This program is free software; you can redistribute it and/or modify
@@ -24,7 +24,7 @@
 
 class config;
 class video;
-class game_display;
+class CVideo;
 
 /**
  * This module controls the multiplayer lobby.
@@ -145,13 +145,14 @@ public:
 	ADDON_REQ selection_addon_outcome() const
 	{ return empty() ? SATISFIED : games_[selected_].addons_outcome; }
 	const std::vector<required_addon> * selection_addon_requirements() const
-	{ return empty() ? NULL : &games_[selected_].addons; }
+	{ return empty() ? nullptr : &games_[selected_].addons; }
 	bool selected() const { return double_clicked_ && !empty(); }
 	void reset_selection() { double_clicked_ = false; }
 	int selection() const { return selected_; }
 	game_item selected_game() { return games_[selected_]; }
 	void select_game(const std::string& id);
 	bool game_matches_filter(const game_item& i, const config& cfg);
+
 protected:
 	unsigned int row_height() const { return item_height_ + (2 * style_->get_thickness()); }
 private:
@@ -185,10 +186,11 @@ private:
 class lobby : public ui
 {
 public:
-	lobby(game_display& d, const config& cfg, chat& c, config& gamelist, const std::vector<std::string> & installed_addons);
+	lobby(CVideo& v, const config& cfg, chat& c, config& gamelist, const std::vector<std::string> & installed_addons);
 
 	virtual void process_event();
 
+	int current_turn;
 protected:
 	virtual void hide_children(bool hide=true);
 	virtual void layout_children(const SDL_Rect& rect);

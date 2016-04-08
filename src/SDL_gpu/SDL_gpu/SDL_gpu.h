@@ -16,9 +16,7 @@ extern "C" {
 #define SDL_GPU_VERSION_PATCH 0
 
 /* Auto-detect if we're using the SDL2 API by the headers available. */
-#if SDL_VERSION_ATLEAST(2,0,0)
     #define SDL_GPU_USE_SDL2
-#endif
 
 typedef struct GPU_Renderer GPU_Renderer;
 typedef struct GPU_Target GPU_Target;
@@ -800,9 +798,13 @@ struct GPU_Renderer
 
 // Setup calls
 
-// Visual C does not support static inline
+// static inline only supported in Visual C++ from version 2015 but can use static __inline instead for older versions
 #ifdef _MSC_VER
-static SDL_version GPU_GetCompiledVersion(void)
+#if _MSC_VER < 1900
+static __inline SDL_version GPU_GetCompiledVersion(void)
+#else
+static inline SDL_version GPU_GetCompiledVersion(void)
+#endif
 #else
 static inline SDL_version GPU_GetCompiledVersion(void)
 #endif

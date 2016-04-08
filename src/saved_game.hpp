@@ -1,3 +1,15 @@
+/*
+   Copyright (C) 2003 - 2016 by the Battle for Wesnoth Project http://www.wesnoth.org/
+
+   This program is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 2 of the License, or
+   (at your option) any later version.
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY.
+
+   See the COPYING file for more details.
+*/
 
 #ifndef SAVED_GAME_HPP_INCLUDED
 #define SAVED_GAME_HPP_INCLUDED
@@ -58,6 +70,8 @@ public:
 	/// does NOT expand [option]s because variables are persitent anyway to we don't need it
 	/// should be called after expand_scenario() but before expand_carryover()
 	void expand_mp_events();
+	/// helper for expand_mp_events();
+	void load_mod(const std::string& type, const std::string& id);
 	/// adds values of [option]s into [carryover_sides_start][variables] so that they are applied in the next level.
 	/// Note that since [variabels] are persistent we only use this once at the beginning
 	/// of a campaign but calling it multiple times is no harm eigher
@@ -97,14 +111,14 @@ public:
 	void cancel_orders();
 	/* removes network_ai and network controller types*/
 	void unify_controllers();
-
+	/** does some post loading stuff must be used before passing the data to connect_engine */
 	void set_defaults();
 	replay_recorder_base& get_replay() { return replay_data_; }
 	const replay_recorder_base& get_replay() const { return replay_data_; }
+
 private:
-	
 	bool has_carryover_expanded_;
-	/** 
+	/**
 		depends on has_carryover_expanded_:
 		if true:  The carryover information for all sides from the previous scenario that aren't used in this scenario (to be carried over to the next scenario).
 		if false: The carryover information for all sides from the previous scenario.

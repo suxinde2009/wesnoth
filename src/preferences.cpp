@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2003 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2003 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -34,6 +34,9 @@
 
 #include <sys/stat.h> // for setting the permissions of the preferences file
 #include <boost/concept_check.hpp>
+#ifndef _WIN32
+#include <unistd.h>
+#endif
 
 static lg::log_domain log_config("config");
 #define ERR_CFG LOG_STREAM(err , log_config)
@@ -42,8 +45,6 @@ static lg::log_domain log_filesystem("filesystem");
 #define ERR_FS LOG_STREAM(err, log_filesystem)
 
 namespace {
-
-bool color_cursors = false;
 
 bool no_preferences_save = false;
 
@@ -56,8 +57,19 @@ config prefs;
 
 namespace preferences {
 
+class prefs_event_handler : public events::sdl_handler {
+public:
+	virtual void handle_event(const SDL_Event &) {}
+	virtual void handle_window_event(const SDL_Event &event);
+	prefs_event_handler() :	sdl_handler(false) {}
+};
+
+prefs_event_handler event_handler_;
+
 base_manager::base_manager()
 {
+	event_handler_.join_global();
+
 	try{
 #ifdef DEFAULT_PREFS_PATH
 		filesystem::scoped_istream stream = filesystem::istream_file(filesystem::get_default_prefs_file(),false);
@@ -89,6 +101,35 @@ base_manager::~base_manager()
 
 		write_preferences();
 	} catch (...) {}
+}
+
+/*
+ * Hook for setting window state variables on window resize and maximize
+ * events. Since there is no fullscreen window event, that setter is called
+ * from the CVideo function instead.
+ */
+void prefs_event_handler::handle_window_event(const SDL_Event& event)
+{
+
+	// Saftey check to make sure this is a window event
+	if (event.type != SDL_WINDOWEVENT) return;
+
+	switch(event.window.event) {
+	case SDL_WINDOWEVENT_RESIZED:
+		_set_resolution(std::make_pair(event.window.data1,event.window.data2));
+
+		break;
+
+	case SDL_WINDOWEVENT_MAXIMIZED:
+		_set_maximized(true);
+
+		break;
+
+	case SDL_WINDOWEVENT_RESTORED:
+		_set_maximized(fullscreen() || false);
+
+		break;
+	}
 }
 
 void write_preferences()
@@ -169,6 +210,10 @@ std::string get(const std::string& key) {
 	return prefs[key];
 }
 
+std::string get(const std::string& key, const std::string& def) {
+	return prefs[key].empty() ? def : prefs[key];
+}
+
 bool get(const std::string &key, bool def)
 {
 	return prefs[key].to_bool(def);
@@ -183,10 +228,6 @@ config* get_prefs(){
 	return pointer;
 }
 
-bool fullscreen()
-{
-	return get("fullscreen", false);
-}
 
 bool show_allied_orb() {
 	return get("show_ally_orb", game_config::show_ally_orb);
@@ -224,11 +265,22 @@ void set_show_partial_orb(bool show_orb) {
 }
 
 
+static std::string fix_orb_color_name(const std::string& color) {
+	if (color.substr(0,4) == "orb_") {
+		if(color[4] >= '0' && color[4] <= '9') {
+			return color.substr(5);
+		} else {
+			return color.substr(4);
+		}
+	}
+	return color;
+}
+
 std::string allied_color() {
 	std::string ally_color = get("ally_orb_color");
 	if (ally_color.empty())
 		return game_config::colors::ally_orb_color;
-	return ally_color;
+	return fix_orb_color_name(ally_color);
 }
 void set_allied_color(const std::string& color_id) {
 	prefs["ally_orb_color"] = color_id;
@@ -248,7 +300,7 @@ std::string enemy_color() {
 	std::string enemy_color = get("enemy_orb_color");
 	if (enemy_color.empty())
 		return game_config::colors::enemy_orb_color;
-	return enemy_color;
+	return fix_orb_color_name(enemy_color);
 }
 void set_enemy_color(const std::string& color_id) {
 	prefs["enemy_orb_color"] = color_id;
@@ -258,7 +310,7 @@ std::string moved_color() {
 	std::string moved_color = get("moved_orb_color");
 	if (moved_color.empty())
 		return game_config::colors::moved_orb_color;
-	return moved_color;
+	return fix_orb_color_name(moved_color);
 }
 void set_moved_color(const std::string& color_id) {
 	prefs["moved_orb_color"] = color_id;
@@ -268,7 +320,7 @@ std::string unmoved_color() {
 	std::string unmoved_color = get("unmoved_orb_color");
 	if (unmoved_color.empty())
 		return game_config::colors::unmoved_orb_color;
-	return unmoved_color;
+	return fix_orb_color_name(unmoved_color);
 }
 void set_unmoved_color(const std::string& color_id) {
 	prefs["unmoved_orb_color"] = color_id;
@@ -278,16 +330,10 @@ std::string partial_color() {
 	std::string partmoved_color = get("partial_orb_color");
 	if (partmoved_color.empty())
 		return game_config::colors::partial_orb_color;
-	return partmoved_color;
+	return fix_orb_color_name(partmoved_color);
 }
 void set_partial_color(const std::string& color_id) {
 	prefs["partial_orb_color"] = color_id;
-}
-
-
-void _set_fullscreen(bool ison)
-{
-	prefs["fullscreen"] = ison;
 }
 
 bool scroll_to_action()
@@ -307,44 +353,51 @@ int min_allowed_width()
 
 int min_allowed_height()
 {
-	return 480;
+	return 600;
 }
 
 std::pair<int,int> resolution()
 {
-	const std::string postfix = fullscreen() ? "resolution" : "windowsize";
-	std::string x = prefs['x' + postfix], y = prefs['y' + postfix];
-	if (!x.empty() && !y.empty()) {
-		std::pair<int,int> res(std::max(atoi(x.c_str()), min_allowed_width()),
-		                       std::max(atoi(y.c_str()), min_allowed_height()));
+	const std::string& x = prefs["xresolution"], y = prefs["yresolution"];
 
-		// Make sure resolutions are always divisible by 4
-		//res.first &= ~3;
-		//res.second &= ~3;
-		return res;
+	if (!x.empty() && !y.empty()) {
+		return std::make_pair(
+			std::max(atoi(x.c_str()), min_allowed_width()),
+			std::max(atoi(y.c_str()), min_allowed_height()));
 	} else {
-	#ifdef __APPLE__
-		// When windowsize is larger than the screen,  Wesnoth scales the video
-		// which causes distortion with mouse tracking. 768 is simply too large
-		// vertically to safely fit. We need a smaller default resolution here for Macs.
-		// See bug #20332.
-		return std::pair<int,int>(800,600);
-	#else
 		return std::pair<int,int>(1024,768);
-	#endif
 	}
+}
+
+bool maximized()
+{
+	return get("maximized", !fullscreen());
+}
+
+bool fullscreen()
+{
+	return get("fullscreen", false);
 }
 
 void _set_resolution(const std::pair<int, int>& res)
 {
-	const std::string postfix = fullscreen() ? "resolution" : "windowsize";
-	preferences::set('x' + postfix, lexical_cast<std::string>(res.first));
-	preferences::set('y' + postfix, lexical_cast<std::string>(res.second));
+	preferences::set("xresolution", std::to_string(res.first));
+	preferences::set("yresolution", std::to_string(res.second));
+}
+
+void _set_maximized(bool ison)
+{
+	prefs["maximized"] = ison;
+}
+
+void _set_fullscreen(bool ison)
+{
+	prefs["fullscreen"] = ison;
 }
 
 bool turbo()
 {
-	if(non_interactive()) {
+	if(CVideo::get_singleton().non_interactive()) {
 		return true;
 	}
 
@@ -364,6 +417,22 @@ double turbo_speed()
 void save_turbo_speed(const double speed)
 {
 	prefs["turbo_speed"] = speed;
+}
+
+int font_scaling()
+{
+	// Clip at 50 because if it's too low it'll cause crashes
+	return std::max<int>(50, prefs["font_scale"].to_int(100));
+}
+
+void set_font_scaling(int scale)
+{
+	prefs["font_scale"] = scale;
+}
+
+int font_scaled(int size)
+{
+	return (size * font_scaling()) / 100;
 }
 
 bool idle_anim()
@@ -789,6 +858,11 @@ bool animate_map()
 	return preferences::get("animate_map", true);
 }
 
+bool animate_water()
+{
+	return preferences::get("animate_water", true);
+}
+
 bool minimap_movement_coding()
 {
 	return preferences::get("minimap_movement_coding", true);
@@ -844,6 +918,11 @@ void set_animate_map(bool value)
 	set("animate_map", value);
 }
 
+void set_animate_water(bool value)
+{
+	set("animate_water", value);
+}
+
 bool show_standing_animations()
 {
 	return preferences::get("unit_standing_animations", true);
@@ -876,13 +955,12 @@ void set_draw_delay(int value)
 
 bool use_color_cursors()
 {
-	return color_cursors;
+	return get("color_cursors", true);
 }
 
 void _set_color_cursors(bool value)
 {
 	preferences::set("color_cursors", value);
-	color_cursors = value;
 }
 
 void load_hotkeys()

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2015 by Ignacio Riquelme Morelle <shadowm2006@gmail.com>
+   Copyright (C) 2015 - 2016 by Ignacio Riquelme Morelle <shadowm2006@gmail.com>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -28,12 +28,10 @@ namespace desktop
 /**
  * Returns a string with the running OS name and version information.
  *
- * On Unix-type platforms, this will be the uname information (which is rarely
- * useful). On Windows, this is a string we generate ourselves by processing
- * GetVersionEx's output data.
- *
- * Needless to say, this is a highly experimental and unreliable function and
- * odds are its output is not particularly useful most of the time.
+ * On Windows, this is a string we generate ourselves by processing
+ * GetVersionEx's output. On OS X and Linux, this is the output of a command
+ * provided by the OS if available; failing that (and on other Unixes as well),
+ * we use the uname system call, which is hardly ever useful.
  */
 std::string os_version();
 

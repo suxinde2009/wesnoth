@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2014 - 2015 by Chris Beck <render787@gmail.com>
+   Copyright (C) 2014 - 2016 by Chris Beck <render787@gmail.com>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -18,6 +18,7 @@
 #include "scripting/lua_kernel_base.hpp"
 #include <boost/optional.hpp>
 #include <boost/cstdint.hpp>
+#include <boost/random/mersenne_twister.hpp>
 
 class config;
 
@@ -32,11 +33,13 @@ public:
 	void user_config(const char * prog, const config & generator); // throws game::lua_error
 	std::string create_map(const char * prog, const config & generator, boost::optional<boost::uint32_t> seed); // throws game::lua_error
 	config create_scenario(const char * prog, const config & generator, boost::optional<boost::uint32_t> seed); // throws game::lua_error
-	
+
 	virtual boost::uint32_t get_random_seed();
+	boost::mt19937& get_default_rng();
 private:
 	void run_generator(const char * prog, const config & generator);
 	boost::optional<boost::uint32_t> random_seed_;
+	boost::optional<boost::mt19937> default_rng_;
 };
 
 #endif

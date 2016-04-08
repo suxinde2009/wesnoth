@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2014 - 2015 by Chris Beck <render787@gmail.com>
+   Copyright (C) 2014 - 2016 by Chris Beck <render787@gmail.com>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -15,11 +15,10 @@
 #define GETTEXT_DOMAIN "wesnoth-test"
 
 #include <boost/assign/list_of.hpp>
-#include <boost/bind.hpp>
+#include "utils/functional.hpp"
 #include <boost/test/unit_test.hpp>
 
-#include "log.hpp"
-#include "map_location.hpp"
+#include "map/location.hpp"
 
 static std::vector<map_location> preset_locs;
 static map_location va,vb,vc,vz,vt1,vt2,vt3,vs1,vs2,vs3,vs4;
@@ -64,9 +63,9 @@ struct MLFixture
 	~MLFixture() {}
 };
 
-BOOST_GLOBAL_FIXTURE ( MLFixture )
+BOOST_GLOBAL_FIXTURE ( MLFixture );
 
-BOOST_AUTO_TEST_SUITE ( test_map_location )
+BOOST_AUTO_TEST_SUITE ( test_map_location );
 
 //#define MAP_LOCATION_GET_OUTPUT
 

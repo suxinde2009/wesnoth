@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2006 - 2015 by Joerg Hinrichs <joerg.hinrichs@alice-dsl.de>
+   Copyright (C) 2006 - 2016 by Joerg Hinrichs <joerg.hinrichs@alice-dsl.de>
    wesnoth playlevel Copyright (C) 2003 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
@@ -42,6 +42,8 @@
 #include "hotkey/hotkey_command.hpp"
 #include "joystick.hpp"
 #include "key.hpp"
+#include "video.hpp"
+#include "quit_confirmation.hpp"
 
 class CVideo;
 class display;
@@ -53,7 +55,7 @@ namespace hotkey { class command_executor; }
 
 namespace soundsource { class manager; }
 
-class controller_base : public events::sdl_handler
+class controller_base : public video2::draw_layering
 {
 public:
 	controller_base(const config& game_config, CVideo& video);
@@ -61,6 +63,7 @@ public:
 
 	void play_slice(bool is_delay_enabled = true);
 
+	static const config &get_theme(const config& game_config, std::string theme_name);
 protected:
 	virtual bool is_browsing() const
 	{ return false; }
@@ -76,17 +79,17 @@ protected:
 	/**
 	 * Get (optionally) a soundsources manager a derived class uses
 	 */
-	virtual soundsource::manager * get_soundsource_man() { return NULL; }
+	virtual soundsource::manager * get_soundsource_man() { return nullptr; }
 
 	/**
 	 * Get (optionally) a plugins context a derived class uses
 	 */
-	virtual plugins_context * get_plugins_context() { return NULL; }
+	virtual plugins_context * get_plugins_context() { return nullptr; }
 
 	/**
 	 * Get (optionally) a command executor to handle context menu events
 	 */
-	virtual hotkey::command_executor * get_hotkey_command_executor() { return NULL; }
+	virtual hotkey::command_executor * get_hotkey_command_executor() { return nullptr; }
 
 	/**
 	 * Derived classes should override this to return false when arrow keys
@@ -106,10 +109,12 @@ protected:
 
 	/**
 	 * Process mouse- and keypress-events from SDL.
-	 * Not virtual but calls various virtual function to allow specialized
+	 * Calls various virtual function to allow specialized
 	 * behavior of derived classes.
 	 */
 	void handle_event(const SDL_Event& event);
+
+	void handle_window_event(const SDL_Event& ) {}
 
 	/**
 	 * Process keydown (only when the general map display does not have focus).
@@ -133,7 +138,6 @@ protected:
 
 	virtual bool in_context_menu(hotkey::HOTKEY_COMMAND command) const;
 
-	static const config &get_theme(const config& game_config, std::string theme_name);
 	const config& game_config_;
 	CKey key_;
 	bool scrolling_;

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2003 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2003 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -19,18 +19,22 @@
 #include "events.hpp"
 #include "log.hpp"
 #include "sound.hpp"
+#include "quit_confirmation.hpp"
+#include "preferences.hpp"
 #include "video.hpp"
 #if defined _WIN32
 #include "desktop/windows_tray_notification.hpp"
 #endif
 
-#include "SDL.h"
+#include <SDL.h>
 
 #include <algorithm>
 #include <cassert>
 #include <deque>
 #include <utility>
 #include <vector>
+#include <algorithm>
+#include <boost/thread.hpp>
 
 #define ERR_GEN LOG_STREAM(err, lg::general)
 
@@ -138,6 +142,10 @@ void context::set_focus(const sdl_handler* ptr)
 //in that context. The current context is the one on the top of the stack
 std::deque<context> event_contexts;
 
+//add a global context for event handlers. Whichever object has joined this will always
+//receive all events, regardless of the current context.
+context global_context;
+
 std::vector<pump_monitor*> pump_monitors;
 
 } //end anon namespace
@@ -163,18 +171,11 @@ event_context::~event_context()
 	event_contexts.pop_back();
 }
 
-sdl_handler::sdl_handler(const bool auto_join)
-#if SDL_VERSION_ATLEAST(2, 0, 0)
-	: unicode_(1)
-#else
-	: unicode_(SDL_EnableUNICODE(1))
-#endif
-	, has_joined_(false)
+sdl_handler::sdl_handler(const bool auto_join) :
+	has_joined_(false),
+	has_joined_global_(false)
 {
 
-#if !SDL_VERSION_ATLEAST(2, 0, 0)
-	SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY,SDL_DEFAULT_REPEAT_INTERVAL);
-#endif
 	if(auto_join) {
 		assert(!event_contexts.empty());
 		event_contexts.back().add_handler(this);
@@ -184,10 +185,12 @@ sdl_handler::sdl_handler(const bool auto_join)
 
 sdl_handler::~sdl_handler()
 {
-	leave();
-#if !SDL_VERSION_ATLEAST(2, 0, 0)
-	SDL_EnableUNICODE(unicode_);
-#endif
+	if (has_joined_)
+		leave();
+
+	if (has_joined_global_)
+		leave_global();
+
 }
 
 void sdl_handler::join()
@@ -224,6 +227,38 @@ void sdl_handler::leave()
 		}
 	}
 	has_joined_ = false;
+}
+
+void sdl_handler::join_global()
+{
+	if(has_joined_global_) {
+		leave_global(); // should not be in multiple event contexts
+	}
+	//join self
+	global_context.add_handler(this);
+	has_joined_global_ = true;
+
+	//instruct members to join
+	sdl_handler_vector members = handler_members();
+	if(!members.empty()) {
+		for(sdl_handler_vector::iterator i = members.begin(); i != members.end(); ++i) {
+			(*i)->join_global();
+		}
+	}
+}
+
+void sdl_handler::leave_global()
+{
+	sdl_handler_vector members = handler_members();
+	if(!members.empty()) {
+		for(sdl_handler_vector::iterator i = members.begin(); i != members.end(); ++i) {
+			(*i)->leave_global();
+		}
+	}
+
+	global_context.remove_handler(this);
+
+	has_joined_global_ = false;
 }
 
 void focus_handler(const sdl_handler* ptr)
@@ -276,10 +311,38 @@ bool has_focus(const sdl_handler* hand, const SDL_Event* event)
 	return false;
 }
 
+
+const Uint32 resize_timeout = 100;
+SDL_Event last_resize_event;
+bool last_resize_event_used = true;
+
+static bool remove_on_resize(const SDL_Event &a) {
+	if (a.type == DRAW_EVENT || a.type == DRAW_ALL_EVENT) {
+		return true;
+	}
+	if (a.type == SHOW_HELPTIP_EVENT) {
+		return true;
+	}
+	if ((a.type == SDL_WINDOWEVENT) &&
+			(a.window.event == SDL_WINDOWEVENT_RESIZED ||
+					a.window.event == SDL_WINDOWEVENT_SIZE_CHANGED ||
+					a.window.event == SDL_WINDOWEVENT_EXPOSED)) {
+		return true;
+	}
+
+	return false;
+}
+
+// TODO: I'm uncertain if this is always safe to call at static init; maybe set in main() instead?
+static const boost::thread::id main_thread = boost::this_thread::get_id();
 void pump()
 {
+	if(boost::this_thread::get_id() != main_thread) {
+		// Can only call this on the main thread!
+		return;
+	}
 	SDL_PumpEvents();
-
+	peek_for_resize();
 	pump_info info;
 
 	//used to keep track of double click events
@@ -292,13 +355,11 @@ void pump()
 	std::vector< SDL_Event > events;
 	while(SDL_PollEvent(&temp_event)) {
 		++poll_count;
-#if SDL_VERSION_ATLEAST(2, 0, 0)
+		peek_for_resize();
+
 		if(!begin_ignoring && temp_event.type == SDL_WINDOWEVENT
 				&& (temp_event.window.event == SDL_WINDOWEVENT_ENTER
 						|| temp_event.window.event == SDL_WINDOWEVENT_FOCUS_GAINED))
-#else
-		if(!begin_ignoring && temp_event.type == SDL_ACTIVEEVENT)
-#endif
 		{
 			begin_ignoring = poll_count;
 		} else if(begin_ignoring > 0 && is_input(temp_event)) {
@@ -307,6 +368,7 @@ void pump()
 		}
 		events.push_back(temp_event);
 	}
+
 	std::vector<SDL_Event>::iterator ev_it = events.begin();
 	for(int i=1; i < begin_ignoring; ++i){
 		if(is_input(*ev_it)) {
@@ -316,12 +378,34 @@ void pump()
 			++ev_it;
 		}
 	}
+
 	std::vector<SDL_Event>::iterator ev_end = events.end();
+	bool resize_found = false;
+	for(ev_it = events.begin(); ev_it != ev_end; ++ev_it){
+		SDL_Event &event = *ev_it;
+		if (event.type == SDL_WINDOWEVENT &&
+				event.window.event == SDL_WINDOWEVENT_RESIZED) {
+			resize_found = true;
+			last_resize_event = event;
+			last_resize_event_used = false;
+
+		}
+	}
+	// remove all inputs, draw events and only keep the last of the resize events
+	// This will turn horrible after ~38 days when the Uint32 wraps.
+	if (resize_found || SDL_GetTicks() <= last_resize_event.window.timestamp + resize_timeout) {
+		events.erase(std::remove_if(events.begin(), events.end(), remove_on_resize), events.end());
+	} else if(SDL_GetTicks() > last_resize_event.window.timestamp + resize_timeout && !last_resize_event_used) {
+		events.insert(events.begin(), last_resize_event);
+		last_resize_event_used = true;
+	}
+
+	ev_end = events.end();
+
 	for(ev_it = events.begin(); ev_it != ev_end; ++ev_it){
 		SDL_Event &event = *ev_it;
 		switch(event.type) {
 
-#if SDL_VERSION_ATLEAST(2, 0, 0)
 			case SDL_WINDOWEVENT:
 				switch(event.window.event) {
 					case SDL_WINDOWEVENT_ENTER:
@@ -334,38 +418,27 @@ void pump()
 						cursor::set_focus(1);
 						break;
 
-					case SDL_WINDOWEVENT_EXPOSED:
-						update_whole_screen();
-						break;
-
-					case SDL_WINDOWEVENT_RESIZED: {
+					case SDL_WINDOWEVENT_RESIZED:
 						info.resize_dimensions.first = event.window.data1;
 						info.resize_dimensions.second = event.window.data2;
 						break;
+				}
+				//make sure this runs in it's own scope.
+				{
+					for( std::deque<context>::iterator i = event_contexts.begin() ; i != event_contexts.end(); ++i) {
+						const std::vector<sdl_handler*>& event_handlers = (*i).handlers;
+						for(size_t i1 = 0, i2 = event_handlers.size(); i1 != i2 && i1 < event_handlers.size(); ++i1) {
+							event_handlers[i1]->handle_window_event(event);
+						}
+					}
+					const std::vector<sdl_handler*>& event_handlers = global_context.handlers;
+					for(size_t i1 = 0, i2 = event_handlers.size(); i1 != i2 && i1 < event_handlers.size(); ++i1) {
+						event_handlers[i1]->handle_window_event(event);
 					}
 				}
-				break;
-#else
-			case SDL_ACTIVEEVENT: {
-				SDL_ActiveEvent& ae = reinterpret_cast<SDL_ActiveEvent&>(event);
-				if((ae.state & SDL_APPMOUSEFOCUS) != 0 || (ae.state & SDL_APPINPUTFOCUS) != 0) {
-					cursor::set_focus(ae.gain != 0);
-				}
-				break;
-			}
 
-			//if the window must be redrawn, update the entire screen
-			case SDL_VIDEOEXPOSE:
-				update_whole_screen();
-				break;
-
-			case SDL_VIDEORESIZE: {
-				const SDL_ResizeEvent* const resize = reinterpret_cast<SDL_ResizeEvent*>(&event);
-				info.resize_dimensions.first = resize->w;
-				info.resize_dimensions.second = resize->h;
-				break;
-			}
-#endif
+				//This event was just distributed, don't re-distribute.
+				continue;
 
 			case SDL_MOUSEMOTION: {
 				//always make sure a cursor is displayed if the
@@ -398,6 +471,27 @@ void pump()
 				}
 				break;
 			}
+			case DRAW_ALL_EVENT:
+			{
+				/* iterate backwards as the most recent things will be at the top */
+				for( std::deque<context>::iterator i = event_contexts.begin() ; i != event_contexts.end(); ++i) {
+					const std::vector<sdl_handler*>& event_handlers = (*i).handlers;
+					for( std::vector<sdl_handler*>::const_iterator i1 = event_handlers.begin(); i1 != event_handlers.end(); ++i1) {
+						(*i1)->handle_event(event);
+					}
+				}
+				continue; //do not do further handling here
+			}
+
+#ifndef __APPLE__
+			case SDL_KEYDOWN: {
+				if(event.key.keysym.sym == SDLK_F4 && (event.key.keysym.mod == KMOD_RALT || event.key.keysym.mod == KMOD_LALT)) {
+					quit_confirmation::quit_to_desktop();
+					continue; // this event is already handled
+				}
+				break;
+			}
+#endif
 
 #if defined(_X11) && !defined(__APPLE__)
 			case SDL_SYSWMEVENT: {
@@ -415,8 +509,14 @@ void pump()
 #endif
 
 			case SDL_QUIT: {
-				throw CVideo::quit();
+				quit_confirmation::quit_to_desktop();
+				continue; //this event is already handled.
 			}
+		}
+
+		const std::vector<sdl_handler*>& event_handlers = global_context.handlers;
+		for(size_t i1 = 0, i2 = event_handlers.size(); i1 != i2 && i1 < event_handlers.size(); ++i1) {
+			event_handlers[i1]->handle_event(event);
 		}
 
 		if(event_contexts.empty() == false) {
@@ -429,6 +529,7 @@ void pump()
 				event_handlers[i1]->handle_event(event);
 			}
 		}
+
 	}
 
 	//inform the pump monitors that an events::pump() has occurred
@@ -451,6 +552,18 @@ void raise_process_event()
 	}
 }
 
+void raise_resize_event()
+{
+	SDL_Event event;
+	event.window.type = SDL_WINDOWEVENT;
+	event.window.event = SDL_WINDOWEVENT_RESIZED;
+	event.window.windowID = 0; // We don't check this anyway... I think...
+	event.window.data1 = CVideo::get_singleton().getx();
+	event.window.data2 = CVideo::get_singleton().gety();
+	
+	SDL_PushEvent(&event);
+}
+
 void raise_draw_event()
 {
 	if(event_contexts.empty() == false) {
@@ -465,6 +578,16 @@ void raise_draw_event()
 	}
 }
 
+void raise_draw_all_event()
+{
+	for( std::deque<context>::iterator i = event_contexts.begin() ; i != event_contexts.end(); ++i) {
+		const std::vector<sdl_handler*>& event_handlers = (*i).handlers;
+		for(size_t i1 = 0, i2 = event_handlers.size(); i1 != i2 && i1 < event_handlers.size(); ++i1) {
+			event_handlers[i1]->draw();
+		}
+	}
+}
+
 void raise_volatile_draw_event()
 {
 	if(event_contexts.empty() == false) {
@@ -473,6 +596,16 @@ void raise_volatile_draw_event()
 
 		//events may cause more event handlers to be added and/or removed,
 		//so we must use indexes instead of iterators here.
+		for(size_t i1 = 0, i2 = event_handlers.size(); i1 != i2 && i1 < event_handlers.size(); ++i1) {
+			event_handlers[i1]->volatile_draw();
+		}
+	}
+}
+
+void raise_volatile_draw_all_event()
+{
+	for( std::deque<context>::iterator i = event_contexts.begin() ; i != event_contexts.end(); ++i) {
+		const std::vector<sdl_handler*>& event_handlers = (*i).handlers;
 		for(size_t i1 = 0, i2 = event_handlers.size(); i1 != i2 && i1 < event_handlers.size(); ++i1) {
 			event_handlers[i1]->volatile_draw();
 		}
@@ -513,10 +646,9 @@ int pump_info::ticks(unsigned *refresh_counter, unsigned refresh_rate) {
 	return ticks_;
 }
 
-#if SDL_VERSION_ATLEAST(2,0,0)
 
 /* The constants for the minimum and maximum are picked from the headers. */
-#define INPUT_MIN 0x200
+#define INPUT_MIN 0x300
 #define INPUT_MAX 0x8FF
 
 bool is_input(const SDL_Event& event)
@@ -529,54 +661,19 @@ void discard_input()
 	SDL_FlushEvents(INPUT_MIN, INPUT_MAX);
 }
 
-#else
-
-#define INPUT_MASK (SDL_EVENTMASK(SDL_KEYDOWN)|\
-		SDL_EVENTMASK(SDL_KEYUP)|\
-		SDL_EVENTMASK(SDL_MOUSEBUTTONDOWN)|\
-		SDL_EVENTMASK(SDL_MOUSEBUTTONUP)|\
-		SDL_EVENTMASK(SDL_JOYBUTTONDOWN)|\
-		SDL_EVENTMASK(SDL_JOYBUTTONUP))
-
-bool is_input(const SDL_Event& event)
+void peek_for_resize()
 {
-	return (SDL_EVENTMASK(event.type) & INPUT_MASK) != 0;
-}
+	SDL_Event events[100];
+	int num = SDL_PeepEvents(events, 100, SDL_PEEKEVENT, SDL_WINDOWEVENT, SDL_WINDOWEVENT);
+	for (int i = 0; i < num; ++i) {
+		if (events[i].type == SDL_WINDOWEVENT &&
+				events[i].window.event == SDL_WINDOWEVENT_RESIZED) {
+			CVideo::get_singleton().update_framebuffer();
 
-static void discard(Uint32 event_mask)
-{
-	SDL_Event temp_event;
-	std::vector< SDL_Event > keepers;
-	SDL_Delay(10);
-	while(SDL_PollEvent(&temp_event) > 0) {
-		if((SDL_EVENTMASK(temp_event.type) & event_mask) == 0) {
-			keepers.push_back( temp_event );
-		}
-	}
-
-	//FIXME: there is a chance new events are added before kept events are replaced
-	for (unsigned int i=0; i < keepers.size(); ++i)
-	{
-		if(SDL_PushEvent(&keepers[i]) != 0) {
-			ERR_GEN << "failed to return an event to the queue.";
 		}
 	}
 }
 
-void discard_input()
-{
-	discard(INPUT_MASK);
-}
-
-#endif
 
 } //end events namespace
 
-#if !SDL_VERSION_ATLEAST(2,0,0)
-
-void SDL_FlushEvent(Uint32 type)
-{
-	events::discard(SDL_EVENTMASK(type));
-}
-
-#endif

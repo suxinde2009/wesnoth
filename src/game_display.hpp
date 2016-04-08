@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2003 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2003 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -43,7 +43,8 @@ public:
 			reports & reports_object,
 			const tod_manager& tod_manager,
 			const config& theme_cfg,
-			const config& level);
+			const config& level,
+			bool dummy=false);
 
 	static game_display* create_dummy_display(CVideo& video);
 
@@ -110,14 +111,13 @@ public:
 
 	/**
 	 * Sets the route along which footsteps are drawn to show movement of a
-	 * unit. If NULL, no route is displayed. @a route does not have to remain
+	 * unit. If nullptr, no route is displayed. @a route does not have to remain
 	 * valid after being set.
 	 */
 	void set_route(const pathfind::marked_route *route);
 
 	/** Function to float a label above a tile */
-	void float_label(const map_location& loc, const std::string& text,
-	                 int red, int green, int blue);
+	void float_label(const map_location& loc, const std::string& text, const SDL_Color& color);
 
 	/** Draws the movement info (turns available) for a given location. */
 	void draw_movement_info(const map_location& loc);
@@ -132,7 +132,7 @@ public:
 
 	bool has_time_area() const;
 
-	const tod_manager & get_tod_man() const { return tod_manager_; } /**< Allows this class to properly implement filter context, used for animations */
+	const tod_manager & get_tod_man() const { return *tod_manager_; } /**< Allows this class to properly implement filter context, used for animations */
 
 protected:
 	/**
@@ -214,8 +214,7 @@ public:
 	 */
 	enum tgame_mode {
 		RUNNING,         /**< no linger overlay, show fog and shroud. */
-		LINGER_SP,       /**< linger overlay, show fog and shroud. */
-		LINGER_MP };     /**< linger overlay, show fog and shroud. */
+		LINGER };     /**< linger overlay, show fog and shroud. */
 
 	void set_game_mode(const tgame_mode game_mode);
 
@@ -224,7 +223,10 @@ public:
 
 	/// Rebuilds the screen if needs_rebuild(true) was previously called, and resets the flag.
 	bool maybe_rebuild();
-
+	void reset_tod_manager(const tod_manager& tod_manager)
+	{
+		tod_manager_ = &tod_manager;
+	}
 private:
 	game_display(const game_display&);
 	void operator=(const game_display&);
@@ -241,7 +243,7 @@ private:
 
 	pathfind::marked_route route_;
 
-	const tod_manager& tod_manager_;
+	const tod_manager* tod_manager_;
 
 	void invalidate_route();
 

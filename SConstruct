@@ -97,17 +97,18 @@ opts.AddVariables(
     PathVariable('gtkdir', 'Directory where GTK SDK is installed.', "", OptionalPath),
     PathVariable('luadir', 'Directory where Lua binary package is unpacked.', "", OptionalPath),
     ('host', 'Cross-compile host.', ''),
+    EnumVariable('multilib_arch', 'Address model for multilib compiler: 32-bit or 64-bit', "", ["", "32", "64"]),
     ('jobs', 'Set the number of parallel compilations', "1", lambda key, value, env: int(value), int),
     BoolVariable('distcc', 'Use distcc', False),
     BoolVariable('ccache', "Use ccache", False),
+    ('ctool', 'Set c compiler command if not using standard compiler.'),
     ('cxxtool', 'Set c++ compiler command if not using standard compiler.'),
-    BoolVariable('cxx0x', 'Use C++0x features.', False),
+    EnumVariable('cxx_std', 'Target c++ std version', '11', ['11', '14', '1y']),
     BoolVariable('openmp', 'Enable openmp use.', False),
     BoolVariable("fast", "Make scons faster at cost of less precise dependency tracking.", False),
     BoolVariable("lockfile", "Create a lockfile to prevent multiple instances of scons from being run at the same time on this working copy.", False),
     BoolVariable("OS_ENV", "Forward the entire OS environment to scons", False),
-    BoolVariable("history", "Clear to disable GNU history support in lua console", True),
-    BoolVariable("sdl2", "Build with SDL2 support (experimental!)", False)
+    BoolVariable("history", "Clear to disable GNU history support in lua console", True)
     )
 
 #
@@ -157,10 +158,17 @@ else:
     from cross_compile import *
     setup_cross_compile(env)
 
+env.Tool("system_include")
+
+if 'HOME' in os.environ:
+    env['ENV']['HOME'] = os.environ['HOME']
+
+if env.get('ctool',""):
+    env['CC'] = env['ctool']
+    env['CXX'] = env['ctool'].rstrip("cc") + "++"
+
 if env.get('cxxtool',""):
     env['CXX'] = env['cxxtool']
-    if 'HOME' in os.environ:
-        env['ENV']['HOME'] = os.environ['HOME']
 
 if env['jobs'] > 1:
     SetOption("num_jobs", env['jobs'])
@@ -169,6 +177,12 @@ if env['distcc']:
     env.Tool('distcc')
 
 if env['ccache']: env.Tool('ccache')
+
+SDL2_version = '';
+if env["PLATFORM"] is "win32" or env["PLATFORM"] is "cygwin" or env["PLATFORM"] is "darwin":
+    SDL2_version = '2.0.4';
+else:
+    SDL2_version = '2.0.2';
 
 
 Help("""Arguments may be a mixture of switches and targets in any order.
@@ -208,6 +222,7 @@ You can make the following special build targets:
     data-dist = make data tarball as wesnoth-data.tar.bz2 (*).
     binary-dist = make data tarball as wesnoth-binaries.tar.bz2 (*).
     wesnoth-bundle = make Mac OS application bundle from game (*)
+    windows-installer = create Windows distribution with NSIS (*)
     sanity-check = run a pre-release sanity check on the distribution.
     manual = regenerate English-language manual and, possibly, localized manuals if appropriate xmls exist.
 
@@ -298,6 +313,10 @@ configure_args = dict(
 
 env.MergeFlags(env["extra_flags_config"])
 
+if env["multilib_arch"]:
+    multilib_flag = "-m" + env["multilib_arch"]
+    env.AppendUnique(CCFLAGS = [multilib_flag], LINKFLAGS = [multilib_flag])
+
 # Some tests need to load parts of boost
 env.PrependENVPath('LD_LIBRARY_PATH', env["boostlibdir"])
 
@@ -344,31 +363,19 @@ if env["prereqs"]:
         conf.CheckLib("vorbis")
         conf.CheckLib("mikmod")
 
-    if env['sdl2']:
-        def have_sdl_net():
-            return \
-                conf.CheckSDL(require_version = '2.0.0') & \
-                conf.CheckSDL("SDL2_net", header_file = "SDL_net")
 
-        def have_sdl_other():
-            return \
-                conf.CheckSDL(require_version = '2.0.0') & \
-                conf.CheckSDL("SDL2_ttf", header_file = "SDL_ttf") & \
-                conf.CheckSDL("SDL2_mixer", header_file = "SDL_mixer") & \
-                conf.CheckSDL("SDL2_image", header_file = "SDL_image")
+    def have_sdl_net():
+        return \
+            conf.CheckSDL(require_version = SDL2_version) & \
+            conf.CheckSDL("SDL2_net", header_file = "SDL_net")
 
-    else:
-        def have_sdl_net():
-            return \
-                conf.CheckSDL(require_version = '1.2.10') & \
-                conf.CheckSDL('SDL_net')
+    def have_sdl_other():
+        return \
+            conf.CheckSDL(require_version = SDL2_version) & \
+            conf.CheckSDL("SDL2_ttf", header_file = "SDL_ttf") & \
+            conf.CheckSDL("SDL2_mixer", header_file = "SDL_mixer") & \
+            conf.CheckSDL("SDL2_image", header_file = "SDL_image")
 
-        def have_sdl_other():
-            return \
-                conf.CheckSDL(require_version = '1.2.10') & \
-                conf.CheckSDL("SDL_ttf", require_version = "2.0.8") & \
-                conf.CheckSDL("SDL_mixer", require_version = '1.2.12') & \
-                conf.CheckSDL("SDL_image", require_version = '1.2.0')
 
     if env["libintl"]:
         def have_i18n_prereqs():
@@ -395,15 +402,17 @@ if env["prereqs"]:
     client_env = env.Clone()
     conf = client_env.Configure(**configure_args)
     have_client_prereqs = have_server_prereqs & have_sdl_other() & \
+        conf.CheckLib("vorbisfile") & \
+        conf.CheckOgg() & \
+        conf.CheckPNG() & \
+        conf.CheckJPG() & \
         CheckAsio(conf) & \
         conf.CheckPango("cairo", require_version = "1.21.3") & \
         conf.CheckPKG("fontconfig") & \
         conf.CheckBoost("program_options", require_version="1.35.0") & \
-        conf.CheckBoost("regex", require_version = "1.35.0") & \
-        conf.CheckLib("vorbisfile") & \
-        conf.CheckOgg() & \
-        conf.CheckPNG() & \
-        conf.CheckJPG() or Warning("WARN: Client prerequisites are not met. wesnoth, cutter and exploder cannot be built")
+        conf.CheckBoost("thread") & \
+        conf.CheckBoost("regex") \
+            or Warning("WARN: Client prerequisites are not met. wesnoth, cutter and exploder cannot be built")
 
     have_X = False
     if have_client_prereqs:
@@ -492,11 +501,8 @@ for env in [test_env, client_env, env]:
     if "gcc" in env["TOOLS"]:
         env.AppendUnique(CCFLAGS = Split("-W -Wall"), CFLAGS = ["-std=c99"])
 
-        if env['cxx0x']:
-            env.AppendUnique(CXXFLAGS = "-std=c++0x")
-            env.Append(CPPDEFINES = "HAVE_CXX0X")
-        else:
-            env.AppendUnique(CXXFLAGS = "-std=c++98")
+        env.AppendUnique(CXXFLAGS = "-std=c++" + env["cxx_std"])
+        env.Append(CPPDEFINES = "HAVE_CXX0X")
 
         if env['openmp']:
             env.AppendUnique(CXXFLAGS = ["-fopenmp"], LIBS = ["gomp"])

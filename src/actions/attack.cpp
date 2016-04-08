@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2003 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2003 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -21,38 +21,37 @@
 
 #include "vision.hpp"
 
-#include "../ai/lua/unit_advancements_aspect.hpp"
-#include "../attack_prediction.hpp"
-#include "../config_assign.hpp"
-#include "../dialogs.hpp"
-#include "../game_config.hpp"
-#include "../game_display.hpp"
+#include "ai/lua/aspect_advancements.hpp"
+#include "attack_prediction.hpp"
+#include "config_assign.hpp"
+#include "dialogs.hpp"
+#include "game_config.hpp"
+#include "game_display.hpp"
 #include "game_events/manager.hpp"
-#include "../game_events/pump.hpp"
-#include "../game_preferences.hpp"
-#include "../game_data.hpp"
-#include "../gettext.hpp"
-#include "../log.hpp"
-#include "../map.hpp"
-#include "../mouse_handler_base.hpp"
-#include "../play_controller.hpp"
-#include "../random_new.hpp"
-#include "../replay.hpp"
-#include "../resources.hpp"
-#include "../statistics.hpp"
-#include "../synced_checkup.hpp"
-#include "../team.hpp"
-#include "../tod_manager.hpp"
-#include "../unit.hpp"
-#include "../unit_abilities.hpp"
-#include "../unit_animation_component.hpp"
-#include "../unit_display.hpp"
-#include "../unit_helper.hpp"
-#include "../unit_map.hpp"
-#include "../whiteboard/manager.hpp"
-#include "../wml_exception.hpp"
-
-#include <boost/foreach.hpp>
+#include "game_events/pump.hpp"
+#include "game_preferences.hpp"
+#include "game_data.hpp"
+#include "gettext.hpp"
+#include "log.hpp"
+#include "map/map.hpp"
+#include "mouse_handler_base.hpp"
+#include "play_controller.hpp"
+#include "random_new.hpp"
+#include "replay.hpp"
+#include "resources.hpp"
+#include "statistics.hpp"
+#include "synced_checkup.hpp"
+#include "synced_user_choice.hpp"
+#include "team.hpp"
+#include "tod_manager.hpp"
+#include "units/unit.hpp"
+#include "units/abilities.hpp"
+#include "units/animation_component.hpp"
+#include "units/udisplay.hpp"
+#include "units/helper.hpp"
+#include "units/map.hpp"
+#include "whiteboard/manager.hpp"
+#include "wml_exception.hpp"
 
 static lg::log_domain log_engine("engine");
 #define DBG_NG LOG_STREAM(debug, log_engine)
@@ -70,7 +69,7 @@ battle_context_unit_stats::battle_context_unit_stats(const unit &u,
 		const map_location& u_loc, int u_attack_num, bool attacking,
 		const unit &opp, const map_location& opp_loc,
 		const attack_type *opp_weapon, const unit_map& units) :
-	weapon(NULL),
+	weapon(nullptr),
 	attack_num(u_attack_num),
 	is_attacker(attacking),
 	is_poisoned(u.get_state(unit::STATE_POISONED)),
@@ -322,8 +321,8 @@ battle_context::battle_context(const unit_map& units,
 		const map_location& attacker_loc, const map_location& defender_loc,
 		int attacker_weapon, int defender_weapon, double aggression,
 		const combatant *prev_def, const unit* attacker_ptr) :
-	attacker_stats_(NULL), defender_stats_(NULL), attacker_combatant_(NULL),
-	defender_combatant_(NULL)
+	attacker_stats_(nullptr), defender_stats_(nullptr), attacker_combatant_(nullptr),
+	defender_combatant_(nullptr)
 {
 	const unit &attacker = attacker_ptr ? *attacker_ptr : *units.find(attacker_loc);
 	const unit &defender = *units.find(defender_loc);
@@ -343,8 +342,8 @@ battle_context::battle_context(const unit_map& units,
 
 	// If those didn't have to generate statistics, do so now.
 	if (!attacker_stats_) {
-		const attack_type *adef = NULL;
-		const attack_type *ddef = NULL;
+		const attack_type *adef = nullptr;
+		const attack_type *ddef = nullptr;
 		if (attacker_weapon >= 0) {
 			VALIDATE(attacker_weapon < static_cast<int>(attacker.attacks().size()),
 					_("An invalid attacker weapon got selected."));
@@ -371,14 +370,14 @@ battle_context::battle_context(const battle_context_unit_stats &att,
                                const battle_context_unit_stats &def) :
 	attacker_stats_(new battle_context_unit_stats(att)),
 	defender_stats_(new battle_context_unit_stats(def)),
-	attacker_combatant_(NULL),
-	defender_combatant_(NULL)
+	attacker_combatant_(nullptr),
+	defender_combatant_(nullptr)
 {
 }
 
 battle_context::battle_context(const battle_context &other) :
-	attacker_stats_(NULL), defender_stats_(NULL), attacker_combatant_(NULL),
-	defender_combatant_(NULL)
+	attacker_stats_(nullptr), defender_stats_(nullptr), attacker_combatant_(nullptr),
+	defender_combatant_(nullptr)
 {
 	*this = other;
 }
@@ -400,8 +399,8 @@ battle_context& battle_context::operator=(const battle_context &other)
 		delete defender_combatant_;
 		attacker_stats_ = new battle_context_unit_stats(*other.attacker_stats_);
 		defender_stats_ = new battle_context_unit_stats(*other.defender_stats_);
-		attacker_combatant_ = other.attacker_combatant_ ? new combatant(*other.attacker_combatant_, *attacker_stats_) : NULL;
-		defender_combatant_ = other.defender_combatant_ ? new combatant(*other.defender_combatant_, *defender_stats_) : NULL;
+		attacker_combatant_ = other.attacker_combatant_ ? new combatant(*other.attacker_combatant_, *attacker_stats_) : nullptr;
+		defender_combatant_ = other.defender_combatant_ ? new combatant(*other.defender_combatant_, *defender_stats_) : nullptr;
 	}
 	return *this;
 }
@@ -490,12 +489,12 @@ int battle_context::choose_attacker_weapon(const unit &attacker,
 	if (choices.size() == 1) {
 		*defender_weapon = choose_defender_weapon(attacker, defender, choices[0], units,
 			attacker_loc, defender_loc, prev_def);
-		const attack_type *def_weapon = *defender_weapon >= 0 ? &defender.attacks()[*defender_weapon] : NULL;
+		const attack_type *def_weapon = *defender_weapon >= 0 ? &defender.attacks()[*defender_weapon] : nullptr;
 		attacker_stats_ = new battle_context_unit_stats(attacker, attacker_loc, choices[0],
 						true, defender, defender_loc, def_weapon, units);
 		if (attacker_stats_->disable) {
 			delete attacker_stats_;
-			attacker_stats_ = NULL;
+			attacker_stats_ = nullptr;
 			return -1;
 		}
 		const attack_type &att = attacker.attacks()[choices[0]];
@@ -505,8 +504,8 @@ int battle_context::choose_attacker_weapon(const unit &attacker,
 	}
 
 	// Multiple options: simulate them, save best.
-	battle_context_unit_stats *best_att_stats = NULL, *best_def_stats = NULL;
-	combatant *best_att_comb = NULL, *best_def_comb = NULL;
+	battle_context_unit_stats *best_att_stats = nullptr, *best_def_stats = nullptr;
+	combatant *best_att_comb = nullptr, *best_def_comb = nullptr;
 
 	for (i = 0; i < choices.size(); ++i) {
 		const attack_type &att = attacker.attacks()[choices[i]];
@@ -514,7 +513,7 @@ int battle_context::choose_attacker_weapon(const unit &attacker,
 			attacker_loc, defender_loc, prev_def);
 		// If that didn't simulate, do so now.
 		if (!attacker_combatant_) {
-			const attack_type *def = NULL;
+			const attack_type *def = nullptr;
 			if (def_weapon >= 0) {
 				def = &defender.attacks()[def_weapon];
 			}
@@ -522,7 +521,7 @@ int battle_context::choose_attacker_weapon(const unit &attacker,
 				true, defender, defender_loc, def, units);
 			if (attacker_stats_->disable) {
 				delete attacker_stats_;
-				attacker_stats_ = NULL;
+				attacker_stats_ = nullptr;
 				continue;
 			}
 			defender_stats_ = new battle_context_unit_stats(defender, defender_loc, def_weapon, false,
@@ -547,10 +546,10 @@ int battle_context::choose_attacker_weapon(const unit &attacker,
 			delete attacker_stats_;
 			delete defender_stats_;
 		}
-		attacker_combatant_ = NULL;
-		defender_combatant_ = NULL;
-		attacker_stats_ = NULL;
-		defender_stats_ = NULL;
+		attacker_combatant_ = nullptr;
+		defender_combatant_ = nullptr;
+		attacker_stats_ = nullptr;
+		defender_stats_ = nullptr;
 	}
 
 	attacker_combatant_ = best_att_comb;
@@ -724,6 +723,12 @@ namespace {
 			std::string dump();
 		};
 
+		/**
+		 * Used in perform_hit to confirm a replay is in sync.
+		 * Check OOS_error_ after this method, true if error detected.
+		 */
+		void check_replay_attack_result(bool, int, int, config, unit_info&);
+
 		void unit_killed(unit_info &, unit_info &,
 			const battle_context_unit_stats *&, const battle_context_unit_stats *&,
 			bool);
@@ -785,9 +790,9 @@ namespace {
 
 	attack::attack(const map_location &attacker, const map_location &defender,
 			int attack_with, int defend_with, bool update_display) :
-		bc_(NULL),
-		a_stats_(NULL),
-		d_stats_(NULL),
+		bc_(nullptr),
+		a_stats_(nullptr),
+		d_stats_(nullptr),
 		abs_n_attack_(0),
 		abs_n_defend_(0),
 		update_att_fog_(false),
@@ -814,10 +819,10 @@ namespace {
 		config ev_data;
 		config& a_weapon_cfg = ev_data.add_child("first");
 		config& d_weapon_cfg = ev_data.add_child("second");
-		if(a_stats_->weapon != NULL && a_.valid()) {
+		if(a_stats_->weapon != nullptr && a_.valid()) {
 			a_stats_->weapon->write(a_weapon_cfg);
 		}
-		if(d_stats_->weapon != NULL && d_.valid()) {
+		if(d_stats_->weapon != nullptr && d_.valid()) {
 			d_stats_->weapon->write(d_weapon_cfg);
 		}
 		if(a_weapon_cfg["name"].empty()) {
@@ -862,11 +867,11 @@ namespace {
 			// Fix pointer to weapons
 			const_cast<battle_context_unit_stats*>(a_stats_)->weapon =
 				a_.valid() && a_.weapon_ >= 0
-					? &a_.get_unit().attacks()[a_.weapon_] : NULL;
+					? &a_.get_unit().attacks()[a_.weapon_] : nullptr;
 
 			const_cast<battle_context_unit_stats*>(d_stats_)->weapon =
 				d_.valid() && d_.weapon_ >= 0
-					? &d_.get_unit().attacks()[d_.weapon_] : NULL;
+					? &d_.get_unit().attacks()[d_.weapon_] : nullptr;
 
 			return;
 		}
@@ -900,7 +905,6 @@ namespace {
 			resources::gamedata->get_variable("damage_inflicted") = damage;
 		}
 
-
 		// Make sure that if we're serializing a game here,
 		// we got the same results as the game did originally.
 		const config local_results = config_of("chance", attacker.cth_)("hits", hits)("damage", damage);
@@ -908,62 +912,18 @@ namespace {
 		bool equals_replay = checkup_instance->local_checkup(local_results, replay_results);
 		if (!equals_replay)
 		{
-
-			int results_chance = replay_results["chance"];
-			bool results_hits = replay_results["hits"].to_bool();
-			int results_damage = replay_results["damage"];
-			/*
-			errbuf_ << "SYNC: In attack " << a_.dump() << " vs " << d_.dump()
-				<< " replay data differs from local calculated data:"
-				<< " chance to hit in data source: " << results_chance
-				<< " chance to hit in calculated:  " << attacker.cth_
-				<< " chance to hit in data source: " << results_chance
-				<< " chance to hit in calculated:  " << attacker.cth_
-				;
-
-				attacker.cth_ = results_chance;
-				hits = results_hits;
-				damage = results_damage;
-
-				OOS_error_ = true;
-				*/
-			if (results_chance != attacker.cth_)
-			{
-				errbuf_ << "SYNC: In attack " << a_.dump() << " vs " << d_.dump()
-					<< ": chance to hit is inconsistent. Data source: "
-					<< results_chance << "; Calculation: " << attacker.cth_
-					<< " (over-riding game calculations with data source results)\n";
-				attacker.cth_ = results_chance;
-				OOS_error_ = true;
-			}
-
-			if (results_hits != hits)
-			{
-				errbuf_ << "SYNC: In attack " << a_.dump() << " vs " << d_.dump()
-					<< ": the data source says the hit was "
-					<< (results_hits ? "successful" : "unsuccessful")
-					<< ", while in-game calculations say the hit was "
-					<< (hits ? "successful" : "unsuccessful")
-					<< " random number: " << ran_num << " = "
-					<< (ran_num % 100) << "/" << results_chance
-					<< " (over-riding game calculations with data source results)\n";
-				hits = results_hits;
-				OOS_error_ = true;
-			}
-
-			if (results_damage != damage)
-			{
-				errbuf_ << "SYNC: In attack " << a_.dump() << " vs " << d_.dump()
-					<< ": the data source says the hit did " << results_damage
-					<< " damage, while in-game calculations show the hit doing "
-					<< damage
-					<< " damage (over-riding game calculations with data source results)\n";
-				damage = results_damage;
-				OOS_error_ = true;
-			}
+			check_replay_attack_result(hits, ran_num, damage, replay_results, attacker);
 		}
 
+		// can do no more damage than the defender has hitpoints
 		int damage_done = std::min<int>(defender.get_unit().hitpoints(), attacker.damage_);
+		// expected damage = damage potential * chance to hit (as a percentage)
+		double expected_damage = damage_done*attacker.cth_*0.01;
+		if (attacker_turn) {
+			stats.attack_expected_damage(expected_damage, 0);
+		} else {
+			stats.attack_expected_damage(0, expected_damage);
+		}
 
 		int drains_damage = 0;
 		if (hits && attacker_stats->drains) {
@@ -977,29 +937,36 @@ namespace {
 		if (update_display_)
 		{
 			std::ostringstream float_text;
+			std::vector<std::string> extra_hit_sounds;
 			if (hits)
 			{
 				const unit &defender_unit = defender.get_unit();
 				if (attacker_stats->poisons && !defender_unit.get_state(unit::STATE_POISONED)) {
 					float_text << (defender_unit.gender() == unit_race::FEMALE ?
 						_("female^poisoned") : _("poisoned")) << '\n';
+
+					extra_hit_sounds.push_back(game_config::sounds::status::poisoned);
 				}
 
 				if (attacker_stats->slows && !defender_unit.get_state(unit::STATE_SLOWED)) {
 					float_text << (defender_unit.gender() == unit_race::FEMALE ?
 						_("female^slowed") : _("slowed")) << '\n';
+
+					extra_hit_sounds.push_back(game_config::sounds::status::slowed);
 				}
 
 				if (attacker_stats->petrifies) {
 					float_text << (defender_unit.gender() == unit_race::FEMALE ?
 						_("female^petrified") : _("petrified")) << '\n';
+
+					extra_hit_sounds.push_back(game_config::sounds::status::petrified);
 				}
 			}
 
 			unit_display::unit_attack(game_display::get_singleton(), *resources::gameboard,
 				attacker.loc_, defender.loc_, damage,
 				*attacker_stats->weapon, defender_stats->weapon,
-				abs_n, float_text.str(), drains_damage, "");
+				abs_n, float_text.str(), drains_damage, "", &extra_hit_sounds);
 		}
 
 		bool dies = defender.get_unit().take_hit(damage);
@@ -1150,7 +1117,7 @@ namespace {
 
 		if (!attacker.valid()) {
 			unit_display::unit_die(defender.loc_, defender.get_unit(),
-				NULL, defender_stats->weapon);
+				nullptr, defender_stats->weapon);
 		} else {
 			unit_display::unit_die(defender.loc_, defender.get_unit(),
 				attacker_stats->weapon, defender_stats->weapon,
@@ -1191,6 +1158,10 @@ namespace {
 					newunit.heal_all();
 				}
 				units_.add(death_loc, newunit);
+
+				game_events::entity_location reanim_loc(defender.loc_, newunit.underlying_id());
+				resources::game_events->pump().fire("unit placed", reanim_loc);
+
 				preferences::encountered_units().insert(newunit.type_id());
 				if (update_display_) {
 					resources::screen->invalidate(death_loc);
@@ -1218,6 +1189,9 @@ namespace {
 			a_.get_unit().set_movement(-1, true);
 			return;
 		}
+
+		a_.get_unit().set_facing(a_.loc_.get_relative_dir(d_.loc_));
+		d_.get_unit().set_facing(d_.loc_.get_relative_dir(a_.loc_));
 
 		a_.get_unit().set_attacks(a_.get_unit().attacks_left()-1);
 		VALIDATE(a_.weapon_ < static_cast<int>(a_.get_unit().attacks().size()),
@@ -1251,17 +1225,6 @@ namespace {
 		DBG_NG << "getting attack statistics\n";
 		statistics::attack_context attack_stats(a_.get_unit(), d_.get_unit(), a_stats_->chance_to_hit, d_stats_->chance_to_hit);
 
-		{
-			// Calculate stats for battle
-			combatant attacker(bc_->get_attacker_stats());
-			combatant defender(bc_->get_defender_stats());
-			attacker.fight(defender,false);
-			const double attacker_inflict = static_cast<double>(d_.get_unit().hitpoints()) - defender.average_hp();
-			const double defender_inflict = static_cast<double>(a_.get_unit().hitpoints()) - attacker.average_hp();
-
-			attack_stats.attack_expected_damage(attacker_inflict,defender_inflict);
-		}
-
 		a_.orig_attacks_ = a_stats_->num_blows;
 		d_.orig_attacks_ = d_stats_->num_blows;
 		a_.n_attacks_ = a_.orig_attacks_;
@@ -1290,7 +1253,10 @@ namespace {
 			++abs_n_attack_;
 
 			if (a_.n_attacks_ > 0 && !defender_strikes_first) {
-				if (!perform_hit(true, attack_stats)) break;
+				if (!perform_hit(true, attack_stats)) {
+					DBG_NG << "broke from attack loop on attacker turn\n";
+					break;
+				}
 			}
 
 			// If the defender got to strike first, they use it up here.
@@ -1298,7 +1264,10 @@ namespace {
 			++abs_n_defend_;
 
 			if (d_.n_attacks_ > 0) {
-				if (!perform_hit(false, attack_stats)) break;
+				if (!perform_hit(false, attack_stats)) {
+					DBG_NG << "broke from attack loop on defender turn\n";
+					break;
+				}
 			}
 
 			// Continue the fight to death; if one of the units got petrified,
@@ -1339,8 +1308,8 @@ namespace {
 			u.set_experience(u.experience() + d_.xp_);
 		}
 
-		unit_display::unit_sheath_weapon(a_.loc_,a_.valid()?&a_.get_unit():NULL,a_stats_->weapon,
-				d_stats_->weapon,d_.loc_,d_.valid()?&d_.get_unit():NULL);
+		unit_display::unit_sheath_weapon(a_.loc_,a_.valid()?&a_.get_unit():nullptr,a_stats_->weapon,
+				d_stats_->weapon,d_.loc_,d_.valid()?&d_.get_unit():nullptr);
 
 		if (update_display_){
 			resources::screen->invalidate_unit();
@@ -1354,8 +1323,63 @@ namespace {
 		}
 	}
 
-} //end anonymous namespace
+	void attack::check_replay_attack_result(bool hits, int ran_num, int damage,
+			config replay_results, unit_info& attacker)
+	{
+		int results_chance = replay_results["chance"];
+		bool results_hits = replay_results["hits"].to_bool();
+		int results_damage = replay_results["damage"];
+		/*
+		   errbuf_ << "SYNC: In attack " << a_.dump() << " vs " << d_.dump()
+		   << " replay data differs from local calculated data:"
+		   << " chance to hit in data source: " << results_chance
+		   << " chance to hit in calculated:  " << attacker.cth_
+		   << " chance to hit in data source: " << results_chance
+		   << " chance to hit in calculated:  " << attacker.cth_
+		   ;
 
+		   attacker.cth_ = results_chance;
+		   hits = results_hits;
+		   damage = results_damage;
+
+		   OOS_error_ = true;
+		   */
+		if (results_chance != attacker.cth_)
+		{
+			errbuf_ << "SYNC: In attack " << a_.dump() << " vs " << d_.dump()
+				<< ": chance to hit is inconsistent. Data source: "
+				<< results_chance << "; Calculation: " << attacker.cth_
+				<< " (over-riding game calculations with data source results)\n";
+			attacker.cth_ = results_chance;
+			OOS_error_ = true;
+		}
+
+		if (results_hits != hits)
+		{
+			errbuf_ << "SYNC: In attack " << a_.dump() << " vs " << d_.dump()
+				<< ": the data source says the hit was "
+				<< (results_hits ? "successful" : "unsuccessful")
+				<< ", while in-game calculations say the hit was "
+				<< (hits ? "successful" : "unsuccessful")
+				<< " random number: " << ran_num << " = "
+				<< (ran_num % 100) << "/" << results_chance
+				<< " (over-riding game calculations with data source results)\n";
+			hits = results_hits;
+			OOS_error_ = true;
+		}
+
+		if (results_damage != damage)
+		{
+			errbuf_ << "SYNC: In attack " << a_.dump() << " vs " << d_.dump()
+				<< ": the data source says the hit did " << results_damage
+				<< " damage, while in-game calculations show the hit doing "
+				<< damage
+				<< " damage (over-riding game calculations with data source results)\n";
+			damage = results_damage;
+			OOS_error_ = true;
+		}
+	}
+} //end anonymous namespace
 
 void attack_unit(const map_location &attacker, const map_location &defender,
 	int attack_with, int defend_with, bool update_display)
@@ -1363,7 +1387,6 @@ void attack_unit(const map_location &attacker, const map_location &defender,
 	attack dummy(attacker, defender, attack_with, defend_with, update_display);
 	dummy.perform();
 }
-
 
 
 namespace
@@ -1392,7 +1415,7 @@ namespace
 
 			//to make mp games equal we only allow selecting advancements to the current side.
 			//otherwise we'd give an unfair advantage to the side that hosts ai sides if units advance during ai turns.
-			if(!non_interactive() && (force_dialog_ || (t.is_local_human() && !t.is_idle() && (is_current_side || !is_mp))))
+			if(!CVideo::get_singleton().non_interactive() && (force_dialog_ || (t.is_local_human() && !t.is_idle() && (is_current_side || !is_mp))))
 			{
 				res = dialogs::advance_unit_dialog(loc_);
 			}
@@ -1402,7 +1425,7 @@ namespace
 
 				//if ai_advancement_ is the default advancement the following code will
 				//have no effect because get_advancements returns an empty list.
-				if(ai_advancement_ != NULL)
+				if(ai_advancement_ != nullptr)
 				{
 					unit_map::iterator u = resources::units->find(loc_);
 					const std::vector<std::string>& options = u->advances_to();
@@ -1436,6 +1459,10 @@ namespace
 			retv["value"] = 0;
 			return retv;
 		}
+		virtual std::string description() const
+		{
+			return "an advancement choice";
+		}
 	private:
 		const map_location loc_;
 		int nb_options_;
@@ -1462,13 +1489,13 @@ void advance_unit_at(const advance_unit_params& params)
 
 		if(params.fire_events_)
 		{
-			LOG_NG << "Firing pre_advance event at " << params.loc_ <<".\n";
-			resources::game_events->pump().fire("pre_advance", params.loc_);
+			LOG_NG << "Firing pre advance event at " << params.loc_ <<".\n";
+			resources::game_events->pump().fire("pre advance", params.loc_);
 			//TODO: maybe use id instead of location here ?.
 			u = resources::units->find(params.loc_);
 			if(!unit_helper::will_certainly_advance(u))
 			{
-				LOG_NG << "pre_advance event aborted advancing.\n";
+				LOG_NG << "pre advance event aborted advancing.\n";
 				return;
 			}
 		}
@@ -1538,7 +1565,7 @@ unit_ptr get_amla_unit(const unit &u, const config &mod_option)
 {
 	unit_ptr amla_unit(new unit(u));
 	amla_unit->set_experience(amla_unit->experience() - amla_unit->max_experience());
-	amla_unit->add_modification("advance", mod_option);
+	amla_unit->add_modification("advancement", mod_option);
 	return amla_unit;
 }
 
@@ -1575,7 +1602,7 @@ void advance_unit(map_location loc, const std::string &advance_to,
 	std::vector<int> not_seeing = actions::get_sides_not_seeing(*u);
 
 	// Create the advanced unit.
-	bool use_amla = mod_option != NULL;
+	bool use_amla = mod_option != nullptr;
 	unit_ptr new_unit = use_amla ? get_amla_unit(*u, *mod_option) :
 	                           get_advanced_unit(*u, advance_to);
 	if ( !use_amla )
@@ -1594,7 +1621,7 @@ void advance_unit(map_location loc, const std::string &advance_to,
 	if(fire_event)
 	{
 		LOG_NG << "Firing post_advance event at " << loc << ".\n";
-		resources::game_events->pump().fire("post_advance",loc);
+		resources::game_events->pump().fire("post advance",loc);
 	}
 
 	// "sighted" event(s).

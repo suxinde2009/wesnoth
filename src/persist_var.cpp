@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2010 - 2015 by Jody Northup
+   Copyright (C) 2010 - 2016 by Jody Northup
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -21,9 +21,8 @@
 #include "persist_manager.hpp"
 #include "persist_var.hpp"
 #include "play_controller.hpp"
-#include "replay.hpp"
+#include "synced_user_choice.hpp"
 #include "resources.hpp"
-#include "team.hpp"
 #include "util.hpp"
 #include "variable.hpp"
 
@@ -43,7 +42,7 @@ struct persist_choice: mp_sync::user_choice {
 		, side(side_num) {
 	}
 	virtual config query_user(int /*side_for*/) const {
-		//side can be different from side_for: if side was null-controlled 
+		//side can be different from side_for: if side was null-controlled
 		//then get_user_choice will use the next non-null-controlled side instead
 		config ret;
 		ret["side"] = side;
@@ -52,6 +51,11 @@ struct persist_choice: mp_sync::user_choice {
 	}
 	virtual config random_choice(int /*side_for*/) const {
 		return config();
+	}
+
+	virtual std::string description() const
+	{
+		return "a global variable";
 	}
 	virtual bool is_visible() const { return false; }
 };

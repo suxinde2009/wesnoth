@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2003 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2003 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -23,11 +23,11 @@ class unit_map;
 class unit_type;
 class terrain_type;
 
-#include "map_location.hpp"
+#include "map/location.hpp"
 #include "construct_dialog.hpp"
 #include "network.hpp"
-#include "unit_ptr.hpp"
-#include "ai/lua/unit_advancements_aspect.hpp"
+#include "units/ptr.hpp"
+#include "ai/lua/aspect_advancements.hpp"
 
 namespace dialogs {
 
@@ -49,14 +49,6 @@ bool animate_unit_advancement(const map_location &loc, size_t choice, const bool
 void show_objectives(const std::string& scenarioname, const std::string &objectives);
 
 void show_unit_list(display& gui);
-
-/**
- * Allow user to select the game they want to load. Returns the name of the
- * save they want to load. Stores whether the user wants to show a replay of
- * the game in show_replay. If show_replay is NULL, then the user will not be
- * asked if they want to show a replay.
- */
-std::string load_game_dialog(display& disp, const config& game_config, bool* select_difficulty, bool* show_replay, bool* cancel_orders);
 
 int recruit_dialog(display& disp, std::vector<const unit_type*>& units, const std::vector<std::string>& items, int side, const std::string& title_suffix);
 
@@ -87,7 +79,7 @@ public:
 		std::vector<std::string> overlays;
 	};
 
-	unit_preview_pane(const gui::filter_textbox *filter = NULL,
+	unit_preview_pane(const gui::filter_textbox *filter = nullptr,
 			TYPE type = SHOW_ALL, bool left_side = true);
 
 	bool show_above() const;
@@ -117,7 +109,7 @@ class units_list_preview_pane : public dialogs::unit_preview_pane
 public:
 	units_list_preview_pane(unit_const_ptr u, TYPE type = SHOW_ALL, bool left_side = true);
 	units_list_preview_pane(const boost::shared_ptr<const std::vector<unit_const_ptr > > & units,
-		const gui::filter_textbox *filter = NULL,
+		const gui::filter_textbox *filter = nullptr,
 		TYPE type = SHOW_ALL, bool left_side = true);
 
 private:
@@ -133,7 +125,7 @@ class unit_types_preview_pane : public dialogs::unit_preview_pane
 {
 public:
 	unit_types_preview_pane(
-			std::vector<const unit_type*>& unit_types, const gui::filter_textbox* filterbox=NULL,
+			std::vector<const unit_type*>& unit_types, const gui::filter_textbox* filterbox=nullptr,
 			int side = 1, TYPE type=SHOW_ALL, bool left_side=true);
 
 private:
@@ -146,8 +138,8 @@ private:
 };
 
 network::connection network_send_dialog(display& disp, const std::string& msg, config& cfg, network::connection connection_num=0);
-network::connection network_receive_dialog(display& disp, const std::string& msg, config& cfg, network::connection connection_num=0);
-network::connection network_connect_dialog(display& disp, const std::string& msg, const std::string& hostname, int port);
+network::connection network_receive_dialog(CVideo& video, const std::string& msg, config& cfg, network::connection connection_num=0);
+network::connection network_connect_dialog(CVideo& video, const std::string& msg, const std::string& hostname, int port);
 
 } //end namespace dialogs
 

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2003 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2003 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -18,23 +18,22 @@
  * (Typically, handlers are defined by [event] tags.)
  */
 
-#include "../global.hpp"
+#include "global.hpp"
 #include "handlers.hpp"
 #include "manager.hpp"
 #include "manager_impl.hpp"
 #include "menu_item.hpp"
 #include "pump.hpp"
 
-#include "../formula_string_utils.hpp"
-#include "../game_data.hpp"
-#include "../log.hpp"
-#include "../reports.hpp"
-#include "../scripting/game_lua_kernel.hpp"
-#include "../serialization/string_utils.hpp"
-#include "../soundsource.hpp"
-#include "../util.hpp"
+#include "formula/string_utils.hpp"
+#include "game_data.hpp"
+#include "log.hpp"
+#include "reports.hpp"
+#include "scripting/game_lua_kernel.hpp"
+#include "serialization/string_utils.hpp"
+#include "soundsource.hpp"
+#include "util.hpp"
 
-#include <boost/foreach.hpp>
 #include <boost/unordered_map.hpp>
 #include <iostream>
 
@@ -114,6 +113,7 @@ void event_handler::disable()
 void event_handler::handle_event(const queued_event& event_info, handler_ptr& handler_p, game_lua_kernel & lk)
 {
 	// We will need our config after possibly self-destructing. Make a copy now.
+	// TODO: instead of copying possibly huge config objects we should use shared things and only increase a refcount here.
 	vconfig vcfg(cfg_, true);
 
 	if (is_menu_item_) {

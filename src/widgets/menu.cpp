@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2003 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2003 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -276,7 +276,7 @@ private:
 
 void menu::do_sort()
 {
-	if(sorter_ == NULL || sorter_->column_sortable(sortby_) == false) {
+	if(sorter_ == nullptr || sorter_->column_sortable(sortby_) == false) {
 		return;
 	}
 
@@ -341,23 +341,23 @@ void menu::update_scrollbar_grip_height()
 
 void menu::update_size()
 {
-	unsigned int h = heading_height();
+	int h = heading_height();
 	for(size_t i = get_position(),
 	    i_end = std::min(items_.size(), i + max_items_onscreen());
 	    i < i_end; ++i)
 		h += get_item_rect(i).h;
 	h = std::max(h, height());
-	if (max_height_ > 0 && h > static_cast<unsigned>(max_height_)) {
+	if (max_height_ > 0 && h > (max_height_)) {
 		h = max_height_;
 	}
 
 	use_ellipsis_ = false;
 	std::vector<int> const &widths = column_widths();
-	unsigned w = std::accumulate(widths.begin(), widths.end(), 0);
+	int w = std::accumulate(widths.begin(), widths.end(), 0);
 	if (items_.size() > max_items_onscreen())
 		w += scrollbar_width();
 	w = std::max(w, width());
-	if (max_width_ > 0 && w > static_cast<unsigned>(max_width_)) {
+	if (max_width_ > 0 && w > (max_width_)) {
 		use_ellipsis_ = true;
 		w = max_width_;
 	}
@@ -623,7 +623,7 @@ bool menu::requires_event_focus(const SDL_Event* event) const
 	if(!focus_ || height() == 0 || hidden()) {
 		return false;
 	}
-	if(event == NULL) {
+	if(event == nullptr) {
 		//when event is not specified, signal that focus may be desired later
 		return true;
 	}
@@ -709,7 +709,7 @@ void menu::handle_event(const SDL_Event& event)
 		}
 
 
-		if(sorter_ != NULL) {
+		if(sorter_ != nullptr) {
 			const int heading = hit_heading(x,y);
 			if(heading >= 0 && sorter_->column_sortable(heading)) {
 				sort_by(heading);
@@ -824,7 +824,7 @@ SDL_Rect menu::style::item_size(const std::string& item) const {
 		if (!str.empty() && str[0] == IMAGE_PREFIX) {
 			const std::string image_name(str.begin()+1,str.end());
 			surface const img = get_item_image(image_name);
-			if(img != NULL) {
+			if(img != nullptr) {
 				res.w += img->w;
 				res.h = std::max<int>(img->h, res.h);
 			}
@@ -833,7 +833,7 @@ SDL_Rect menu::style::item_size(const std::string& item) const {
 		else {
 			const SDL_Rect area = {0,0,10000,10000};
 			const SDL_Rect font_size =
-				font::draw_text(NULL,area,get_font_size(),font::NORMAL_COLOR,str,0,0);
+				font::draw_text(nullptr,area,get_font_size(),font::NORMAL_COLOR,str,0,0);
 			res.w += font_size.w;
 			res.h = std::max<int>(font_size.h, res.h);
 		}
@@ -997,7 +997,7 @@ void menu::draw_row(const size_t row_index, const SDL_Rect& rect, ROW_TYPE type)
 					int style = TTF_STYLE_NORMAL;
 					int w = loc.w - (xpos - rect.x) - 2 * style_->get_thickness();
 					std::string::const_iterator i_beg = to_show.begin(), i_end = to_show.end(),
-						i = font::parse_markup(i_beg, i_end, &fs, NULL, &style);
+						i = font::parse_markup(i_beg, i_end, &fs, nullptr, &style);
 					if (i != i_end) {
 						std::string tmp(i, i_end);
 						to_show.erase(i - i_beg, i_end - i_beg);
@@ -1046,7 +1046,7 @@ void menu::draw_row(const size_t row_index, const SDL_Rect& rect, ROW_TYPE type)
 				const surface img = style_->get_item_image(image_name);
 				const int remaining_width = max_width_ < 0 ? area.w :
 				std::min<int>(max_width_, ((lang_rtl)? xpos - rect.x : rect.x + rect.w - xpos));
-				if(img != NULL && img->w <= remaining_width
+				if(img != nullptr && img->w <= remaining_width
 				&& rect.y + img->h < area.h) {
 					const size_t y = rect.y + (rect.h - img->h)/2;
 					const size_t w = img->w + 5;
@@ -1067,7 +1067,7 @@ void menu::draw_row(const size_t row_index, const SDL_Rect& rect, ROW_TYPE type)
 					int style = TTF_STYLE_NORMAL;
 					int w = rect.w - (xpos - rect.x) - 2 * style_->get_thickness();
 					std::string::const_iterator i_beg = to_show.begin(), i_end = to_show.end(),
-						i = font::parse_markup(i_beg, i_end, &fs, NULL, &style);
+						i = font::parse_markup(i_beg, i_end, &fs, nullptr, &style);
 					if (i != i_end) {
 						std::string tmp(i, i_end);
 						to_show.erase(i - i_beg, i_end - i_beg);
@@ -1083,7 +1083,7 @@ void menu::draw_row(const size_t row_index, const SDL_Rect& rect, ROW_TYPE type)
 				if(type == HEADING_ROW && sortby_ == int(i)) {
 					const surface sort_img = image::get_image(sortreversed_ ? "buttons/sliders/slider_arrow_blue.png" :
 					                                   "buttons/sliders/slider_arrow_blue.png~ROTATE(180)");
-					if(sort_img != NULL && sort_img->w <= widths[i] && sort_img->h <= rect.h) {
+					if(sort_img != nullptr && sort_img->w <= widths[i] && sort_img->h <= rect.h) {
 						const size_t sort_x = xpos + widths[i] - sort_img->w - padding;
 						const size_t sort_y = rect.y + rect.h/2 - sort_img->h/2;
 						video().blit_surface(sort_x,sort_y,sort_img);
@@ -1147,7 +1147,7 @@ void menu::draw()
 	bg_restore();
 
 	clip_rect_setter clipping_rect =
-			clip_rect_setter(video().getSurface(), clip_rect(), clip_rect() != NULL);
+			clip_rect_setter(video().getSurface(), clip_rect(), clip_rect() != nullptr);
 
 	draw_contents();
 

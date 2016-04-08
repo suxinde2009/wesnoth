@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2014 - 2015 by Mark de Wever <koraq@xs4all.nl>
+   Copyright (C) 2014 - 2016 by Mark de Wever <koraq@xs4all.nl>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -23,11 +23,7 @@
 #include <SDL_version.h>
 #include "utils.hpp"
 
-#if SDL_VERSION_ATLEAST(2, 0, 0)
 #include <SDL_rect.h>
-#else
-#include <SDL_video.h>
-#endif
 
 #ifdef SDL_GPU
 #include "gpu.hpp"
@@ -153,12 +149,12 @@ inline void fill_rect(surface& dst, SDL_Rect* dst_rect, const Uint32 color)
 void fill_rect(CVideo &video, const SDL_Rect &rect, SDL_Color color);
 
 void fill_rect(CVideo &video, const SDL_Rect &rect, Uint8 r, Uint8 g,
-			   Uint8 b, Uint8 a = 255);
+			   Uint8 b, Uint8 a = SDL_ALPHA_OPAQUE);
 
 void draw_rect(CVideo &video, const SDL_Rect &rect, SDL_Color color);
 
 void draw_rect(CVideo &video, const SDL_Rect &rect, Uint8 r, Uint8 g,
-			   Uint8 b, Uint8 a = 255);
+			   Uint8 b, Uint8 a = SDL_ALPHA_OPAQUE);
 #endif
 } // namespace sdl
 

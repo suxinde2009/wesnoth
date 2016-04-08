@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2003 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2003 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -64,6 +64,7 @@ const int
 	SIZE_15         = 15 * SIZE_NORMAL / 14,
 	SIZE_PLUS       = 16 * SIZE_NORMAL / 14,
 	SIZE_LARGE      = 18 * SIZE_NORMAL / 14,
+	SIZE_TITLE      = 20 * SIZE_NORMAL / 14,
 	SIZE_XLARGE     = 24 * SIZE_NORMAL / 14
   ;
 // For arbitrary scaling:
@@ -76,7 +77,7 @@ inline int relative_size(int size)
 // Returns a SDL surface containing the text rendered in a given color.
 surface get_rendered_text(const std::string& text, int size, const SDL_Color& color, int style=0);
 
-SDL_Rect draw_text_line(surface gui_surface, const SDL_Rect& area, int size,
+SDL_Rect draw_text_line(surface& gui_surface, const SDL_Rect& area, int size,
 						const SDL_Color& color, const std::string& text,
 						int x, int y, bool use_tooltips, int style);
 

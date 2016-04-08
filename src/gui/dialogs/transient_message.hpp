@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2009 - 2015 by Mark de Wever <koraq@xs4all.nl>
+   Copyright (C) 2009 - 2016 by Mark de Wever <koraq@xs4all.nl>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -38,7 +38,7 @@ private:
 	virtual const std::string& window_id() const;
 
 	/** Inherited from tdialog. */
-	virtual void pre_show(CVideo& video, twindow& window);
+	virtual void pre_show(twindow& window);
 };
 
 /**
@@ -57,13 +57,16 @@ private:
  * @param image               An image to show in the dialog.
  * @param message_use_markup  Use markup for the message?
  * @param title_use_markup    Use markup for the title?
+ * @param restore_background  Restore the background to the state it was before
+ * 							  the message appeared
  */
 void show_transient_message(CVideo& video,
 							const std::string& title,
 							const std::string& message,
 							const std::string& image = std::string(),
 							const bool message_use_markup = false,
-							const bool title_use_markup = false);
+							const bool title_use_markup = false,
+							const bool restore_background = false);
 
 /**
  * Shows a transient error message to the user.

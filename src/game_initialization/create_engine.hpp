@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2013 - 2015 by Andrius Silinskas <silinskas.andrius@gmail.com>
+   Copyright (C) 2013 - 2016 by Andrius Silinskas <silinskas.andrius@gmail.com>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -15,15 +15,16 @@
 #define MULTIPLAYER_CREATE_ENGINE_HPP_INCLUDED
 
 #include "config.hpp"
-#include "make_enum.hpp"
-#include "map.hpp"
+#include "utils/make_enum.hpp"
+#include "map/map.hpp"
 #include "mp_game_settings.hpp"
-#include "game_display.hpp"
+#include "sdl/utils.hpp"
 
 #include <boost/scoped_ptr.hpp>
 #include <string>
 #include <utility>
 
+class CVideo;
 class saved_game;
 class map_generator;
 namespace ng {
@@ -178,7 +179,7 @@ private:
 class create_engine
 {
 public:
-	create_engine(game_display& disp, saved_game& state);
+	create_engine(CVideo& v, saved_game& state);
 	~create_engine();
 
 	enum MP_EXTRA { ERA, MOD };
@@ -207,7 +208,7 @@ public:
 	void prepare_for_saved_game();
 	//random maps, user maps
 	void prepare_for_other();
-	
+
 	std::string select_campaign_difficulty(int set_value = -1);
 
 	void apply_level_filter(const std::string& name);
@@ -244,9 +245,9 @@ public:
 		get_extras_by_type(const MP_EXTRA extra_type);
 
 	bool toggle_current_mod(bool force = false);
-	
+
 	bool generator_assigned() const;
-	void generator_user_config(display& disp);
+	void generator_user_config(CVideo& v);
 
 	int find_level_by_id(const std::string& id) const;
 	int find_extra_by_id(const MP_EXTRA extra_type, const std::string& id) const;
@@ -302,8 +303,8 @@ private:
 
 	saved_game& state_;
 
-	game_display& disp_;
-	//Never NULL
+	CVideo& video_;
+	//Never nullptr
 	boost::scoped_ptr<depcheck::manager> dependency_manager_;
 
 	boost::scoped_ptr<map_generator> generator_;

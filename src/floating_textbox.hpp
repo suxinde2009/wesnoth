@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2006 - 2015 by Joerg Hinrichs <joerg.hinrichs@alice-dsl.de>
+   Copyright (C) 2006 - 2016 by Joerg Hinrichs <joerg.hinrichs@alice-dsl.de>
    wesnoth playturn Copyright (C) 2003 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
@@ -46,7 +46,7 @@ namespace gui{
 		void show(gui::TEXTBOX_MODE mode, const std::string& label,
 			const std::string& check_label, bool checked, game_display& gui);
 		void tab(const std::set<std::string>& dictionary);
-		bool active() const { return box_.get() != NULL; }
+		bool active() const { return box_.get() != nullptr; }
 
 	private:
 		util::scoped_ptr<gui::textbox> box_;

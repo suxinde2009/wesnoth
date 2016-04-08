@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2003 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2003 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -19,10 +19,9 @@
 #include "lua_jailbreak_exception.hpp"
 
 #include <boost/utility.hpp>
+#include <boost/scoped_ptr.hpp>
 
-#if SDL_VERSION_ATLEAST(2,0,0)
 #include "sdl/window.hpp"
-#endif
 
 struct surface;
 #ifdef SDL_GPU
@@ -36,44 +35,73 @@ class timage;
 #endif
 
 //possible flags when setting video modes
-#define FULL_SCREEN SDL_FULLSCREEN
-
-#if SDL_VERSION_ATLEAST(2, 0, 0)
 #define SDL_APPMOUSEFOCUS	0x01		/**< The app has mouse coverage */
 #define SDL_APPINPUTFOCUS	0x02		/**< The app has input focus */
 #define SDL_APPACTIVE		0x04		/**< The application is active */
-#endif
 
+#ifdef SDL_GPU
 struct GPU_Target;
 GPU_Target *get_render_target();
+#endif
 
-surface display_format_alpha(surface surf);
-surface get_video_surface();
+surface& get_video_surface();
+
+
 SDL_Rect screen_area();
 
 
-bool non_interactive();
 
 //which areas of the screen will be updated when the buffer is flipped?
 void update_rect(size_t x, size_t y, size_t w, size_t h);
 void update_rect(const SDL_Rect& rect);
-void update_whole_screen();
 
 class CVideo : private boost::noncopyable {
-     public:
-		 enum FAKE_TYPES {
-			 NO_FAKE,
-			 FAKE,
-			 FAKE_TEST
-		 };
+public:
+	enum FAKE_TYPES {
+		  NO_FAKE
+		, FAKE
+		, FAKE_TEST
+	};
+
+	enum MODE_EVENT {
+		  TO_RES
+		, TO_FULLSCREEN
+		, TO_WINDOWED
+		, TO_MAXIMIZED_WINDOW
+	};
 
 	CVideo(FAKE_TYPES type = NO_FAKE);
 	~CVideo();
+	static CVideo& get_singleton() { return *singleton_; }
+
+	bool non_interactive();
+
+	const static int DefaultBpp = 32;
 
 
-	int bppForMode( int x, int y, int flags);
-	int modePossible( int x, int y, int bits_per_pixel, int flags, bool current_screen_optimal=false);
-	int setMode( int x, int y, int bits_per_pixel, int flags );
+	/**
+	 * Initializes a new window, taking into account any preiously saved states.
+	 */
+	bool init_window();
+
+	void setMode( int x, int y, const MODE_EVENT mode );
+
+
+	void set_fullscreen(bool ison);
+
+	/**
+	 * Set the resolution.
+	 *
+	 * @param width               The new width.
+	 * @param height              The new height.
+	 *
+	 * @returns                   The status true if width and height are the
+	 *                            size of the framebuffer, false otherwise.
+	 */
+	void set_resolution(const std::pair<int,int>& res);
+	void set_resolution(const unsigned width, const unsigned height);
+
+	std::pair<int,int> current_resolution();
 
 	//did the mode change, since the last call to the modeChanged() method?
 	bool modeChanged();
@@ -83,7 +111,7 @@ class CVideo : private boost::noncopyable {
 	int gety() const;
 
 	//blits a surface with black as alpha
-	void blit_surface(int x, int y, surface surf, SDL_Rect* srcrect=NULL, SDL_Rect* clip_rect=NULL);
+	void blit_surface(int x, int y, surface surf, SDL_Rect* srcrect=nullptr, SDL_Rect* clip_rect=nullptr);
 #ifdef SDL_GPU
 	GPU_Target *render_target() const;
 
@@ -97,6 +125,7 @@ class CVideo : private boost::noncopyable {
 	void clear_overlay();
 #endif
 	void flip();
+	static void delay(unsigned int milliseconds);
 
 	surface& getSurface();
 
@@ -123,8 +152,6 @@ class CVideo : private boost::noncopyable {
 	};
 
 	//functions to allow changing video modes when 16BPP is emulated
-	void setBpp( int bpp );
-	int getBpp();
 
 	void make_fake();
 	/**
@@ -135,7 +162,7 @@ class CVideo : private boost::noncopyable {
 	 * @param bpp                 The bpp of the buffer.
 	 */
 	void make_test_fake(const unsigned width = 1024,
-			const unsigned height = 768, const unsigned bpp = 32);
+			const unsigned height = 768, const unsigned bpp = DefaultBpp);
 	bool faked() const { return fake_screen_; }
 
 	//functions to set and clear 'help strings'. A 'help string' is like a tooltip, but it appears
@@ -153,50 +180,63 @@ class CVideo : private boost::noncopyable {
 	void lock_updates(bool value);
 	bool update_locked() const;
 
-#if SDL_VERSION_ATLEAST(2, 0, 0)
+	//this needs to be invoked immediately after a resize event or the game will crash.
+	void update_framebuffer();
+
 	/**
 	 * Wrapper for SDL_GetAppState.
 	 */
-	static Uint8 window_state();
+	Uint8 window_state();
 
 	/**
 	 * Sets the title of the main window.
 	 *
 	 * @param title               The new title for the window.
 	 */
-	static void set_window_title(const std::string& title);
+	void set_window_title(const std::string& title);
 
 	/**
 	 * Sets the icon of the main window.
 	 *
 	 * @param icon                The new icon for the window.
 	 */
-	static void set_window_icon(surface& icon);
+	void set_window_icon(surface& icon);
 
-	static sdl::twindow *get_window();
-#endif
+	sdl::twindow *get_window();
 
 	/**
 	 * Returns the list of available screen resolutions.
 	 */
-	std::vector<std::pair<int, int> > get_available_resolutions();
+	std::vector<std::pair<int, int> > get_available_resolutions(const bool include_current = false);
 
 private:
+	static CVideo* singleton_;
+
+	boost::scoped_ptr<sdl::twindow> window;
+	class video_event_handler : public events::sdl_handler {
+	public:
+		virtual void handle_event(const SDL_Event &) {}
+
+		virtual void handle_window_event(const SDL_Event &event);
+
+		video_event_handler() :	sdl_handler(false) {}
+	};
 
 	void initSDL();
 #ifdef SDL_GPU
-	void update_overlay(SDL_Rect *rect = NULL);
+	void update_overlay(SDL_Rect *rect = nullptr);
 
-	sdl::shader_program shader_; 
+	sdl::shader_program shader_;
 	surface overlay_;
 #endif
 
 	bool mode_changed_;
 
-	int bpp_;	// Store real bits per pixel
 
 	//if there is no display at all, but we 'fake' it for clients
 	bool fake_screen_;
+
+	video_event_handler event_handler_;
 
 	//variables for help strings
 	int help_string_;
@@ -229,15 +269,12 @@ private:
 	bool unlock;
 };
 
-class resize_monitor : public events::pump_monitor {
-	void process(events::pump_info &info);
+namespace video2 {
+class draw_layering: public events::sdl_handler {
+protected:
+	draw_layering(const bool auto_join=true);
+	virtual ~draw_layering();
 };
-
-//an object which prevents resizing of the screen occurring during
-//its lifetime.
-struct resize_lock {
-	resize_lock();
-	~resize_lock();
-};
-
+void trigger_full_redraw();
+}
 #endif

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2011 - 2015 by Yurii Chernyi <terraninfo@terraninfo.net>
+   Copyright (C) 2011 - 2016 by Yurii Chernyi <terraninfo@terraninfo.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -16,7 +16,7 @@
 #define GUI_DIALOGS_CHAT_LOG_HPP_INCLUDED
 
 #include "gui/dialogs/dialog.hpp"
-#include "../../variable.hpp"
+#include "variable.hpp"
 
 #include <boost/shared_ptr.hpp>
 
@@ -37,7 +37,7 @@ public:
 	twindow* build_window(CVideo& video);
 
 	/** Inherited from tdialog. */
-	void pre_show(CVideo& video, twindow& window);
+	void pre_show(twindow& window);
 
 	boost::shared_ptr<view> get_view();
 

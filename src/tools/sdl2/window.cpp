@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2014 - 2015 by Mark de Wever <koraq@xs4all.nl>
+   Copyright (C) 2014 - 2016 by Mark de Wever <koraq@xs4all.nl>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org
 
    This program is free software; you can redistribute it and/or modify
@@ -53,7 +53,7 @@ static void create(std::string& command, std::string::const_iterator begin)
 	utf8::insert(command,
 				 utf8::size(command),
 				 " -> OK ID "
-				 + boost::lexical_cast<std::string>(windows.size() - 1));
+				 + std::to_string(windows.size() - 1));
 }
 
 static void modify(std::string& command, std::string::const_iterator begin)
@@ -63,7 +63,7 @@ static void modify(std::string& command, std::string::const_iterator begin)
 
 	if(id >= windows.size()) {
 		utf8::insert(command, utf8::size(command), " -> ID out of range");
-	} else if(windows[id] == NULL) {
+	} else if(windows[id] == nullptr) {
 		utf8::insert(command, utf8::size(command), " -> ID destroyed");
 	} else {
 
@@ -100,11 +100,11 @@ static void destroy(std::string& command, std::string::const_iterator begin)
 
 	if(id >= windows.size()) {
 		utf8::insert(command, utf8::size(command), " -> ID out of range");
-	} else if(windows[id] == NULL) {
+	} else if(windows[id] == nullptr) {
 		utf8::insert(command, utf8::size(command), " -> ID already destroyed");
 	} else {
 		delete windows[id];
-		windows[id] = NULL;
+		windows[id] = nullptr;
 		utf8::insert(command, utf8::size(command), " -> OK");
 	}
 }

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2008 - 2015 by Jörg Hinrichs <joerg.hinrichs@alice-dsl.de>
+   Copyright (C) 2008 - 2016 by Jörg Hinrichs <joerg.hinrichs@alice-dsl.de>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -16,13 +16,13 @@
 
 #include "gui/dialogs/game_load.hpp"
 
-#include "formula_string_utils.hpp"
+#include "formula/string_utils.hpp"
 #include "gettext.hpp"
 #include "game_config.hpp"
 #include "game_preferences.hpp"
 #include "game_classification.hpp"
-#include "gui/auxiliary/log.hpp"
-#include "gui/dialogs/field.hpp"
+#include "gui/auxiliary/field.hpp"
+#include "gui/core/log.hpp"
 #include "gui/dialogs/game_delete.hpp"
 #include "gui/dialogs/helper.hpp"
 #include "gui/widgets/button.hpp"
@@ -36,13 +36,15 @@
 #include "gui/widgets/minimap.hpp"
 #include "gui/widgets/settings.hpp"
 #include "gui/widgets/text_box.hpp"
+#include "gui/widgets/toggle_button.hpp"
 #include "gui/widgets/window.hpp"
 #include "language.hpp"
 #include "preferences_display.hpp"
-#include "utils/foreach.tpp"
+#include "savegame.hpp"
+#include "serialization/string_utils.hpp"
 
 #include <cctype>
-#include <boost/bind.hpp>
+#include "utils/functional.hpp"
 
 namespace gui2
 {
@@ -68,11 +70,6 @@ namespace gui2
  *
  * -date & & control & o &
  *         Date the savegame was created. $
- *
- * preview_pane & & widget & m &
- *         Container widget or grid that contains the items for a preview. The
- *         visible status of this container depends on whether or not something
- *         is selected. $
  *
  * -minimap & & minimap & m &
  *         Minimap of the selected savegame. $
@@ -103,10 +100,11 @@ tgame_load::tgame_load(const config& cache_config)
 	, games_()
 	, cache_config_(cache_config)
 	, last_words_()
+	, summary_()
 {
 }
 
-void tgame_load::pre_show(CVideo& /*video*/, twindow& window)
+void tgame_load::pre_show(twindow& window)
 {
 	assert(txtFilter_);
 
@@ -114,23 +112,23 @@ void tgame_load::pre_show(CVideo& /*video*/, twindow& window)
 
 	ttext_box* filter
 			= find_widget<ttext_box>(&window, "txtFilter", false, true);
-	window.keyboard_capture(filter);
+
 	filter->set_text_changed_callback(
-			boost::bind(&tgame_load::filter_text_changed, this, _1, _2));
+			std::bind(&tgame_load::filter_text_changed, this, _1, _2));
 
 	tlistbox* list
 			= find_widget<tlistbox>(&window, "savegame_list", false, true);
-	window.keyboard_capture(list);
 
 #ifdef GUI2_EXPERIMENTAL_LISTBOX
 	connect_signal_notify_modified(*list,
-								   boost::bind(&tgame_load::list_item_clicked,
+								   std::bind(&tgame_load::list_item_clicked,
 											   *this,
-											   boost::ref(window)));
+											   std::ref(window)));
 #else
 	list->set_callback_value_change(
 			dialog_callback<tgame_load, &tgame_load::list_item_clicked>);
 #endif
+	window.keyboard_capture(list);
 
 	{
 		cursor::setter cur(cursor::WAIT);
@@ -140,9 +138,9 @@ void tgame_load::pre_show(CVideo& /*video*/, twindow& window)
 
 	connect_signal_mouse_left_click(
 			find_widget<tbutton>(&window, "delete", false),
-			boost::bind(&tgame_load::delete_button_callback,
+			std::bind(&tgame_load::delete_button_callback,
 						this,
-						boost::ref(window)));
+						std::ref(window)));
 
 	display_savegame(window);
 }
@@ -173,12 +171,14 @@ void tgame_load::fill_game_list(twindow& window,
 	tlistbox& list = find_widget<tlistbox>(&window, "savegame_list", false);
 	list.clear();
 
-	FOREACH(const AUTO & game, games)
+	for(const auto & game : games)
 	{
 		std::map<std::string, string_map> data;
 		string_map item;
 
-		item["label"] = game.name();
+		std::string name = game.name();
+		utils::ellipsis_truncate(name, 50);
+		item["label"] = name;
 		data.insert(std::make_pair("filename", item));
 
 		item["label"] = game.format_time_summary();
@@ -187,11 +187,11 @@ void tgame_load::fill_game_list(twindow& window,
 		list.add_row(data);
 	}
 	std::vector<tgenerator_::torder_func> order_funcs(2);
-	order_funcs[0] = boost::bind(&tgame_load::compare_name, this, _1, _2);
-	order_funcs[1] = boost::bind(&tgame_load::compare_name_rev, this, _1, _2);
+	order_funcs[0] = std::bind(&tgame_load::compare_name, this, _1, _2);
+	order_funcs[1] = std::bind(&tgame_load::compare_name_rev, this, _1, _2);
 	list.set_column_order(0, order_funcs);
-	order_funcs[0] = boost::bind(&tgame_load::compare_date, this, _1, _2);
-	order_funcs[1] = boost::bind(&tgame_load::compare_date_rev, this, _1, _2);
+	order_funcs[0] = std::bind(&tgame_load::compare_date, this, _1, _2);
+	order_funcs[1] = std::bind(&tgame_load::compare_date_rev, this, _1, _2);
 	list.set_column_order(1, order_funcs);
 }
 
@@ -200,7 +200,7 @@ void tgame_load::list_item_clicked(twindow& window)
 	display_savegame(window);
 }
 
-bool tgame_load::filter_text_changed(ttext_* textbox, const std::string& text)
+void tgame_load::filter_text_changed(ttext_* textbox, const std::string& text)
 {
 	twindow& window = *textbox->get_window();
 
@@ -209,7 +209,7 @@ bool tgame_load::filter_text_changed(ttext_* textbox, const std::string& text)
 	const std::vector<std::string> words = utils::split(text, ' ');
 
 	if(words == last_words_)
-		return false;
+		return;
 	last_words_ = words;
 
 	std::vector<bool> show_items(list.get_item_count(), true);
@@ -223,7 +223,7 @@ bool tgame_load::filter_text_changed(ttext_* textbox, const std::string& text)
 					= find_widget<tlabel>(*it, "filename", false);
 
 			bool found = false;
-			FOREACH(const AUTO & word, words)
+			for(const auto & word : words)
 			{
 				found = std::search(filename_label.label().str().begin(),
 									filename_label.label().str().end(),
@@ -243,8 +243,6 @@ bool tgame_load::filter_text_changed(ttext_* textbox, const std::string& text)
 	}
 
 	list.set_row_shown(show_items);
-
-	return false;
 }
 
 void tgame_load::post_show(twindow& window)
@@ -252,6 +250,12 @@ void tgame_load::post_show(twindow& window)
 	change_difficulty_ = chk_change_difficulty_->get_widget_value(window);
 	show_replay_ = chk_show_replay_->get_widget_value(window);
 	cancel_orders_ = chk_cancel_orders_->get_widget_value(window);
+
+	if(!games_.empty()) {
+		const int index =
+			find_widget<tlistbox>(&window, "savegame_list", false).get_selected_row();
+		summary_ = games_[index].summary();
+	}
 }
 
 void tgame_load::display_savegame(twindow& window)
@@ -260,37 +264,48 @@ void tgame_load::display_savegame(twindow& window)
 			= find_widget<tlistbox>(&window, "savegame_list", false)
 					  .get_selected_row();
 
-	twidget& preview_pane
-			= find_widget<twidget>(&window, "preview_pane", false);
-
 	if(selected_row == -1) {
-		preview_pane.set_visible(twidget::tvisible::hidden);
-	} else {
-		preview_pane.set_visible(twidget::tvisible::visible);
-
-		savegame::save_info& game = games_[selected_row];
-		filename_ = game.name();
-
-		const config& summary = game.summary();
-
-		find_widget<timage>(&window, "imgLeader", false)
-				.set_label(summary["leader_image"]);
-
-		find_widget<tminimap>(&window, "minimap", false)
-				.set_map_data(summary["map_data"]);
-
-		find_widget<tlabel>(&window, "lblScenario", false)
-				.set_label(game.name());
-
-		std::stringstream str;
-		str << game.format_time_local();
-		evaluate_summary_string(str, summary);
-
-		find_widget<tlabel>(&window, "lblSummary", false).set_label(str.str());
-
-		// FIXME: Find a better way to change the label width
-		window.invalidate_layout();
+		return;
 	}
+
+	savegame::save_info& game = games_[selected_row];
+	filename_ = game.name();
+
+	const config& summary = game.summary();
+
+	find_widget<timage>(&window, "imgLeader", false)
+			.set_label(summary["leader_image"]);
+
+	find_widget<tminimap>(&window, "minimap", false)
+			.set_map_data(summary["map_data"]);
+
+	find_widget<tlabel>(&window, "lblScenario", false)
+			.set_label(summary["label"]);
+
+	std::stringstream str;
+	str << game.format_time_local();
+	evaluate_summary_string(str, summary);
+
+	ttoggle_button& replay_toggle =
+			find_widget<ttoggle_button>(&window, "show_replay", false);
+
+	ttoggle_button& cancel_orders_toggle =
+			find_widget<ttoggle_button>(&window, "cancel_orders", false);
+
+	const bool is_replay = savegame::loadgame::is_replay_save(summary);
+	const bool is_scenario_start = summary["turn"].empty();
+
+	// Always toggle show_replay on if the save is a replay
+	replay_toggle.set_value(is_replay);
+	replay_toggle.set_active(!is_replay && !is_scenario_start);
+
+	// Cancel orders doesnt make sense on replay saves or start-of-scenario saves.
+	cancel_orders_toggle.set_active(!is_replay && !is_scenario_start);
+
+	find_widget<tlabel>(&window, "lblSummary", false).set_label(str.str());
+
+	// TODO: Find a better way to change the label width
+	// window.invalidate_layout();
 }
 
 void tgame_load::evaluate_summary_string(std::stringstream& str,
@@ -312,7 +327,7 @@ void tgame_load::evaluate_summary_string(std::stringstream& str,
 			switch(ct.v) {
 				case game_classification::CAMPAIGN_TYPE::SCENARIO: {
 					const std::string campaign_id = cfg_summary["campaign"];
-					const config* campaign = NULL;
+					const config* campaign = nullptr;
 					if(!campaign_id.empty()) {
 						if(const config& c = cache_config_.find_child(
 								   "campaign", "id", campaign_id)) {
@@ -321,7 +336,7 @@ void tgame_load::evaluate_summary_string(std::stringstream& str,
 						}
 					}
 					utils::string_map symbols;
-					if(campaign != NULL) {
+					if(campaign != nullptr) {
 						symbols["campaign_name"] = (*campaign)["name"];
 					} else {
 						// Fallback to nontranslatable campaign id.
@@ -330,7 +345,7 @@ void tgame_load::evaluate_summary_string(std::stringstream& str,
 					str << vgettext("Campaign: $campaign_name", symbols);
 
 					// Display internal id for debug purposes if we didn't above
-					if(game_config::debug && (campaign != NULL)) {
+					if(game_config::debug && (campaign != nullptr)) {
 						str << '\n' << "(" << campaign_id << ")";
 					}
 					break;
@@ -353,8 +368,7 @@ void tgame_load::evaluate_summary_string(std::stringstream& str,
 
 		str << "\n";
 
-		if(cfg_summary["replay"].to_bool()
-		   && !cfg_summary["snapshot"].to_bool(true)) {
+		if(savegame::loadgame::is_replay_save(cfg_summary)) {
 			str << _("Replay");
 		} else if(!cfg_summary["turn"].empty()) {
 			str << _("Turn") << " " << cfg_summary["turn"];

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2003 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2003 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -17,8 +17,6 @@
 #include "config.hpp"
 #include "time_of_day.hpp"
 #include "gettext.hpp"
-
-#include <boost/foreach.hpp>
 
 std::ostream &operator<<(std::ostream &s, const tod_color& c){
 	s << c.r << "," << c.g << "," << c.b;
@@ -67,7 +65,7 @@ void time_of_day::write(config& cfg) const
 
 void time_of_day::parse_times(const config& cfg, std::vector<time_of_day>& times)
 {
-	BOOST_FOREACH(const config &t, cfg.child_range("time")) {
+	for(const config &t : cfg.child_range("time")) {
 		times.push_back(time_of_day(t));
 	}
 

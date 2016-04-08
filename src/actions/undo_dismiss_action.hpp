@@ -1,14 +1,14 @@
 #pragma once
 
 #include "undo_action.hpp"
-#include "../unit_ptr.hpp"
-#include "../unit.hpp"
+#include "units/ptr.hpp"
+#include "units/unit.hpp"
 
 namespace actions
 {
 namespace undo
 {
-	
+
 struct dismiss_action : undo_action
 {
 	unit_ptr dismissed_unit;

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2004 - 2015 by Guillaume Melquiond <guillaume.melquiond@gmail.com>
+   Copyright (C) 2004 - 2016 by Guillaume Melquiond <guillaume.melquiond@gmail.com>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -150,22 +150,11 @@ unsigned scrollarea::scrollbar_width() const
 
 void scrollarea::handle_event(const SDL_Event& event)
 {
+	gui::widget::handle_event(event);
+
 	if (mouse_locked() || hidden())
 		return;
 
-#if !SDL_VERSION_ATLEAST(2,0,0)
-	if (event.type != SDL_MOUSEBUTTONDOWN)
-		return;
-
-	SDL_MouseButtonEvent const &e = event.button;
-	if (sdl::point_in_rect(e.x, e.y, inner_location())) {
-		if (e.button == SDL_BUTTON_WHEELDOWN) {
-			scrollbar_.scroll_down();
-		} else if (e.button == SDL_BUTTON_WHEELUP) {
-			scrollbar_.scroll_up();
-		}
-	}
-#else
 	if (event.type != SDL_MOUSEWHEEL)
 		return;
 
@@ -179,7 +168,6 @@ void scrollarea::handle_event(const SDL_Event& event)
 			scrollbar_.scroll_down();
 		}
 	}
-#endif
 }
 
 } // end namespace gui

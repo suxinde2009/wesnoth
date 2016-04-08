@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2003 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2003 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -19,15 +19,15 @@
 #include "chat_events.hpp"              // for chat_handler, etc
 #include "config.hpp"                   // for config, etc
 #include "display_chat_manager.hpp"	// for add_chat_message, add_observer, etc
-#include "formula_string_utils.hpp"     // for vgettext
+#include "formula/string_utils.hpp"     // for vgettext
 #include "game_board.hpp"               // for game_board
 #include "game_display.hpp"             // for game_display
 #include "game_end_exceptions.hpp"      // for end_level_exception, etc
 #include "gettext.hpp"                  // for _
 #include "gui/dialogs/simple_item_selector.hpp"
 #include "log.hpp"                      // for LOG_STREAM, logger, etc
-#include "make_enum.hpp"                // for bad_enum_cast
-#include "map_label.hpp"
+#include "utils/make_enum.hpp"                // for bad_enum_cast
+#include "map/label.hpp"
 #include "network.hpp"                  // for error
 #include "play_controller.hpp"          // for play_controller
 #include "playturn_network_adapter.hpp"  // for playturn_network_adapter
@@ -41,11 +41,10 @@
 #include "whiteboard/manager.hpp"       // for manager
 #include "widgets/button.hpp"           // for button
 
-#include <boost/foreach.hpp>            // for auto_any_base, etc
 #include <boost/shared_ptr.hpp>         // for shared_ptr
 #include <cassert>                      // for assert
 #include <cstdlib>                     // for atoi
-#include <ctime>                        // for time, NULL
+#include <ctime>                        // for time
 #include <ostream>                      // for operator<<, basic_ostream, etc
 #include <vector>                       // for vector
 
@@ -55,8 +54,7 @@ static lg::log_domain log_network("network");
 turn_info::turn_info(replay_network_sender &replay_sender,playturn_network_adapter &network_reader) :
 	replay_sender_(replay_sender),
 	host_transfer_("host_transfer"),
-	network_reader_(network_reader),
-	is_host_(true)
+	network_reader_(network_reader)
 {
 }
 
@@ -106,7 +104,7 @@ turn_info::PROCESS_DATA_RESULT turn_info::handle_turn(const config& t)
 
 void turn_info::do_save()
 {
-	if (resources::controller != NULL) {
+	if (resources::controller != nullptr) {
 		resources::controller->do_autosave();
 	}
 }
@@ -121,6 +119,7 @@ turn_info::PROCESS_DATA_RESULT turn_info::process_network_data_from_reader()
 		{
 			return res;
 		}
+		cfg.clear();
 	}
 	return PROCESS_CONTINUE;
 }
@@ -139,13 +138,13 @@ turn_info::PROCESS_DATA_RESULT turn_info::process_network_data(const config& cfg
 
 	if (const config &msg = cfg.child("message"))
 	{
-		resources::screen->get_chat_manager().add_chat_message(time(NULL), msg["sender"], msg["side"],
+		resources::screen->get_chat_manager().add_chat_message(time(nullptr), msg["sender"], msg["side"],
 				msg["message"], events::chat_handler::MESSAGE_PUBLIC,
 				preferences::message_bell());
 	}
 	else if (const config &msg = cfg.child("whisper") /*&& is_observer()*/)
 	{
-		resources::screen->get_chat_manager().add_chat_message(time(NULL), "whisper: " + msg["sender"].str(), 0,
+		resources::screen->get_chat_manager().add_chat_message(time(nullptr), "whisper: " + msg["sender"].str(), 0,
 				msg["message"], events::chat_handler::MESSAGE_PRIVATE,
 				preferences::message_bell());
 	}
@@ -174,29 +173,20 @@ turn_info::PROCESS_DATA_RESULT turn_info::process_network_data(const config& cfg
 			ERR_NW << "Bad [change_controller] signal from server, [change_controller] tag was empty." << std::endl;
 			return PROCESS_CONTINUE;
 		}
-		//don't use lexical_cast_default it's "safer" to end on error
-		const int side = lexical_cast<int>(change["side"]);
-		const size_t index = side - 1;
 
+		const int side = change["side"].to_int();
+		const bool is_local = change["is_local"].to_bool();
+		const std::string player = change["player"];
+		const size_t index = side - 1;
 		if(index >= resources::gameboard->teams().size()) {
 			ERR_NW << "Bad [change_controller] signal from server, side out of bounds: " << change.debug() << std::endl;
 			return PROCESS_CONTINUE;
 		}
 
-		assert(resources::gameboard);
 		const team & tm = resources::gameboard->teams().at(index);
-		const std::string &player = change["player"];
 		const bool was_local = tm.is_local();
 
-		team::CONTROLLER new_controller = team::CONTROLLER();
-		try {
-			new_controller = team::CONTROLLER::string_to_enum(change["controller"].str());
-		} catch (bad_enum_cast & e) {
-			ERR_NW << "Bad [change_controller] message from server:\n" << e.what() << std::endl << change.debug() << std::endl;
-			return PROCESS_CONTINUE;
-		}
-
-		resources::gameboard->side_change_controller(side, new_controller, player);
+		resources::gameboard->side_change_controller(side, is_local, player);
 
 		if (!was_local && tm.is_local()) {
 			resources::controller->on_not_observer();
@@ -212,8 +202,6 @@ turn_info::PROCESS_DATA_RESULT turn_info::process_network_data(const config& cfg
 			resources::screen->recalculate_minimap();
 		}
 
-		resources::controller->maybe_do_init_side();
-
 		resources::whiteboard->on_change_controller(side,tm);
 
 		resources::screen->labels().recalculate_labels();
@@ -225,7 +213,6 @@ turn_info::PROCESS_DATA_RESULT turn_info::process_network_data(const config& cfg
 	else if (const config &side_drop_c = cfg.child("side_drop"))
 	{
 		const int  side_drop = side_drop_c["side_num"].to_int(0);
-		const std::string controller = side_drop_c["controller"];
 		size_t index = side_drop -1;
 
 		bool restart = side_drop == resources::screen->playing_side();
@@ -235,17 +222,20 @@ turn_info::PROCESS_DATA_RESULT turn_info::process_network_data(const config& cfg
 			throw network::error("");
 		}
 
-		team::CONTROLLER ctrl = team::CONTROLLER();
-		try {
-			ctrl = team::CONTROLLER::string_to_enum(controller);
-		} catch (bad_enum_cast & e) {
-			ERR_NW << "unknown controller type issued from server on side drop: " << e.what() << std::endl;
+		team::CONTROLLER ctrl;
+		if(!ctrl.parse(side_drop_c["controller"])) {
+			ERR_NW << "unknown controller type issued from server on side drop: " << side_drop_c["controller"] << std::endl;
 			throw network::error("");
 		}
-
-		if (ctrl == team::CONTROLLER::AI){
+		
+		if (ctrl == team::CONTROLLER::AI) {
 			resources::gameboard->side_drop_to(side_drop, ctrl);
-			return restart?PROCESS_RESTART_TURN:PROCESS_CONTINUE;
+			return restart ? PROCESS_RESTART_TURN:PROCESS_CONTINUE;
+		}
+		//null controlled side cannot be dropped becasue they aren't controlled by anyone.
+		else if (ctrl != team::CONTROLLER::HUMAN) {
+			ERR_NW << "unknown controller type issued from server on side drop: " << ctrl.to_cstring() << std::endl;
+			throw network::error("");
 		}
 
 		int action = 0;
@@ -266,7 +256,7 @@ turn_info::PROCESS_DATA_RESULT turn_info::process_network_data(const config& cfg
 			first_observer_option_idx = options.size();
 
 			//get all observers in as options to transfer control
-			BOOST_FOREACH(const std::string &ob, resources::screen->observers())
+			for (const std::string &ob : resources::screen->observers())
 			{
 				t_vars["player"] = ob;
 				options.push_back(vgettext("Replace with $player", t_vars));
@@ -276,7 +266,7 @@ turn_info::PROCESS_DATA_RESULT turn_info::process_network_data(const config& cfg
 			const team &tm = resources::gameboard->teams()[index];
 
 			//get all allies in as options to transfer control
-			BOOST_FOREACH(const team &t, resources::gameboard->teams())
+			for (const team &t : resources::gameboard->teams())
 			{
 				if (!t.is_enemy(side_drop) && !t.is_local_human() && !t.is_local_ai() && !t.is_network_ai() && !t.is_empty()
 					&& t.current_player() != tm.current_player())
@@ -305,23 +295,16 @@ turn_info::PROCESS_DATA_RESULT turn_info::process_network_data(const config& cfg
 			case 0:
 				resources::controller->on_not_observer();
 				resources::gameboard->side_drop_to(side_drop, team::CONTROLLER::HUMAN, team::PROXY_CONTROLLER::PROXY_AI);
-				change_controller(side_drop, team::CONTROLLER::enum_to_string(team::CONTROLLER::HUMAN));
-
-				resources::controller->maybe_do_init_side();
 
 				return restart?PROCESS_RESTART_TURN:PROCESS_CONTINUE;
 
 			case 1:
 				resources::controller->on_not_observer();
 				resources::gameboard->side_drop_to(side_drop, team::CONTROLLER::HUMAN, team::PROXY_CONTROLLER::PROXY_HUMAN);
-				change_controller(side_drop, team::CONTROLLER::enum_to_string(team::CONTROLLER::HUMAN));
-
-				resources::controller->maybe_do_init_side();
 
 				return restart?PROCESS_RESTART_TURN:PROCESS_CONTINUE;
 			case 2:
 				resources::gameboard->side_drop_to(side_drop, team::CONTROLLER::HUMAN, team::PROXY_CONTROLLER::PROXY_IDLE);
-				change_controller(side_drop, team::CONTROLLER::enum_to_string(team::CONTROLLER::HUMAN));
 
 				return restart?PROCESS_RESTART_TURN:PROCESS_CONTINUE;
 
@@ -345,8 +328,8 @@ turn_info::PROCESS_DATA_RESULT turn_info::process_network_data(const config& cfg
 						size_t i = index - observers.size();
 						change_side_controller(side_drop, allies[i]->current_player());
 					} else {
-						resources::gameboard->side_drop_to(side_drop, team::CONTROLLER::HUMAN, team::PROXY_CONTROLLER::PROXY_AI);
-						change_controller(side_drop, team::CONTROLLER::enum_to_string(team::CONTROLLER::HUMAN));
+						//This shouldnt be possible.
+						assert(false);
 					}
 					return restart ? PROCESS_RESTART_TURN : PROCESS_CONTINUE;
 				}
@@ -369,11 +352,8 @@ turn_info::PROCESS_DATA_RESULT turn_info::process_network_data(const config& cfg
 	}
 
 	//If this client becomes the new host, notify the play_controller object about it
-	else if (const config &cfg_host_transfer = cfg.child("host_transfer")){
-		if (cfg_host_transfer["value"] == "1") {
-			is_host_ = true;
-			host_transfer_.notify_observers();
-		}
+	else if (cfg.child("host_transfer")){
+		host_transfer_.notify_observers();
 	}
 	else
 	{
@@ -381,16 +361,6 @@ turn_info::PROCESS_DATA_RESULT turn_info::process_network_data(const config& cfg
 	}
 
 	return PROCESS_CONTINUE;
-}
-
-void turn_info::change_controller(int side, const std::string& controller)
-{
-	config cfg;
-	config& change = cfg.add_child("change_controller");
-	change["side"] = side;
-	change["controller"] = controller;
-
-	network::send_data(cfg, 0);
 }
 
 

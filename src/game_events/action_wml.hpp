@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2003 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2003 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -25,7 +25,7 @@
 #ifndef GAME_EVENTS_ACTION_WML_H_INCLUDED
 #define GAME_EVENTS_ACTION_WML_H_INCLUDED
 
-#include "terrain_type_data.hpp"
+#include "terrain/type_data.hpp"
 #include <map>
 #include <string>
 
@@ -59,7 +59,7 @@ namespace game_events
 		static map::const_iterator begin()  { return registry_.begin(); }
 		/// One past the last registered action.
 		static map::const_iterator end()    { return registry_.end(); }
-
+		static const map& registry() { return registry_; }
 	private:
 		/// Tracks the known action handlers.
 		static map registry_;
@@ -72,11 +72,6 @@ namespace game_events
 	 */
 	void change_terrain(const map_location &loc, const t_translation::t_terrain &t,
 	                    terrain_type_data::tmerge_mode mode, bool replace_if_failed);
-
-	/** Used for [deprecated_message]. */
-	void handle_deprecated_message(const config& cfg);
-	/** Used for [wml_message]. */
-	void handle_wml_log_message(const config& cfg);
 }
 
 #endif // GAME_EVENTS_ACTION_WML_H_INCLUDED

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2011 - 2015 by Ignacio Riquelme Morelle <shadowm2006@gmail.com>
+   Copyright (C) 2011 - 2016 by Ignacio Riquelme Morelle <shadowm2006@gmail.com>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 
 #include "gui/dialogs/addon/uninstall_list.hpp"
 
-#include "gui/auxiliary/find_widget.tpp"
+#include "gui/auxiliary/find_widget.hpp"
 #include "gui/widgets/grid.hpp"
 #ifdef GUI2_EXPERIMENTAL_LISTBOX
 #include "gui/widgets/list.hpp"
@@ -24,7 +24,6 @@
 #include "gui/widgets/settings.hpp"
 #include "gui/widgets/toggle_button.hpp"
 #include "gui/widgets/window.hpp"
-#include "utils/foreach.tpp"
 
 #include <algorithm>
 
@@ -55,14 +54,14 @@ namespace gui2
 
 REGISTER_DIALOG(addon_uninstall_list)
 
-void taddon_uninstall_list::pre_show(CVideo& /*video*/, twindow& window)
+void taddon_uninstall_list::pre_show(twindow& window)
 {
 	tlistbox& list = find_widget<tlistbox>(&window, "addons_list", false);
 	window.keyboard_capture(&list);
 
 	this->selections_.clear();
 
-	FOREACH(const AUTO & entry, titles_map_)
+	for(const auto & entry : titles_map_)
 	{
 		const std::string& id = entry.first;
 		const std::string& title = entry.second;
@@ -102,7 +101,7 @@ std::vector<std::string> taddon_uninstall_list::selected_addons() const
 {
 	std::vector<std::string> retv;
 
-	FOREACH(const AUTO & entry, selections_)
+	for(const auto & entry : selections_)
 	{
 		if(entry.second) {
 			retv.push_back(entry.first);

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2003 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2003 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -31,18 +31,18 @@
 #include "ai/manager.hpp"
 #include "config_assign.hpp"
 #include "fake_unit_ptr.hpp"
+#include "filesystem.hpp"
 #include "game_classification.hpp"
 #include "game_display.hpp"
 #include "game_errors.hpp"
 #include "game_preferences.hpp"
 #include "gettext.hpp"
 #include "gui/dialogs/transient_message.hpp"
-#include "gui/dialogs/wml_message.hpp"
 #include "gui/widgets/window.hpp"
 #include "log.hpp"
-#include "map.hpp"
-#include "map_exception.hpp"
-#include "map_label.hpp"
+#include "map/map.hpp"
+#include "map/exception.hpp"
+#include "map/label.hpp"
 #include "network.hpp"
 #include "pathfind/teleport.hpp"
 #include "pathfind/pathfind.hpp"
@@ -57,18 +57,19 @@
 #include "sound.hpp"
 #include "soundsource.hpp"
 #include "synced_context.hpp"
+#include "synced_user_choice.hpp"
 #include "team.hpp"
-#include "terrain_filter.hpp"
-#include "unit.hpp"
-#include "unit_animation_component.hpp"
-#include "unit_display.hpp"
-#include "unit_filter.hpp"
+#include "terrain/filter.hpp"
+#include "units/unit.hpp"
+#include "units/animation_component.hpp"
+#include "units/udisplay.hpp"
+#include "units/filter.hpp"
 #include "wml_exception.hpp"
 #include "whiteboard/manager.hpp"
 
-#include <boost/foreach.hpp>
 #include <boost/assign/list_of.hpp>
 #include <boost/scoped_ptr.hpp>
+#include <boost/regex.hpp>
 
 static lg::log_domain log_engine("engine");
 #define DBG_NG LOG_STREAM(debug, log_engine)
@@ -82,6 +83,7 @@ static lg::log_domain log_display("display");
 
 static lg::log_domain log_wml("wml");
 #define LOG_WML LOG_STREAM(info, log_wml)
+#define WRN_WML LOG_STREAM(warn, log_wml)
 #define ERR_WML LOG_STREAM(err, log_wml)
 
 static lg::log_domain log_config("config");
@@ -95,79 +97,6 @@ namespace game_events
 // This must be defined before any WML actions are.
 // (So keep it at the rop of this file?)
 wml_action::map wml_action::registry_;
-
-
-namespace { // advance declarations
-	std::string get_caption(const vconfig& cfg, unit_map::iterator speaker);
-	std::string get_image(const vconfig& cfg, unit_map::iterator speaker);
-}
-
-namespace { // Types
-	struct message_user_choice : mp_sync::user_choice
-	{
-		vconfig cfg;
-		unit_map::iterator speaker;
-		vconfig text_input_element;
-		bool has_text_input;
-		const std::vector<std::string> &options;
-
-		message_user_choice(const vconfig &c, const unit_map::iterator &s,
-			const vconfig &t, bool ht, const std::vector<std::string> &o)
-			: cfg(c), speaker(s), text_input_element(t)
-			, has_text_input(ht), options(o)
-		{}
-
-		virtual config query_user(int /*side*/) const
-		{
-			std::string image = get_image(cfg, speaker);
-			std::string caption = get_caption(cfg, speaker);
-
-			size_t right_offset = image.find("~RIGHT()");
-			bool left_side = right_offset == std::string::npos;
-			if (!left_side) {
-				image.erase(right_offset);
-			}
-
-			// Parse input text, if not available all fields are empty
-			std::string text_input_label = text_input_element["label"];
-			std::string text_input_content = text_input_element["text"];
-			unsigned input_max_size = text_input_element["max_length"].to_int(256);
-			if (input_max_size > 1024 || input_max_size < 1) {
-				lg::wml_error << "invalid maximum size for input "
-					<< input_max_size << '\n';
-				input_max_size = 256;
-			}
-
-			int option_chosen = -1;
-			int dlg_result = gui2::show_wml_message(left_side,
-				resources::screen->video(), caption, cfg["message"],
-				image, false, has_text_input, text_input_label,
-				&text_input_content, input_max_size, options,
-				&option_chosen);
-
-			/* Since gui2::show_wml_message needs to do undrawing the
-			   chatlines can get garbled and look dirty on screen. Force a
-			   redraw to fix it. */
-			/** @todo This hack can be removed once gui2 is finished. */
-			resources::screen->invalidate_all();
-			resources::screen->draw(true,true);
-
-			if (dlg_result == gui2::twindow::CANCEL) {
-				resources::game_events->pump().context_skip_messages(true);
-			}
-
-			config cfg;
-			if (!options.empty()) cfg["value"] = option_chosen;
-			if (has_text_input) cfg["text"] = text_input_content;
-			return cfg;
-		}
-
-		virtual config random_choice(int /*side*/) const
-		{
-			return config();
-		}
-	};
-} // end anonymous namespace (types)
 
 namespace { // Support functions
 
@@ -276,172 +205,7 @@ namespace { // Support functions
 		}
 		return path;
 	}
-
-	/**
-	 * Helper to handle the caption part of [message].
-	 *
-	 * @param cfg                     cfg of message.
-	 * @param speaker                 The speaker of the message.
-	 *
-	 * @returns                       The caption to show.
-	 */
-	std::string get_caption(const vconfig& cfg, unit_map::iterator speaker)
-	{
-		std::string caption = cfg["caption"];
-		if (caption.empty() && speaker != resources::units->end()) {
-			caption = speaker->name();
-			if(caption.empty()) {
-				caption = speaker->type_name();
-			}
-		}
-		return caption;
-	}
-
-	/**
-	 * Helper to handle the image part of [message].
-	 *
-	 * @param cfg                     cfg of message.
-	 * @param speaker                 The speaker of the message.
-	 *
-	 * @returns                       The image to show.
-	 */
-	std::string get_image(const vconfig& cfg, unit_map::iterator speaker)
-	{
-		std::string image = cfg["image"];
-
-		if (image == "none") {
-			return "";
-		}
-
-		if (image.empty() && speaker != resources::units->end())
-		{
-			image = speaker->big_profile();
-#ifndef LOW_MEM
-			if(image == speaker->absolute_image()) {
-				image += speaker->image_mods();
-			}
-#endif
-		}
-		return image;
-	}
-
-	/**
-	 * Helper to handle the speaker part of [message].
-	 *
-	 * @param event_info              event_info of message.
-	 * @param cfg                     cfg of message.
-	 *
-	 * @returns                       The unit who's the speaker or units->end().
-	 */
-	unit_map::iterator handle_speaker(const queued_event& event_info,
-	                                  const vconfig& cfg, bool scroll)
-	{
-		unit_map *units = resources::units;
-		game_display &screen = *resources::screen;
-
-		unit_map::iterator speaker = units->end();
-		const std::string speaker_str = cfg["speaker"];
-
-		if(speaker_str == "unit") {
-			speaker = units->find(event_info.loc1);
-		} else if(speaker_str == "second_unit") {
-			speaker = units->find(event_info.loc2);
-		} else if(speaker_str != "narrator") {
-			const unit_filter ufilt(cfg, resources::filter_con);
-			for(speaker = units->begin(); speaker != units->end(); ++speaker){
-				if ( ufilt(*speaker) )
-					break;
-			}
-		}
-		if(speaker != units->end()) {
-			LOG_NG << "set speaker to '" << speaker->name() << "'\n";
-			const map_location &spl = speaker->get_location();
-			screen.highlight_hex(spl);
-			if(scroll) {
-				LOG_DP << "scrolling to speaker..\n";
-				const int offset_from_center = std::max<int>(0, spl.y - 1);
-				screen.scroll_to_tile(map_location(spl.x, offset_from_center));
-			}
-			screen.highlight_hex(spl);
-		} else if(speaker_str == "narrator") {
-			LOG_NG << "no speaker\n";
-			screen.highlight_hex(map_location::null_location());
-		} else {
-			return speaker;
-		}
-
-		screen.draw(false);
-		LOG_DP << "done scrolling to speaker...\n";
-		return speaker;
-	}
-
-	/**
-	 * Implements the lifting and resetting of fog via WML.
-	 * Keeping affect_normal_fog as false causes only the fog override to be affected.
-	 * Otherwise, fog lifting will be implemented similar to normal sight (cannot be
-	 * individually reset and ends at the end of the turn), and fog resetting will, in
-	 * addition to removing overrides, extend the specified teams' normal fog to all
-	 * hexes.
-	 */
-	void toggle_fog(const bool clear, const vconfig& cfg, const bool affect_normal_fog=false)
-	{
-		// Filter the sides.
-		const vconfig &ssf = cfg.child("filter_side");
-		const side_filter s_filter(ssf.null() ? vconfig::empty_vconfig() : ssf, resources::filter_con);
-		const std::vector<int> sides = s_filter.get_teams();
-
-		// Filter the locations.
-		std::set<map_location> locs;
-		const terrain_filter t_filter(cfg, resources::filter_con);
-		t_filter.get_locations(locs, true);
-
-		// Loop through sides.
-		BOOST_FOREACH(const int &side_num, sides)
-		{
-			team &t = (*resources::teams)[side_num-1];
-			if ( !clear )
-			{
-				// Extend fog.
-				t.remove_fog_override(locs);
-				if ( affect_normal_fog )
-					t.refog();
-			}
-			else if ( !affect_normal_fog )
-				// Force the locations clear of fog.
-				t.add_fog_override(locs);
-			else
-				// Simply clear fog from the locations.
-				BOOST_FOREACH(const map_location &hex, locs)
-					t.clear_fog(hex);
-		}
-
-		// Flag a screen update.
-		resources::screen->recalculate_minimap();
-		resources::screen->invalidate_all();
-	}
-
-	void handle_event_commands(const queued_event& event_info, const vconfig &cfg) {
-		assert(resources::lua_kernel);
-		resources::lua_kernel->run_wml_action("command", cfg, event_info);
-	}
 } // end anonymous namespace (support functions)
-
-void handle_deprecated_message(const config& cfg)
-{
-	// Note: no need to translate the string, since only used for deprecated things.
-	const std::string& message = cfg["message"];
-	lg::wml_error << message << '\n';
-}
-
-void handle_wml_log_message(const config& cfg)
-{
-	const std::string& logger = cfg["logger"];
-	const std::string& msg = cfg["message"];
-	bool in_chat = cfg["to_chat"].to_bool(true);
-
-	resources::game_events->pump().put_wml_message(logger,msg,in_chat);
-}
-
 
 /**
  * Using this constructor for a static object outside action_wml.cpp
@@ -491,15 +255,10 @@ wml_action::wml_action(const std::string & tag, handler function)
 
 /// Experimental data persistence
 /// @todo Finish experimenting.
-WML_HANDLER_FUNCTION(clear_global_variable,/**/,pcfg)
+WML_HANDLER_FUNCTION(clear_global_variable,,pcfg)
 {
 	if (!resources::controller->is_replay())
 		verify_and_clear_global_variable(pcfg);
-}
-
-WML_HANDLER_FUNCTION(deprecated_message, /*event_info*/, cfg)
-{
-	handle_deprecated_message( cfg.get_parsed_config() );
 }
 
 static void on_replay_error(const std::string& message, bool /*b*/)
@@ -510,7 +269,7 @@ static void on_replay_error(const std::string& message, bool /*b*/)
 
 // This tag exposes part of the code path used to handle [command]'s in replays
 // This allows to perform scripting in WML that will use the same code path as player actions, for example.
-WML_HANDLER_FUNCTION(do_command, /*event_info*/, cfg)
+WML_HANDLER_FUNCTION(do_command,, cfg)
 {
 	// Doing this in a whiteboard applied context will cause bugs
 	// Note that even though game_events::pump() will always apply the real unit map
@@ -522,7 +281,7 @@ WML_HANDLER_FUNCTION(do_command, /*event_info*/, cfg)
 		return;
 	}
 
-	static const std::set<std::string> allowed_tags = boost::assign::list_of("attack")("move")("recruit")("recall")("disband")("fire_event")("lua_ai");
+	static const std::set<std::string> allowed_tags = {"attack", "move", "recruit", "recall", "disband", "fire_event", "lua_ai"};
 
 	const bool is_too_early = resources::gamedata->phase() != game_data::START && resources::gamedata->phase() != game_data::PLAY;
 	if(is_too_early)
@@ -553,154 +312,12 @@ WML_HANDLER_FUNCTION(do_command, /*event_info*/, cfg)
 
 /// Experimental data persistence
 /// @todo Finish experimenting.
-WML_HANDLER_FUNCTION(get_global_variable,/**/,pcfg)
+WML_HANDLER_FUNCTION(get_global_variable,,pcfg)
 {
 	verify_and_get_global_variable(pcfg);
 }
 
-WML_HANDLER_FUNCTION(lift_fog, /*event_info*/, cfg)
-{
-	toggle_fog(true, cfg, !cfg["multiturn"].to_bool(false));
-}
-
-/// Display a message dialog
-WML_HANDLER_FUNCTION(message, event_info, cfg)
-{
-	// Check if there is any input to be made, if not the message may be skipped
-	const vconfig::child_list menu_items = cfg.get_children("option");
-
-	const vconfig::child_list text_input_elements = cfg.get_children("text_input");
-	const bool has_text_input = (text_input_elements.size() == 1);
-
-	bool has_input= (has_text_input || !menu_items.empty() );
-
-	// skip messages during quick replay
-	play_controller *controller = resources::controller;
-	if(!has_input && (
-			 controller->is_skipping_replay() ||
-			 resources::game_events->pump().context_skip_messages()
-			 ))
-	{
-		return;
-	}
-
-	// Check if this message is for this side
-	std::string side_for_raw = cfg["side_for"];
-	if (!side_for_raw.empty())
-	{
-		/* Always ignore side_for when the message has some input
-		   boxes, but display the error message only if side_for is
-		   used for an inactive side. */
-		bool side_for_show = has_input;
-
-		std::vector<std::string> side_for =
-			utils::split(side_for_raw, ',', utils::STRIP_SPACES | utils::REMOVE_EMPTY);
-		std::vector<std::string>::iterator itSide;
-		size_t side;
-
-		// Check if any of side numbers are human controlled
-		for (itSide = side_for.begin(); itSide != side_for.end(); ++itSide)
-		{
-			side = lexical_cast_default<size_t>(*itSide);
-			// Make sanity check that side number is good
-			// then check if this side is human controlled.
-			if (side > 0 && side <= resources::teams->size() &&
-				(*resources::teams)[side-1].is_local_human())
-			{
-				side_for_show = true;
-				break;
-			}
-		}
-		if (!side_for_show)
-		{
-			DBG_NG << "player isn't controlling side which should get message\n";
-			return;
-		}
-	}
-
-	unit_map::iterator speaker = handle_speaker(event_info, cfg, cfg["scroll"].to_bool(true));
-	if (speaker == resources::units->end() && cfg["speaker"] != "narrator") {
-		// No matching unit found, so the dialog can't come up.
-		// Continue onto the next message.
-		WRN_NG << "cannot show message" << std::endl;
-		return;
-	}
-
-	std::vector<std::string> options;
-	std::vector<vconfig::child_list> option_events;
-
-	for(vconfig::child_list::const_iterator mi = menu_items.begin();
-			mi != menu_items.end(); ++mi) {
-		std::string msg_str = (*mi)["message"];
-		if (!mi->has_child("show_if")
-			|| conditional_passed(mi->child("show_if")))
-		{
-			options.push_back(msg_str);
-			option_events.push_back((*mi).get_children("command"));
-		}
-	}
-
-	has_input = !options.empty() || has_text_input;
-	if (!has_input && resources::controller->is_skipping_replay()) {
-		// No input to get and the user is not interested either.
-		return;
-	}
-
-	if (cfg.has_attribute("sound")) {
-		sound::play_sound(cfg["sound"]);
-	}
-
-	if(text_input_elements.size()>1) {
-		lg::wml_error << "too many text_input tags, only one accepted\n";
-	}
-
-	const vconfig text_input_element = has_text_input ?
-		text_input_elements.front() : vconfig::empty_vconfig();
-
-	int option_chosen = 0;
-	std::string text_input_result;
-
-	DBG_DP << "showing dialog...\n";
-
-	message_user_choice msg(cfg, speaker, text_input_element, has_text_input,
-		options);
-	if (!has_input)
-	{
-		/* Always show the dialog if it has no input, whether we are
-		   replaying or not. */
-		msg.query_user(resources::controller->current_side());
-	}
-	else
-	{
-		config choice = mp_sync::get_user_choice("input", msg, cfg["side_for"].to_int(0));
-		option_chosen = choice["value"];
-		text_input_result = choice["text"].str();
-	}
-
-	// Implement the consequences of the choice
-	if(options.empty() == false) {
-		if(size_t(option_chosen) >= menu_items.size()) {
-			std::stringstream errbuf;
-			errbuf << "invalid choice (" << option_chosen
-				<< ") was specified, choice 0 to " << (menu_items.size() - 1)
-				<< " was expected.\n";
-			replay::process_error(errbuf.str());
-			return;
-		}
-
-		BOOST_FOREACH(const vconfig &cmd, option_events[option_chosen]) {
-			handle_event_commands(event_info, cmd);
-		}
-	}
-	if(has_text_input) {
-		std::string variable_name=text_input_element["variable"];
-		if(variable_name.empty())
-			variable_name="input";
-		resources::gamedata->set_variable(variable_name, text_input_result);
-	}
-}
-
-WML_HANDLER_FUNCTION(modify_turns, /*event_info*/, cfg)
+WML_HANDLER_FUNCTION(modify_turns,, cfg)
 {
 	config::attribute_value value = cfg["value"];
 	std::string add = cfg["add"];
@@ -719,7 +336,7 @@ WML_HANDLER_FUNCTION(modify_turns, /*event_info*/, cfg)
 		if(new_turn_number_u < 1 || (new_turn_number > tod_man.number_of_turns() && tod_man.number_of_turns() != -1)) {
 			ERR_NG << "attempted to change current turn number to one out of range (" << new_turn_number << ")" << std::endl;
 		} else if(new_turn_number_u != current_turn_number) {
-			tod_man.set_turn_by_wml(new_turn_number_u, *resources::gamedata);
+			tod_man.set_turn_by_wml(new_turn_number_u, resources::gamedata);
 			resources::screen->new_turn();
 		}
 	}
@@ -727,7 +344,7 @@ WML_HANDLER_FUNCTION(modify_turns, /*event_info*/, cfg)
 
 /// Moving a 'unit' - i.e. a dummy unit
 /// that is just moving for the visual effect
-WML_HANDLER_FUNCTION(move_unit_fake, /*event_info*/, cfg)
+WML_HANDLER_FUNCTION(move_unit_fake,, cfg)
 {
 	fake_unit_ptr dummy_unit(create_fake_unit(cfg));
 	if(!dummy_unit.get())
@@ -748,7 +365,7 @@ WML_HANDLER_FUNCTION(move_unit_fake, /*event_info*/, cfg)
 	}
 }
 
-WML_HANDLER_FUNCTION(move_units_fake, /*event_info*/, cfg)
+WML_HANDLER_FUNCTION(move_units_fake,, cfg)
 {
 	LOG_NG << "Processing [move_units_fake]\n";
 
@@ -763,7 +380,7 @@ WML_HANDLER_FUNCTION(move_units_fake, /*event_info*/, cfg)
 
 	size_t longest_path = 0;
 
-	BOOST_FOREACH(const vconfig& config, unit_cfgs) {
+	for (const vconfig& config : unit_cfgs) {
 		const std::vector<std::string> xvals = utils::split(config["x"]);
 		const std::vector<std::string> yvals = utils::split(config["y"]);
 		int skip_steps = config["skip_steps"];
@@ -800,83 +417,8 @@ WML_HANDLER_FUNCTION(move_units_fake, /*event_info*/, cfg)
 	LOG_NG << "Units moved\n";
 }
 
-WML_HANDLER_FUNCTION(object, event_info, cfg)
-{
-	const vconfig & filter = cfg.child("filter");
-	boost::optional<unit_filter> ufilt;
-	if (!filter.null())
-		ufilt = unit_filter(filter, resources::filter_con);
-
-	std::string id = cfg["id"];
-
-	// If this item has already been used
-	assert(resources::game_events);
-	if ( resources::game_events->item_used(id) )
-		return;
-
-	std::string image = cfg["image"];
-	std::string caption = cfg["name"];
-	std::string text;
-
-	map_location loc;
-	if(ufilt) {
-		unit_const_ptr u_ptr = ufilt->first_match_on_map();
-		if (u_ptr) {
-			loc = u_ptr->get_location();
-		}
-	}
-
-	if(loc.valid() == false) {
-		loc = event_info.loc1;
-	}
-
-	const unit_map::iterator u = resources::units->find(loc);
-
-	std::string command_type = "then";
-
-	if ( u != resources::units->end()  &&  (!ufilt || ufilt->matches(*u)) )
-	{
-		text = cfg["description"].str();
-
-		const bool no_add = cfg["no_write"].to_bool(false);
-
-		if(cfg["delayed_variable_substitution"].to_bool(false))
-			u->add_modification("object", cfg.get_config(), no_add);
-		else
-			u->add_modification("object", cfg.get_parsed_config(), no_add);
-
-		resources::screen->select_hex(event_info.loc1);
-		resources::screen->invalidate_unit();
-
-		// Mark this item as used up.
-		resources::game_events->item_used(id, true);
-	} else {
-		text = cfg["cannot_use_message"].str();
-		command_type = "else";
-	}
-
-	// Default to silent if object has no description
-	const bool silent = cfg.has_attribute("silent") ? cfg["silent"].to_bool() : !cfg.has_attribute("description");
-
-	if (!silent)
-	{
-		// Redraw the unit, with its new stats
-		resources::screen->draw();
-
-		try {
-			gui2::show_transient_message(resources::screen->video(), caption, text, image, true);
-		} catch(utf8::invalid_utf8_exception&) {
-			// we already had a warning so do nothing.
-		}
-	}
-
-	BOOST_FOREACH(const vconfig &cmd, cfg.get_children(command_type)) {
-		handle_event_commands(event_info, cmd);
-	}
-}
-
 /// If we should recall units that match a certain description.
-WML_HANDLER_FUNCTION(recall, /*event_info*/, cfg)
+WML_HANDLER_FUNCTION(recall,, cfg)
 {
 	LOG_NG << "recalling unit...\n";
 	config temp_config(cfg.get_config());
@@ -914,11 +456,11 @@ WML_HANDLER_FUNCTION(recall, /*event_info*/, cfg)
 				DBG_NG << (*u)->id() << " matched the filter...\n";
 				const unit_ptr to_recruit = *u;
 				const unit* pass_check = to_recruit.get();
-				if(!cfg["check_passability"].to_bool(true)) pass_check = NULL;
+				if(!cfg["check_passability"].to_bool(true)) pass_check = nullptr;
 				const map_location cfg_loc = cfg_to_loc(cfg);
 
 				/// @todo fendrin: comment this monster
-				BOOST_FOREACH(unit_map::const_unit_iterator leader, leaders) {
+				for (unit_map::const_unit_iterator leader : leaders) {
 					DBG_NG << "...considering " + leader->id() + " as the recalling leader...\n";
 					map_location loc = cfg_loc;
 					if ( lfilt(*leader)  &&
@@ -931,7 +473,7 @@ WML_HANDLER_FUNCTION(recall, /*event_info*/, cfg)
 						if(resources::gameboard->map().on_board(loc)) {
 							DBG_NG << "...valid location for the recall found. Recalling.\n";
 							avail.erase(u);	// Erase before recruiting, since recruiting can fire more events
-							actions::place_recruit(*to_recruit, loc, leader->get_location(), 0, true,
+							actions::place_recruit(to_recruit, loc, leader->get_location(), 0, true,
 							                       cfg["show"].to_bool(true), cfg["fire_event"].to_bool(false),
 							                       true, true);
 							return;
@@ -947,7 +489,7 @@ WML_HANDLER_FUNCTION(recall, /*event_info*/, cfg)
 						DBG_NG << "No usable leader found, but found usable location. Recalling.\n";
 						avail.erase(u);	// Erase before recruiting, since recruiting can fire more events
 						map_location null_location = map_location::null_location();
-						actions::place_recruit(*to_recruit, loc, null_location, 0, true, cfg["show"].to_bool(true),
+						actions::place_recruit(to_recruit, loc, null_location, 0, true, cfg["show"].to_bool(true),
 						                       cfg["fire_event"].to_bool(false), true, true);
 						return;
 					}
@@ -958,14 +500,49 @@ WML_HANDLER_FUNCTION(recall, /*event_info*/, cfg)
 	LOG_WML << "A [recall] tag with the following content failed:\n" << cfg.get_config().debug();
 }
 
-WML_HANDLER_FUNCTION(remove_sound_source, /*event_info*/, cfg)
-{
-	resources::soundsources->remove(cfg["id"]);
+namespace {
+	struct map_choice : public mp_sync::user_choice
+	{
+		map_choice(const std::string& filename) : filename_(filename) {}
+		std::string filename_;
+		virtual config query_user(int /*side*/) const
+		{
+			//Do a regex check for the file format to prevent sending aribitary files to other clients.
+			//Note: this allows only the new format.
+			static const std::string s_simple_terrain = "[A-Za-z\\\\\\|\\/]{1,4}";
+			static const std::string s_terrain = s_simple_terrain + "(\\^" + s_simple_terrain + ")?";
+			static const std::string s_sep = "(, |\\n)";
+			static const std::string s_prefix = "(\\d+ )?";
+			static const std::string s_all = "(" + s_prefix + s_terrain + s_sep + ")+";
+			static const boost::regex r_all(s_all);
+
+			const std::string& mapfile = filesystem::get_wml_location(filename_);
+			std::string res = "";
+			if(filesystem::file_exists(mapfile)) {
+				res = filesystem::read_file(mapfile);
+			}
+			config retv;
+			if(boost::regex_match(res, r_all))
+			{
+				retv["map_data"] = res;
+			}
+			return retv;
+		}
+		virtual config random_choice(int /*side*/) const
+		{
+			return config();
+		}
+		virtual std::string description() const
+		{
+			return "Map Data";
+		}
+
+	};
 }
 
 /// Experimental map replace
 /// @todo Finish experimenting.
-WML_HANDLER_FUNCTION(replace_map, /*event_info*/, cfg)
+WML_HANDLER_FUNCTION(replace_map,, cfg)
 {
 	/*
 	 * When a hex changes from a village terrain to a non-village terrain, and
@@ -981,29 +558,33 @@ WML_HANDLER_FUNCTION(replace_map, /*event_info*/, cfg)
 	gamemap map(*game_map);
 
 	try {
-		if (cfg["map"].empty()) {
-			const vconfig& map_cfg = cfg.child("map");
-			map.read(map_cfg["data"], false, map_cfg["border_size"].to_int(), map_cfg["usage"].str());
+		if(!cfg["map_file"].empty()) {
+			config file_cfg = mp_sync::get_user_choice("map_data", map_choice(cfg["map_file"].str()));
+			map.read(file_cfg["map_data"].str(), false);
+		} else {
+			map.read(cfg["map"], false);
 		}
-		else map.read(cfg["map"], false);
 	} catch(incorrect_map_format_error&) {
-		lg::wml_error << "replace_map: Unable to load map " << cfg["map"] << std::endl;
+		const std::string log_map_name = cfg["map"].empty() ? cfg["file"] : std::string("from inline data");
+		lg::wml_error() << "replace_map: Unable to load map " << log_map_name << std::endl;
 		return;
 	} catch(twml_exception& e) {
-		e.show(*resources::screen);
+		e.show(resources::screen->video());
 		return;
 	}
+
 	if (map.total_width() > game_map->total_width()
 	|| map.total_height() > game_map->total_height()) {
 		if (!cfg["expand"].to_bool()) {
-			lg::wml_error << "replace_map: Map dimension(s) increase but expand is not set" << std::endl;
+			lg::wml_error() << "replace_map: Map dimension(s) increase but expand is not set" << std::endl;
 			return;
 		}
 	}
+
 	if (map.total_width() < game_map->total_width()
 	|| map.total_height() < game_map->total_height()) {
 		if (!cfg["shrink"].to_bool()) {
-			lg::wml_error << "replace_map: Map dimension(s) decrease but shrink is not set" << std::endl;
+			lg::wml_error() << "replace_map: Map dimension(s) decrease but shrink is not set" << std::endl;
 			return;
 		}
 	}
@@ -1011,7 +592,7 @@ WML_HANDLER_FUNCTION(replace_map, /*event_info*/, cfg)
 	boost::optional<std::string> errmsg = resources::gameboard->replace_map(map);
 
 	if (errmsg) {
-		lg::wml_error << *errmsg << std::endl;
+		lg::wml_error() << *errmsg << std::endl;
 	}
 
 	resources::screen->reload_map();
@@ -1019,20 +600,15 @@ WML_HANDLER_FUNCTION(replace_map, /*event_info*/, cfg)
 	ai::manager::raise_map_changed();
 }
 
-WML_HANDLER_FUNCTION(reset_fog, /*event_info*/, cfg)
-{
-	toggle_fog(false, cfg, cfg["reset_view"].to_bool(false));
-}
-
 /// Experimental data persistence
 /// @todo Finish experimenting.
-WML_HANDLER_FUNCTION(set_global_variable,/**/,pcfg)
+WML_HANDLER_FUNCTION(set_global_variable,,pcfg)
 {
 	if (!resources::controller->is_replay())
 		verify_and_set_global_variable(pcfg);
 }
 
-WML_HANDLER_FUNCTION(set_variable, /*event_info*/, cfg)
+WML_HANDLER_FUNCTION(set_variable,, cfg)
 {
 	game_data *gameinfo = resources::gamedata;
 	const std::string name = cfg["name"];
@@ -1252,7 +828,7 @@ WML_HANDLER_FUNCTION(set_variable, /*event_info*/, cfg)
 
 			variable_access_const vi = resources::gamedata->get_variable_access_read(array_name);
 			bool first = true;
-			BOOST_FOREACH(const config &cfg, vi.as_array())
+			for (const config &cfg : vi.as_array())
 			{
 				std::string current_string = cfg[key_name];
 				if (remove_empty && current_string.empty()) continue;
@@ -1270,7 +846,7 @@ WML_HANDLER_FUNCTION(set_variable, /*event_info*/, cfg)
 	}
 }
 
-WML_HANDLER_FUNCTION(set_variables, /*event_info*/, cfg)
+WML_HANDLER_FUNCTION(set_variables,, cfg)
 {
 	const t_string& name = cfg["name"];
 	variable_access_create dest = resources::gamedata->get_variable_access_write(name);
@@ -1279,18 +855,13 @@ WML_HANDLER_FUNCTION(set_variables, /*event_info*/, cfg)
 		return;
 	}
 
-
-	const vconfig::child_list values = cfg.get_children("value");
-	const vconfig::child_list literals = cfg.get_children("literal");
-	const vconfig::child_list split_elements = cfg.get_children("split");
-
 	std::vector<config> data;
 	if(cfg.has_attribute("to_variable"))
 	{
 		try
 		{
 			variable_access_const tovar = resources::gamedata->get_variable_access_read(cfg["to_variable"]);
-			BOOST_FOREACH(const config& c, tovar.as_array())
+			for (const config& c : tovar.as_array())
 			{
 				data.push_back(c);
 			}
@@ -1299,48 +870,47 @@ WML_HANDLER_FUNCTION(set_variables, /*event_info*/, cfg)
 		{
 			ERR_NG << "Cannot do [set_variables] with invalid to_variable variable: " << cfg["to_variable"] << " with " << cfg.get_config().debug() << std::endl;
 		}
-	} else if(!values.empty()) {
-		for(vconfig::child_list::const_iterator i=values.begin(); i!=values.end(); ++i)
-		{
-			data.push_back((*i).get_parsed_config());
-		}
-	} else if(!literals.empty()) {
-		for(vconfig::child_list::const_iterator i=literals.begin(); i!=literals.end(); ++i)
-		{
-			data.push_back(i->get_config());
-		}
-	} else if(!split_elements.empty()) {
-		const vconfig & split_element = split_elements.front();
+	} else {
+		typedef std::pair<std::string, vconfig> vchild;
+		for (const vchild& p : cfg.all_ordered()) {
+			if(p.first == "value") {
+				data.push_back(p.second.get_parsed_config());
+			} else if(p.first == "literal") {
+				data.push_back(p.second.get_config());
+			} else if(p.first == "split") {
+				const vconfig & split_element = p.second;
 
-		std::string split_string=split_element["list"];
-		std::string separator_string=split_element["separator"];
-		std::string key_name=split_element["key"];
-		if(key_name.empty())
-		{
-			key_name="value";
-		}
+				std::string split_string=split_element["list"];
+				std::string separator_string=split_element["separator"];
+				std::string key_name=split_element["key"];
+				if(key_name.empty())
+				{
+					key_name="value";
+				}
 
-		bool remove_empty = split_element["remove_empty"].to_bool();
+				bool remove_empty = split_element["remove_empty"].to_bool();
 
-		char* separator = separator_string.empty() ? NULL : &separator_string[0];
+				char* separator = separator_string.empty() ? nullptr : &separator_string[0];
 
-		std::vector<std::string> split_vector;
+				std::vector<std::string> split_vector;
 
-		//if no separator is specified, explode the string
-		if(separator == NULL)
-		{
-			for(std::string::iterator i=split_string.begin(); i!=split_string.end(); ++i)
-			{
-				split_vector.push_back(std::string(1, *i));
+				//if no separator is specified, explode the string
+				if(separator == nullptr)
+				{
+					for(std::string::iterator i=split_string.begin(); i!=split_string.end(); ++i)
+					{
+						split_vector.push_back(std::string(1, *i));
+					}
+				}
+				else {
+					split_vector=utils::split(split_string, *separator, remove_empty ? utils::REMOVE_EMPTY | utils::STRIP_SPACES : utils::STRIP_SPACES);
+				}
+
+				for(std::vector<std::string>::iterator i=split_vector.begin(); i!=split_vector.end(); ++i)
+				{
+					data.push_back(config_of(key_name, *i));
+				}
 			}
-		}
-		else {
-			split_vector=utils::split(split_string, *separator, remove_empty ? utils::REMOVE_EMPTY | utils::STRIP_SPACES : utils::STRIP_SPACES);
-		}
-
-		for(std::vector<std::string>::iterator i=split_vector.begin(); i!=split_vector.end(); ++i)
-		{
-			data.push_back(config_of(key_name, *i));
 		}
 	}
 	try
@@ -1352,7 +922,7 @@ WML_HANDLER_FUNCTION(set_variables, /*event_info*/, cfg)
 			{
 				//merge children into one
 				config merged_children;
-				BOOST_FOREACH(const config &cfg, data) {
+				for (const config &cfg : data) {
 					merged_children.append(cfg);
 				}
 				data = boost::assign::list_of(merged_children).convert_to_container<std::vector<config> >();
@@ -1378,23 +948,10 @@ WML_HANDLER_FUNCTION(set_variables, /*event_info*/, cfg)
 	}
 }
 
-WML_HANDLER_FUNCTION(sound_source, /*event_info*/, cfg)
-{
-	config parsed = cfg.get_parsed_config();
-	try {
-		soundsource::sourcespec spec(parsed);
-		resources::soundsources->add(spec);
-	} catch (bad_lexical_cast &) {
-		ERR_NG << "Error when parsing sound_source config: bad lexical cast." << std::endl;
-		ERR_NG << "sound_source config was: " << parsed.debug() << std::endl;
-		ERR_NG << "Skipping this sound source..." << std::endl;
-	}
-}
-
 /// Store the relative direction from one hex to another in a WML variable.
 /// This is mainly useful as a diagnostic tool, but could be useful
 /// for some kind of scenario.
-WML_HANDLER_FUNCTION(store_relative_direction, /*event_info*/, cfg)
+WML_HANDLER_FUNCTION(store_relative_direction,, cfg)
 {
 	if (!cfg.child("source")) {
 		WRN_NG << "No source in [store_relative_direction]" << std::endl;
@@ -1430,7 +987,7 @@ WML_HANDLER_FUNCTION(store_relative_direction, /*event_info*/, cfg)
 /// In increments of 60 degrees, clockwise.
 /// This is mainly useful as a diagnostic tool, but could be useful
 /// for some kind of scenario.
-WML_HANDLER_FUNCTION(store_rotate_map_location, /*event_info*/, cfg)
+WML_HANDLER_FUNCTION(store_rotate_map_location,, cfg)
 {
 	if (!cfg.child("source")) {
 		WRN_NG << "No source in [store_rotate_map_location]" << std::endl;
@@ -1467,7 +1024,7 @@ WML_HANDLER_FUNCTION(store_rotate_map_location, /*event_info*/, cfg)
 /// Store time of day config in a WML variable. This is useful for those who
 /// are too lazy to calculate the corresponding time of day for a given turn,
 /// or if the turn / time-of-day sequence mutates in a scenario.
-WML_HANDLER_FUNCTION(store_time_of_day, /*event_info*/, cfg)
+WML_HANDLER_FUNCTION(store_time_of_day,, cfg)
 {
 	const map_location loc = cfg_to_loc(cfg);
 	int turn = cfg["turn"];
@@ -1489,107 +1046,44 @@ WML_HANDLER_FUNCTION(store_time_of_day, /*event_info*/, cfg)
 	}
 }
 
-WML_HANDLER_FUNCTION(teleport, event_info, cfg)
-{
-	unit_map::iterator u = resources::units->find(event_info.loc1);
-
-	// Search for a valid unit filter, and if we have one, look for the matching unit
-	const vconfig & filter = cfg.child("filter");
-	if(!filter.null()) {
-		const unit_filter ufilt(filter, resources::filter_con);
-		for (u = resources::units->begin(); u != resources::units->end(); ++u){
-			if ( ufilt(*u) )
-				break;
-		}
-	}
-
-	if (u == resources::units->end()) return;
-
-	// We have found a unit that matches the filter
-	const map_location dst = cfg_to_loc(cfg);
-	if (dst == u->get_location() || !resources::gameboard->map().on_board(dst)) return;
-
-	const unit* pass_check = NULL;
-	if (cfg["check_passability"].to_bool(true))
-		pass_check = &*u;
-	const map_location vacant_dst = find_vacant_tile(dst, pathfind::VACANT_ANY, pass_check);
-	if (!resources::gameboard->map().on_board(vacant_dst)) return;
-
-	// Clear the destination hex before the move (so the animation can be seen).
-	bool clear_shroud = cfg["clear_shroud"].to_bool(true);
-	actions::shroud_clearer clearer;
-	if ( clear_shroud ) {
-		clearer.clear_dest(vacant_dst, *u);
-	}
-
-	map_location src_loc = u->get_location();
-
-	std::vector<map_location> teleport_path;
-	teleport_path.push_back(src_loc);
-	teleport_path.push_back(vacant_dst);
-	bool animate = cfg["animate"].to_bool();
-	unit_display::move_unit(teleport_path, u.get_shared_ptr(), animate);
-
-	resources::units->move(src_loc, vacant_dst);
-	unit::clear_status_caches();
-
-	u = resources::units->find(vacant_dst);
-	u->anim_comp().set_standing();
-
-	if ( clear_shroud ) {
-		// Now that the unit is visibly in position, clear the shroud.
-		clearer.clear_unit(vacant_dst, *u);
-	}
-
-	if (resources::gameboard->map().is_village(vacant_dst)) {
-		actions::get_village(vacant_dst, u->side());
-	}
-
-	resources::screen->invalidate_unit_after_move(src_loc, vacant_dst);
-	resources::screen->draw();
-
-	// Sighted events.
-	clearer.fire_events();
-}
-
 /// Creating a mask of the terrain
-WML_HANDLER_FUNCTION(terrain_mask, /*event_info*/, cfg)
+WML_HANDLER_FUNCTION(terrain_mask,, cfg)
 {
 	map_location loc = cfg_to_loc(cfg, 1, 1);
 
 	gamemap mask_map(resources::gameboard->map());
 
-	//config level;
-	std::string mask = cfg["mask"];
-	std::string usage = "mask";
-	int border_size = 0;
-
-	if (mask.empty()) {
-		usage = cfg["usage"].str();
-		border_size = cfg["border_size"];
-		mask = cfg["data"].str();
-	}
+	bool border = cfg["border"].to_bool(true);
 
 	try {
-		mask_map.read(mask, false, border_size, usage);
+		if(!cfg["mask_file"].empty()) {
+			const std::string& maskfile = filesystem::get_wml_location(cfg["mask_file"].str());
+
+			if(filesystem::file_exists(maskfile)) {
+				mask_map.read(filesystem::read_file(maskfile), false, border);
+			} else {
+				throw incorrect_map_format_error("Invalid file path");
+			}
+		} else {
+			mask_map.read(cfg["mask"], false, border);
+		}
 	} catch(incorrect_map_format_error&) {
 		ERR_NG << "terrain mask is in the incorrect format, and couldn't be applied" << std::endl;
 		return;
 	} catch(twml_exception& e) {
-		e.show(*resources::screen);
+		e.show(resources::screen->video());
 		return;
 	}
-	bool border = cfg["border"].to_bool();
 	resources::gameboard->overlay_map(mask_map, cfg.get_parsed_config(), loc, border);
 	resources::screen->needs_rebuild(true);
 }
 
-WML_HANDLER_FUNCTION(tunnel, /*event_info*/, cfg)
+WML_HANDLER_FUNCTION(tunnel,, cfg)
 {
 	const bool remove = cfg["remove"].to_bool(false);
 	if (remove) {
 		const std::vector<std::string> ids = utils::split(cfg["id"]);
-		BOOST_FOREACH(const std::string &id, ids) {
+		for (const std::string &id : ids) {
 			resources::tunnels->remove(id);
 		}
 	} else if (cfg.get_children("source").empty() ||
@@ -1609,7 +1103,7 @@ WML_HANDLER_FUNCTION(tunnel, /*event_info*/, cfg)
 }
 
 /// If we should spawn a new unit on the map somewhere
-WML_HANDLER_FUNCTION(unit, /*event_info*/, cfg)
+WML_HANDLER_FUNCTION(unit,, cfg)
 {
 	config parsed_cfg = cfg.get_parsed_config();
 
@@ -1658,105 +1152,7 @@ WML_HANDLER_FUNCTION(unit, /*event_info*/, cfg)
 
 }
 
-/// Unit serialization from variables
-WML_HANDLER_FUNCTION(unstore_unit, /*event_info*/, cfg)
-{
-	try {
-		const config &var = resources::gamedata->get_variable_cfg(cfg["variable"]);
-
-		config tmp_cfg(var);
-		const unit_ptr u = unit_ptr( new unit(tmp_cfg, false));
-
-		preferences::encountered_units().insert(u->type_id());
-		map_location loc = cfg_to_loc(
-			(cfg.has_attribute("x") && cfg.has_attribute("y")) ? cfg : vconfig(var));
-		const bool advance = cfg["advance"].to_bool(true);
-		if(resources::gameboard->map().on_board(loc)) {
-			if (cfg["find_vacant"].to_bool()) {
-				const unit* pass_check = NULL;
-				if (cfg["check_passability"].to_bool(true)) pass_check = u.get();
-				loc = pathfind::find_vacant_tile(
-						loc,
-						pathfind::VACANT_ANY,
-						pass_check);
-			}
-
-			resources::units->erase(loc);
-			resources::units->add(loc, *u);
-
-			std::string text = cfg["text"];
-			play_controller *controller = resources::controller;
-			if(!text.empty() && !controller->is_skipping_replay())
-			{
-				// Print floating label
-				resources::screen->float_label(loc, text, cfg["red"], cfg["green"], cfg["blue"]);
-			}
-			if(advance) {
-				advance_unit_at(advance_unit_params(loc)
-					.fire_events(cfg["fire_event"].to_bool(false))
-					.animate(cfg["animate"].to_bool(true)));
-			}
-		} else {
-			if(advance && u->advances()) {
-				WRN_NG << "Cannot advance units when unstoring to the recall list." << std::endl;
-			}
-
-			team& t = (*resources::teams)[u->side()-1];
-
-				// Test whether the recall list has duplicates if so warn.
-				// This might be removed at some point but the uniqueness of
-				// the description is needed to avoid the recall duplication
-				// bugs. Duplicates here might cause the wrong unit being
-				// replaced by the wrong unit.
-				if(t.recall_list().size() > 1) {
-					std::vector<size_t> desciptions;
-					BOOST_FOREACH ( const unit_const_ptr & pt, t.recall_list() ) {
-
-						const size_t desciption =
-							pt->underlying_id();
-						if(std::find(desciptions.begin(), desciptions.end(),
-									desciption) != desciptions.end()) {
-
-							lg::wml_error << "Recall list has duplicate unit "
-								"underlying_ids '" << desciption
-								<< "' unstore_unit may not work as expected.\n";
-						} else {
-							desciptions.push_back(desciption);
-						}
-					}
-				}
-
-				// Avoid duplicates in the list.
-				/**
-				 * @todo it would be better to change recall_list() from
-				 * a vector to a map and use the underlying_id as key.
-				 */
-				size_t old_size = t.recall_list().size();
-				t.recall_list().erase_by_underlying_id(u->underlying_id());
-				if (t.recall_list().size() != old_size) {
-					LOG_NG << "Replaced unit '"
-						<< u->underlying_id() << "' on the recall list\n";
-				}
-				t.recall_list().add(u);
-		}
-
-		// If we unstore a leader make sure the team gets a leader if not the loading
-		// in MP might abort since a side without a leader has a recall list.
-		if(u->can_recruit()) {
-			(*resources::teams)[u->side() - 1].have_leader();
-		}
-
-	}
-	catch (const invalid_variablename_exception&)
-	{
-		ERR_NG << "invlid variable name in unstore_unit" << std::endl;
-	}
-	catch (game::game_error &e) {
-		ERR_NG << "could not de-serialize unit: '" << e.message << "'" << std::endl;
-	}
-}
-
-WML_HANDLER_FUNCTION(volume, /*event_info*/, cfg)
+WML_HANDLER_FUNCTION(volume,, cfg)
 {
 
 	int vol;
@@ -1784,9 +1180,22 @@ WML_HANDLER_FUNCTION(volume, /*event_info*/, cfg)
 
 }
 
-WML_HANDLER_FUNCTION(wml_message, /*event_info*/, cfg)
+WML_HANDLER_FUNCTION(on_undo, event_info, cfg)
 {
-	handle_wml_log_message( cfg.get_parsed_config() );
+	if(cfg["delayed_variable_substitution"].to_bool(false)) {
+		synced_context::add_undo_commands(cfg.get_config(), event_info);
+	} else {
+		synced_context::add_undo_commands(cfg.get_parsed_config(), event_info);
+	}
+}
+
+WML_HANDLER_FUNCTION(on_redo, event_info, cfg)
+{
+	if(cfg["delayed_variable_substitution"].to_bool(false)) {
+		synced_context::add_redo_commands(cfg.get_config(), event_info);
+	} else {
+		synced_context::add_redo_commands(cfg.get_parsed_config(), event_info);
+	}
 }
 
 } // end namespace game_events

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2008 - 2015 by Pauli Nieminen <paniemin@cc.hut.fi>
+   Copyright (C) 2008 - 2016 by Pauli Nieminen <paniemin@cc.hut.fi>
    Part of thie Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -19,7 +19,6 @@
 
 #include "config.hpp"
 #include "config_cache.hpp"
-#include "display.hpp"
 #include "filesystem.hpp"
 #include "font.hpp"
 #include "game_config.hpp"
@@ -28,7 +27,7 @@
 #include "hotkey/hotkey_command.hpp"
 #include "hotkey/hotkey_item.hpp"
 #include "language.hpp"
-#include "unit_types.hpp"
+#include "units/types.hpp"
 
 #include "gui/widgets/helper.hpp"
 

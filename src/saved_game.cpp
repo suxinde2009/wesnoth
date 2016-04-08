@@ -1,3 +1,16 @@
+/*
+   Copyright (C) 2003 - 2016 by the Battle for Wesnoth Project http://www.wesnoth.org/
+
+   This program is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 2 of the License, or
+   (at your option) any later version.
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY.
+
+   See the COPYING file for more details.
+*/
+
 /**
 	Some information about savefiles:
 	A saveile can contain:
@@ -44,11 +57,12 @@
 #include "statistics.hpp"
 #include "serialization/binary_or_text.hpp"
 #include "util.hpp"
+#include "variable_info.hpp"
+#include "formula/string_utils.hpp"
+#include "config.hpp" //Also for variable_set
 
-#include <boost/assign/list_of.hpp>
 #include <boost/range/adaptors.hpp>
 #include <boost/range/algorithm/copy.hpp>
-#include <boost/foreach.hpp>
 #include <cassert>
 
 static lg::log_domain log_engine("engine");
@@ -152,19 +166,30 @@ void saved_game::write_general_info(config_writer& out) const
 
 void saved_game::set_defaults()
 {
-	static const std::vector<std::string> team_defaults = boost::assign::list_of
-		("carryover_percentage")
-		("carryover_add")
-	;
-	BOOST_FOREACH(config& side, starting_pos_.child_range("side"))
+	const bool is_loaded_game = this->starting_pos_type_ != STARTINGPOS_SCENARIO;
+	const bool is_multiplayer_tag = classification().get_tagname() == "multiplayer";
+	static const std::vector<std::string> team_defaults = {
+		"carryover_percentage",
+		"carryover_add",
+	};
+	for(config& side : starting_pos_.child_range("side"))
 	{
 		// Set save_id default value directly after loading to its default to prevent different default behaviour in mp_connect code and sp code.
 		if(side["save_id"].empty())
 		{
 			side["save_id"] = side["id"];
 		}
+		if(!is_multiplayer_tag && side["side_name"].blank())
+		{
+			side["side_name"] = side["name"];
+		}
+		if(!is_loaded_game && !side["current_player"].empty())
+		{
+			ERR_NG << "Removed invalid 'current_player' attribute from [side] while loading a scenario. Consider using 'side_name' instead\n";
+			side["current_player"] = config::attribute_value();
+		}
 		// Set some team specific values to their defaults specified in scenario
-		BOOST_FOREACH(const std::string& att_name, team_defaults)
+		for(const std::string& att_name : team_defaults)
 		{
 			const config::attribute_value* scenario_value = starting_pos_.get(att_name);
 			config::attribute_value& team_value = side[att_name];
@@ -205,26 +230,91 @@ void saved_game::expand_scenario()
 		}
 	}
 }
-
-//helper objects for saved_game::expand_mp_events()
-struct modevents_entry
+namespace
 {
-	modevents_entry(const std::string& _type, const std::string& _id) : type(_type), id(_id) {}
-	std::string type;
-	std::string id;
-};
-struct modevents_entry_for
-{
-	//this typedef is used by boost.
-    typedef modevents_entry result_type;
-	modevents_entry_for(const std::string& type ) : type_(type) {}
-	modevents_entry operator()(const std::string& id) const
+	struct config_variable_set : public variable_set
 	{
-		return modevents_entry(type_, id);
+		const config& cfg_;
+		config_variable_set(const config& cfg) : cfg_(cfg) {}
+		virtual config::attribute_value get_variable_const(const std::string &id) const
+		{
+			try
+			{
+				variable_access_const variable(id, cfg_);
+				return variable.as_scalar();
+			}
+			catch(const invalid_variablename_exception&)
+			{
+				ERR_NG << "invalid variablename " << id << "\n";
+				return config::attribute_value();
+			}
+		};
+	};
+
+	bool variable_to_bool(const config& vars, const std::string& expression)
+	{
+		std::string res = utils::interpolate_variables_into_string(expression, config_variable_set(vars));
+		return res == "true" || res == "yes" || res == "1";
 	}
-private:
-	std::string type_;
-};
+
+	//helper objects for saved_game::expand_mp_events()
+	struct modevents_entry
+	{
+		modevents_entry(const std::string& _type, const std::string& _id) : type(_type), id(_id) {}
+		std::string type;
+		std::string id;
+	};
+	struct modevents_entry_for
+	{
+		//this typedef is used by boost.
+		typedef modevents_entry result_type;
+		modevents_entry_for(const std::string& type ) : type_(type) {}
+		modevents_entry operator()(const std::string& id) const
+		{
+			return modevents_entry(type_, id);
+		}
+	private:
+		std::string type_;
+	};
+}
+
+void saved_game::load_mod(const std::string& type, const std::string& id)
+{
+	if(const config& cfg = game_config_manager::get()->
+		game_config().find_child(type, "id", id))
+	{
+		// Note the addon_id if this mod is required to play the game in mp
+		std::string require_attr = "require_" + type;
+		bool require_default = (type == "era"); // By default, eras have "require_era = true", and mods have "require_modification = false"
+		if (!cfg["addon_id"].empty() && cfg[require_attr].to_bool(require_default)) {
+			mp_settings_.update_addon_requirements(config_of("id",cfg["addon_id"])("version", cfg["addon_version"])("min_version", cfg["addon_min_version"]));
+		}
+
+		// Copy events
+		for(const config& modevent : cfg.child_range("event"))
+		{
+			if(modevent["enable_if"].empty() || variable_to_bool(carryover_.child_or_empty("variables"), modevent["enable_if"]))
+			{
+				this->starting_pos_.add_child("event", modevent);
+			}
+		}
+		// Copy lua
+		for(const config& modlua : cfg.child_range("lua"))
+		{
+			this->starting_pos_.add_child("lua", modlua);
+		}
+		// Copy load_resource
+		for(const config& load_resource : cfg.child_range("load_resource"))
+		{
+			this->starting_pos_.add_child("load_resource", load_resource);
+		}
+	}
+	else
+	{
+		//TODO: A user message instead?
+		ERR_NG << "Couldn't find [" << type<< "] with id=" << id <<std::endl;
+	}
+}
 
 // Gets the ids of the mp_era and modifications which were set to be active, then fetches these configs from the game_config and copies their [event] and [lua] to the starting_pos_.
 // At this time, also collect the addon_id attributes which appeared in them and put this list in the addon_ids attribute of the mp_settings.
@@ -234,43 +324,31 @@ void saved_game::expand_mp_events()
 	if(this->starting_pos_type_ == STARTINGPOS_SCENARIO && !this->starting_pos_["has_mod_events"].to_bool(false))
 	{
 		std::vector<modevents_entry> mods;
-
+		std::set<std::string> loaded_resources;
 		boost::copy( mp_settings_.active_mods
 			| boost::adaptors::transformed(modevents_entry_for("modification"))
 			, std::back_inserter(mods) );
 		if(mp_settings_.mp_era != "") //We don't want the error message below if there is no era (= if this is a sp game)
 		{ mods.push_back(modevents_entry("era", mp_settings_.mp_era)); }
+		if(classification_.campaign != "")
+		{ mods.push_back(modevents_entry("campaign", classification_.campaign)); }
 
-		BOOST_FOREACH(modevents_entry& mod, mods)
-		{
-			if(const config& cfg = game_config_manager::get()->
-				game_config().find_child(mod.type, "id", mod.id))
+		// In the first iteration mod contains no [resource]s in all other iterations, mods contains only [resource]s
+		do {
+			for(modevents_entry& mod : mods)
 			{
-				// Note the addon_id if this mod is required to play the game in mp
-				std::string require_attr = "require_" + mod.type;
-				bool require_default = (mod.type == "era"); // By default, eras have "require_era = true", and mods have "require_modification = false"
-				if (!cfg["addon_id"].empty() && cfg[require_attr].to_bool(require_default)) {
-					mp_settings_.update_addon_requirements(config_of("id",cfg["addon_id"])("version", cfg["addon_version"])("min_version", cfg["addon_min_version"]));
-				}
-
-				// Copy events
-				BOOST_FOREACH(const config& modevent, cfg.child_range("event"))
-				{
-					this->starting_pos_.add_child("event", modevent);
-				}
-				// Copy lua
-				BOOST_FOREACH(const config& modlua, cfg.child_range("lua"))
-				{
-					this->starting_pos_.add_child("lua", modlua);
+				load_mod(mod.type, mod.id);
+			}
+			mods.clear();
+			for(const config& cfg : starting_pos_.child_range("load_resource"))
+			{
+				if(loaded_resources.find(cfg["id"].str()) == loaded_resources.end()) {
+					mods.push_back(modevents_entry("resource", cfg["id"].str()));
+					loaded_resources.insert(cfg["id"].str());
 				}
 			}
-			else
-			{
-				//TODO: A user message instead?
-				ERR_NG << "Couldn't find [" << mod.type<< "] with id=" << mod.id <<std::endl;
-			}
-		}
-
+			starting_pos_.clear_children("load_resource");
+		} while(!mods.empty());
 		this->starting_pos_["has_mod_events"] = true;
 	}
 }
@@ -289,11 +367,11 @@ void saved_game::expand_mp_options()
 		mods.push_back(modevents_entry("campaign", classification().campaign));
 
 		config& variables = carryover_.child_or_add("variables");
-		BOOST_FOREACH(modevents_entry& mod, mods)
+		for(modevents_entry& mod : mods)
 		{
 			if(const config& cfg = this->mp_settings().options.find_child(mod.type, "id", mod.id))
 			{
-				BOOST_FOREACH(const config& option, cfg.child_range("option"))
+				for(const config& option : cfg.child_range("option"))
 				{
 					variables[option["id"]] = option["value"];
 				}
@@ -320,19 +398,21 @@ void saved_game::expand_random_scenario()
 			config scenario_new = random_generate_scenario(starting_pos_["scenario_generation"],
 				starting_pos_.child("generator"));
 			//Preserve "story" form the scenario toplevel.
-			BOOST_FOREACH(config& story, starting_pos_.child_range("story"))
+			for(config& story : starting_pos_.child_range("story"))
 			{
 				scenario_new.add_child("story", story);
 			}
-			scenario_new["id"] = starting_pos_["id"]; 
+			scenario_new["id"] = starting_pos_["id"];
 			starting_pos_ = scenario_new;
 			update_label();
 			set_defaults();
 		}
-		//it looks like we support a map= where map=filename equals more or less map_data={filename}
-		if(starting_pos_["map_data"].empty() && !starting_pos_["map"].empty()) {
-			starting_pos_["map_data"] = filesystem::read_map(starting_pos_["map"]);
+
+		// If no map_data is provided, try to load the specified file directly
+		if(starting_pos_["map_data"].empty() && !starting_pos_["map_file"].empty()) {
+			starting_pos_["map_data"] = filesystem::read_map(starting_pos_["map_file"]);
 		}
+
 		// If the map should be randomly generated
 		// We don’t want that we accidentally to this twice so we check for starting_pos_["map_data"].empty()
 		if(starting_pos_["map_data"].empty() && !starting_pos_["map_generation"].empty()) {
@@ -353,7 +433,7 @@ void saved_game::expand_carryover()
 		carryover_info sides(carryover_);
 
 		sides.transfer_to(get_starting_pos());
-		BOOST_FOREACH(config& side_cfg, get_starting_pos().child_range("side"))
+		for(config& side_cfg : get_starting_pos().child_range("side"))
 		{
 			sides.transfer_all_to(side_cfg);
 		}
@@ -436,7 +516,7 @@ config saved_game::to_config() const
 		r.add_child("replay_start", replay_start_);
 	}
 	replay_data_.write(r.add_child("replay"));
-	
+
 	if(starting_pos_type_ == STARTINGPOS_SNAPSHOT)
 	{
 		r.add_child("snapshot", starting_pos_);
@@ -486,13 +566,13 @@ void saved_game::update_label()
 
 void saved_game::cancel_orders()
 {
-	BOOST_FOREACH(config &side, this->starting_pos_.child_range("side"))
+	for(config &side : this->starting_pos_.child_range("side"))
 	{
 		// for humans "goto_x/y" is used for multi-turn-moves
 		// for the ai "goto_x/y" is a way for wml to order the ai to move a unit to a certain place.
 		// we want to cancel human order but not to break wml.
 		if (side["controller"] != "human" && side["controller"] != "network") continue;
-		BOOST_FOREACH(config &unit, side.child_range("unit"))
+		for(config &unit : side.child_range("unit"))
 		{
 			unit["goto_x"] = -999;
 			unit["goto_y"] = -999;
@@ -502,7 +582,7 @@ void saved_game::cancel_orders()
 
 void saved_game::unify_controllers()
 {
-	BOOST_FOREACH(config &side, this->starting_pos_.child_range("side"))
+	for(config &side : this->starting_pos_.child_range("side"))
 	{
 		if (side["controller"] == "network")
 			side["controller"] = "human";
@@ -559,7 +639,7 @@ void saved_game::set_data(config& cfg)
 	}
 	replay_data_ = replay_recorder_base();
 	//Serversided replays can contain multiple [replay]
-	BOOST_FOREACH(config& replay, cfg.child_range("replay"))
+	for(config& replay : cfg.child_range("replay"))
 	{
 		replay_data_.append_config(replay);
 	}
@@ -586,7 +666,7 @@ void saved_game::set_data(config& cfg)
 		statistics::fresh_stats();
 		statistics::read_stats(stats);
 	}
-	
+
 	classification_ = game_classification(cfg);
 	mp_settings_ = mp_game_settings(cfg.child_or_empty("multiplayer"));
 	cfg.clear();

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2014 - 2015 by Chris Beck <render787@gmail.com>
+   Copyright (C) 2014 - 2016 by Chris Beck <render787@gmail.com>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -16,9 +16,9 @@
 
 #include "gui/dialogs/lua_interpreter.hpp"
 
-#include "gui/auxiliary/find_widget.tpp"
-#include "gui/auxiliary/window_builder.hpp"
-#include "gui/dialogs/field.hpp"
+#include "gui/auxiliary/field.hpp"
+#include "gui/auxiliary/find_widget.hpp"
+#include "gui/core/window_builder.hpp"
 #include "gui/dialogs/helper.hpp"
 #include "gui/widgets/button.hpp"
 #include "gui/widgets/label.hpp"
@@ -42,7 +42,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
-#include <boost/bind.hpp>
+#include "utils/functional.hpp"
 #include <boost/scoped_ptr.hpp>
 
 #ifdef HAVE_HISTORY
@@ -81,7 +81,7 @@ private:
 	tscroll_label* msg_label; //the view is extremely simple, it's pretty much just this one widget that gets updated
 
 public:
-	view() : msg_label(NULL) {}
+	view() : msg_label(nullptr) {}
 
 	/** Bind the scroll label widget to my pointer, and configure */
 	void bind(twindow& window) {
@@ -133,6 +133,7 @@ public:
 		DBG_LUA << "constructing a tlua_interpreter::model\n";
 		//DBG_LUA << "incoming:\n" << lk.get_log().rdbuf() << "\n.\n";
 		log_ << lk.get_log().str() << std::flush;
+		//FIXME: we should escapte th input that we get from L_ with escape_text
 		L_.set_external_log(&log_); //register our log to get commands and output from the lua interpreter
 		//DBG_LUA << "recieved:\n" << log_.str() << "\n.\n";
 
@@ -142,7 +143,7 @@ public:
 	~lua_model()
 	{
 		DBG_LUA << "destroying a tlua_interpreter::model\n";
-		L_.set_external_log(NULL); //deregister our log since it's about to be destroyed
+		L_.set_external_log(nullptr); //deregister our log since it's about to be destroyed
 	}
 
 	/** Ask the lua kernel to execute a command. No throw of game::lua_error, instead the error message is formatted and printed to console.*/
@@ -219,7 +220,7 @@ public:
 
 	void maybe_update_prefix (const std::string & text) {
 		LOG_LUA << "maybe update prefix\n";
-		LOG_LUA << "prefix_: '"<< prefix_ << "'\t text='"<< text << "'\n";   
+		LOG_LUA << "prefix_: '"<< prefix_ << "'\t text='"<< text << "'\n";
 
 		if (!end_of_history_) return;
 
@@ -231,7 +232,7 @@ public:
 #ifdef HAVE_HISTORY
 		LOG_LUA << "searching in direction " << direction << " from position " << where_history() << "\n";
 
-		HIST_ENTRY * e = NULL;
+		HIST_ENTRY * e = nullptr;
 		if (end_of_history_) {
 			// if the direction is > 0, do nothing because searching down only takes place when we are in the history records.
 			if (direction < 0) {
@@ -253,7 +254,7 @@ public:
 				if (result == 0) {
 					e = current_history();
 				} else {
-					e = NULL;		// if the search misses, it leaves the state as it was, which might not have been on an entry matching prefix.
+					e = nullptr;		// if the search misses, it leaves the state as it was, which might not have been on an entry matching prefix.
 					end_of_history_ = true;	// we actually want to force it to be null and treat as off the end of history in this case.
 				}
 			}
@@ -320,7 +321,7 @@ public:
 #ifdef HAVE_HISTORY
 		// Do history expansions
 		char * cmd_cstr = new char [cmd.length()+1];
-		std::strcpy (cmd_cstr, cmd.c_str());
+		strcpy (cmd_cstr, cmd.c_str());
 
 		char * expansion;
 
@@ -363,8 +364,8 @@ private:
 	void search(int direction);
 public:
 	controller(lua_kernel_base & lk)
-		: copy_button(NULL)
-		, text_entry(NULL)
+		: copy_button(nullptr)
+		, text_entry(nullptr)
 		, text_entry_()
 		, lua_model_(new tlua_interpreter::lua_model(lk))
 		, input_model_(new tlua_interpreter::input_model())
@@ -432,27 +433,27 @@ void tlua_interpreter::controller::bind(twindow& window)
 
 	text_entry = &find_widget<ttext_box>(&window, "text_entry", false);
 	//text_entry->set_text_changed_callback(
-	//		boost::bind(&view::filter, this, boost::ref(window)));
+	//		std::bind(&view::filter, this, std::ref(window)));
 	window.keyboard_capture(text_entry);
 	window.set_click_dismiss(false);
 	window.set_enter_disabled(true);
 
 	connect_signal_pre_key_press(
 			*text_entry,
-			boost::bind(&tlua_interpreter::controller::input_keypress_callback,
+			std::bind(&tlua_interpreter::controller::input_keypress_callback,
 						this,
 						_3,
 						_4,
 						_5,
-						boost::ref(window)));
+						std::ref(window)));
 
 
 	copy_button = &find_widget<tbutton>(&window, "copy", false);
 	connect_signal_mouse_left_click(
 			*copy_button,
-			boost::bind(&tlua_interpreter::controller::handle_copy_button_clicked,
+			std::bind(&tlua_interpreter::controller::handle_copy_button_clicked,
 						this,
-						boost::ref(window)));
+						std::ref(window)));
 
 	if (!desktop::clipboard::available()) {
 		copy_button->set_active(false);
@@ -659,7 +660,7 @@ twindow* tlua_interpreter::build_window(CVideo& video)
 }
 
 /** Bind the controller, initialize one of the static labels with info about this kernel, and update the view. */
-void tlua_interpreter::pre_show(CVideo& /*video*/, twindow& window)
+void tlua_interpreter::pre_show(twindow& window)
 {
 	LOG_LUA << "Entering tlua_interpreter::view::pre_show" << std::endl;
 	register_text("text_entry", false, controller_->text_entry_, true);

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: wescamp-i 18n\n"
 "Report-Msgid-Bugs-To: http://bugs.wesnoth.org/\n"
-"POT-Creation-Date: 2015-06-27 20:18-0300\n"
+"POT-Creation-Date: 2016-03-01 19:50-0300\n"
 "PO-Revision-Date: 2006-12-22 21:33+0100\n"
 "Last-Translator: YbeRn00b <asgeiraakre@gmail.com>\n"
 "Language-Team: none\n"
@@ -41,49 +41,49 @@ msgid "(Novice level, 9 scenarios.)"
 msgstr ""
 
 #. [campaign]: id=The_South_Guard
-#: data/campaigns/The_South_Guard/_main.cfg:22
-msgid "(Beginner)"
+#: data/campaigns/The_South_Guard/_main.cfg:21
+msgid "Beginner"
 msgstr ""
 
 #. [campaign]: id=The_South_Guard
-#: data/campaigns/The_South_Guard/_main.cfg:22
+#: data/campaigns/The_South_Guard/_main.cfg:21
 msgid "Civilian"
 msgstr "Silvilist"
 
 #. [campaign]: id=The_South_Guard
-#: data/campaigns/The_South_Guard/_main.cfg:23
+#: data/campaigns/The_South_Guard/_main.cfg:22
 #, fuzzy
-msgid "(Easy)"
+msgid "Easy"
 msgstr "(lett)"
 
 #. [campaign]: id=The_South_Guard
-#: data/campaigns/The_South_Guard/_main.cfg:23
+#: data/campaigns/The_South_Guard/_main.cfg:22
 msgid "Recruit"
 msgstr "Rekrutt"
 
 #. [campaign]: id=The_South_Guard
-#: data/campaigns/The_South_Guard/_main.cfg:24
+#: data/campaigns/The_South_Guard/_main.cfg:23
 #, fuzzy
-msgid "(Normal)"
+msgid "Normal"
 msgstr "(middels)"
 
 #. [campaign]: id=The_South_Guard
-#: data/campaigns/The_South_Guard/_main.cfg:24
+#: data/campaigns/The_South_Guard/_main.cfg:23
 msgid "Soldier"
 msgstr "Soldat"
 
 #. [about]
-#: data/campaigns/The_South_Guard/_main.cfg:29
+#: data/campaigns/The_South_Guard/_main.cfg:28
 msgid "Campaign Design"
 msgstr ""
 
 #. [about]
-#: data/campaigns/The_South_Guard/_main.cfg:35
+#: data/campaigns/The_South_Guard/_main.cfg:34
 msgid "Campaign Maintenance"
 msgstr ""
 
 #. [about]
-#: data/campaigns/The_South_Guard/_main.cfg:48
+#: data/campaigns/The_South_Guard/_main.cfg:47
 msgid "Artwork and Graphics Design"
 msgstr ""
 
@@ -124,8 +124,8 @@ msgstr "Deoran"
 #: data/campaigns/The_South_Guard/scenarios/06a_Tidings_Good_and_Ill.cfg:34
 #: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:35
 #: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:32
-#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:146
-#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:188
+#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:147
+#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:189
 #: data/campaigns/The_South_Guard/scenarios/07b_Pebbles_in_the_Flood.cfg:36
 #: data/campaigns/The_South_Guard/scenarios/08a_Return_to_Kerlath.cfg:66
 #: data/campaigns/The_South_Guard/scenarios/08a_Return_to_Kerlath.cfg:143
@@ -152,7 +152,7 @@ msgstr "Urza Mathin"
 #: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:62
 #: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:99
 #: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:62
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:70
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:71
 #: data/campaigns/The_South_Guard/scenarios/08a_Return_to_Kerlath.cfg:103
 msgid "Bandits"
 msgstr ""
@@ -169,25 +169,25 @@ msgstr "Undersøk elvefortet"
 
 #. [objective]: condition=win
 #: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:109
-#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:279
+#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:281
 msgid "Defeat Urza Mathin"
 msgstr "Beseire Urza Mathin"
 
 #. [objective]: condition=lose
 #: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:113
-#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:283
+#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:285
 #: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:200
 #: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:251
-#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:337
-#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:180
+#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:338
+#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:181
 #: data/campaigns/The_South_Guard/scenarios/04_Vale_of_Tears.cfg:239
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:250
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:613
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:679
-#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:525
-#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:280
-#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:471
-#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:529
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:251
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:559
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:680
+#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:530
+#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:302
+#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:493
+#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:551
 #: data/campaigns/The_South_Guard/scenarios/08a_Return_to_Kerlath.cfg:37
 #: data/campaigns/The_South_Guard/scenarios/08b_The_Tides_of_War.cfg:411
 #: data/campaigns/The_South_Guard/scenarios/08b_The_Tides_of_War.cfg:432
@@ -218,7 +218,7 @@ msgid "Moreth"
 msgstr "Moreth"
 
 #. [message]: speaker=Moreth
-#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:179
+#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:180
 #, fuzzy
 msgid ""
 "You’ll never take this village! I’ve seen your kind kill too many townsmen, "
@@ -229,7 +229,7 @@ msgstr ""
 "slippe deg inn!"
 
 #. [message]: speaker=Deoran
-#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:185
+#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:186
 #, fuzzy
 msgid ""
 "My kind? I am a soldier of Wesnoth, a messenger of King Haldric, and the new "
@@ -239,7 +239,7 @@ msgstr ""
 "Så hva mener du med kjeltringer?"
 
 #. [message]: speaker=Moreth
-#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:190
+#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:191
 #, fuzzy
 msgid ""
 "Sorry, sir! I thought you were one of the bandits who have been ransacking "
@@ -251,7 +251,7 @@ msgstr ""
 "banditter og kjeltringer her nå."
 
 #. [message]: speaker=Deoran
-#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:195
+#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:196
 #, fuzzy
 msgid ""
 "I have been sent to take command of the South Guard and set things right. We "
@@ -263,7 +263,7 @@ msgstr ""
 "ugang!"
 
 #. [message]: speaker=Moreth
-#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:200
+#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:201
 #, fuzzy
 msgid ""
 "You should head to the river fort! Sir Gerrick will want to know that "
@@ -273,7 +273,7 @@ msgstr ""
 "nyhet Kaptein Gerrikk har ventet lenge nok på!"
 
 #. [message]: speaker=narrator
-#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:209
+#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:210
 #, fuzzy
 #| msgid ""
 #| "Whenever you see a target that looks like this, you should move your "
@@ -287,7 +287,7 @@ msgstr ""
 "annen enhet foreslått av dialogen) til sekskanten med markøren."
 
 #. [message]: speaker=Urza Mathin
-#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:215
+#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:216
 #, fuzzy
 msgid ""
 "Ha! This new commander is a mere boy. He will soon share the fate of that "
@@ -296,12 +296,12 @@ msgstr ""
 "Pøh! Denne nye ypplingen har ingen sjanse. Han vil dele sjebne med Loris!"
 
 #. [unit]: type=Infantry Lieutenant, id=Sir Gerrick
-#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:237
+#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:238
 msgid "Sir Gerrick"
 msgstr "Kaptein Gerrikk"
 
 #. [message]: speaker=Sir Gerrick
-#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:249
+#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:251
 #, fuzzy
 msgid ""
 "My lord, it is good that King Haldric has sent you to our lands! Bandits "
@@ -313,7 +313,7 @@ msgstr ""
 "Vi må gjenreise vaktpostene og jage bandittene!"
 
 #. [message]: speaker=Deoran
-#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:254
+#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:256
 #, fuzzy
 msgid ""
 "No doubt I am needed here. Unfortunately I have seen only farm tools to arm "
@@ -325,7 +325,7 @@ msgstr ""
 "høygafler."
 
 #. [message]: speaker=Sir Gerrick
-#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:259
+#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:261
 #, fuzzy
 msgid ""
 "I will open the citadel’s armory. We have a supply of spears and bows, and "
@@ -336,7 +336,7 @@ msgstr ""
 "overmakten. Du står fritt til å forsyne deg fra våre våpenkammere!"
 
 #. [message]: speaker=narrator
-#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:266
+#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:268
 #, fuzzy
 msgid ""
 "Sir Gerrick is an infantry commander. He is a strong warrior in his own "
@@ -347,7 +347,7 @@ msgstr ""
 "mektig kriger, og gjør mindre erfarne enheter i nærheten mer effektive."
 
 #. [message]: speaker=narrator
-#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:272
+#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:274
 #, fuzzy
 msgid ""
 "Units that have a <i>hero</i> marker are vital to your campaign. If any of "
@@ -357,28 +357,28 @@ msgstr ""
 "taper hvis noen av dem dør, så vokt dem med omhu!"
 
 #. [objective]: condition=lose
-#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:287
+#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:289
 #: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:204
 #: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:255
-#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:341
-#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:184
+#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:342
+#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:185
 #: data/campaigns/The_South_Guard/scenarios/04_Vale_of_Tears.cfg:243
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:254
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:617
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:683
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:255
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:563
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:684
 #: data/campaigns/The_South_Guard/scenarios/06a_Tidings_Good_and_Ill.cfg:212
-#: data/campaigns/The_South_Guard/scenarios/06a_Tidings_Good_and_Ill.cfg:295
-#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:529
+#: data/campaigns/The_South_Guard/scenarios/06a_Tidings_Good_and_Ill.cfg:300
+#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:534
 msgid "Death of Sir Gerrick"
 msgstr "Kaptein Gerrikks død"
 
 #. [message]: speaker=narrator
-#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:303
+#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:305
 msgid "Head back to the encampment where you started and recruit some troops!"
 msgstr "Ri tilbake til leiren og bevæpne noen rekrutter!"
 
 #. [message]: speaker=narrator
-#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:326
+#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:328
 #, fuzzy
 msgid ""
 "While you’re in your camp, you can recruit more troops. Build up a small "
@@ -388,7 +388,7 @@ msgstr ""
 "Mobiliser en liten hær for å ta opp kampen mot Urza Mathins banditter."
 
 #. [message]: speaker=narrator
-#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:332
+#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:334
 #, fuzzy
 msgid ""
 "Bowmen have a strong ranged attack, and are very effective against units "
@@ -400,7 +400,7 @@ msgstr ""
 "nærstridsangrep."
 
 #. [message]: speaker=narrator
-#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:337
+#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:339
 #, fuzzy
 msgid ""
 "Spearmen have a strong melee attack, and are effective against most units. "
@@ -412,7 +412,7 @@ msgstr ""
 "dem utgjøre ryggraden i en effektiv hær."
 
 #. [message]: speaker=narrator
-#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:341
+#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:343
 #, fuzzy
 msgid ""
 "The best army will have a mix of units to deal with the different enemies "
@@ -424,7 +424,7 @@ msgstr ""
 "fokusere på å lage en mindre gruppe erfarne bueskyttere."
 
 #. [message]: speaker=Sir Gerrick
-#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:364
+#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:366
 #, fuzzy
 msgid ""
 "Sir, bandits are most dangerous at night. Let us hold the north bank of the "
@@ -435,7 +435,7 @@ msgstr ""
 "natten."
 
 #. [message]: speaker=narrator
-#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:370
+#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:372
 #, fuzzy
 msgid ""
 "All of your units are <i>lawful</i>. This means that they receive a combat "
@@ -449,7 +449,7 @@ msgstr ""
 "fremrykninger i dagslys, mens enhetene dine sloss best."
 
 #. [message]: speaker=Sir Gerrick
-#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:390
+#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:392
 #, fuzzy
 msgid ""
 "My lord! The dawn is breaking — now is the time for us to attack and drive "
@@ -459,7 +459,7 @@ msgstr ""
 "fra våre land. Til våpen!"
 
 #. [message]: speaker=narrator
-#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:396
+#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:398
 #, fuzzy
 msgid ""
 "During the day your units will deal more damage, and Urza Mathin’s less. The "
@@ -469,17 +469,17 @@ msgstr ""
 "flere banditter du får tatt knekken på i løpet av dagen, desto bedre!"
 
 #. [unit]: type=Merman Warrior, type=Merman Warrior, type=Merman Fighter, id=Myssh
-#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:423
+#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:425
 msgid "Myssh"
 msgstr "Myssj"
 
 #. [unit]: type=Merman Spearman, type=Merman Hunter, type=Merman Hunter, id=Ylla
-#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:443
+#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:445
 msgid "Ylla"
 msgstr "Ylla"
 
 #. [message]: speaker=Myssh
-#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:454
+#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:456
 #, fuzzy
 msgid ""
 "Your people have been our allies in the past, ever since the days of Lord "
@@ -491,7 +491,7 @@ msgstr ""
 "gladelig hjelpe deg å jage bandittene!"
 
 #. [message]: speaker=Deoran
-#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:459
+#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:461
 #, fuzzy
 msgid ""
 "We welcome your aid in the fight against these criminals! The rivers of this "
@@ -501,7 +501,7 @@ msgstr ""
 "få leve fritt i elvene om dere hjelper oss."
 
 #. [message]: speaker=narrator
-#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:466
+#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:468
 #, fuzzy
 msgid ""
 "You may now recruit Merman Hunters. Mermen are aquatic creatures. Keep them "
@@ -513,19 +513,19 @@ msgstr ""
 
 #. [unit]: type=Longbowman, id=Aleron
 #. [unit]: type=Peasant, id=Aleron
-#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:491
-#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:528
+#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:493
+#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:530
 msgid "Aleron"
 msgstr "Aleron"
 
 #. [message]: speaker=unit
-#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:502
+#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:504
 #, fuzzy
 msgid "Who goes there! Come out of the house now!"
 msgstr "Hvem der? Kom ut av huset nå om du vil leve!"
 
 #. [message]: speaker=Aleron
-#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:506
+#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:508
 #, fuzzy
 msgid ""
 "Stay! It’s me, Aleron! The villagers hid me from the bandits when the town "
@@ -536,7 +536,7 @@ msgstr ""
 "takket være hjelpen jeg fikk har jeg overlevd."
 
 #. [message]: speaker=Sir Gerrick
-#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:510
+#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:512
 msgid ""
 "I am glad to find you alive Aleron, we feared the worst when you did not "
 "return after the battle!"
@@ -545,7 +545,7 @@ msgstr ""
 "kom tilbake etter slaget."
 
 #. [message]: speaker=Aleron
-#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:514
+#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:516
 #, fuzzy
 msgid ""
 "Let us punish these bandits for their crimes and murders! My wounds are "
@@ -555,7 +555,7 @@ msgstr ""
 "igjen og klar til kamp!"
 
 #. [message]: speaker=narrator
-#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:518
+#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:520
 #, fuzzy
 msgid ""
 "Aleron is a Longbowman, stronger and better trained than regular bowmen. His "
@@ -565,13 +565,13 @@ msgstr ""
 "bueskyttere. Hans piler er svært dødelige."
 
 #. [message]: speaker=Aleron
-#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:539
+#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:541
 #, fuzzy
 msgid "Not more bandits... We have nothing left. Begone!"
 msgstr "Forsvinn banditter! Vi har mistet alt vi eier allerede."
 
 #. [message]: speaker=unit
-#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:543
+#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:545
 #, fuzzy
 msgid ""
 "We are no bandits. The banner of the South Guard flies again! Help us drive "
@@ -581,12 +581,12 @@ msgstr ""
 "å jage kjeltringene fra landet."
 
 #. [message]: speaker=Aleron
-#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:547
+#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:549
 msgid "However I can, I will help you!"
 msgstr "Jeg står til din tjeneste!"
 
 #. [message]: speaker=Sir Gerrick
-#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:551
+#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:553
 msgid ""
 "Garrison the villages behind our lines and keep the enemy from slipping "
 "around us at night."
@@ -595,18 +595,18 @@ msgstr ""
 "forsvarerne i løpet av natten."
 
 #. [unit]: type=Footpad, id=Glasar
-#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:561
+#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:563
 msgid "Glasar"
 msgstr "Glasar"
 
 #. [message]: speaker=Glasar
-#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:567
+#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:569
 #, fuzzy
 msgid "This village is ours to plunder! Begone or I will kill you all!"
 msgstr "Ha deg vekk mens jeg plyndrer denne landsbyen! Ellers dreper deg!"
 
 #. [message]: speaker=unit
-#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:571
+#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:573
 #, fuzzy
 msgid ""
 "Do you not see the banners flying in the wind? The South Guard fights again. "
@@ -616,7 +616,7 @@ msgstr ""
 "sør holder på å gjenreises. Flykt mens du kan!"
 
 #. [message]: speaker=narrator
-#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:594
+#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:596
 #, fuzzy
 msgid ""
 "Remember, Moreth told you that you should go meet Sir Gerrick at the river "
@@ -626,7 +626,7 @@ msgstr ""
 "La Deoran ri ned og undersøke hva han vil!"
 
 #. [message]: speaker=narrator
-#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:627
+#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:629
 #, fuzzy
 msgid ""
 "Remember, your job is to defeat Urza Mathin. He should be your main target. "
@@ -638,13 +638,13 @@ msgstr ""
 "ettersom han mangler avstandsangrep. Omring, og skyt for å drepe!"
 
 #. [message]: speaker=Urza Mathin
-#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:645
+#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:647
 #, fuzzy
 msgid "My days of pillage and plunder are over! My brothers will avenge me..."
 msgstr "Mine dager som røver er talte. Måtte mine brødre hevne min død!"
 
 #. [message]: speaker=Sir Gerrick
-#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:655
+#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:657
 #, fuzzy
 msgid ""
 "He is dead! Congratulations, commander. We thought we would never see "
@@ -654,7 +654,7 @@ msgstr ""
 "det Loris som sendte dere?"
 
 #. [message]: speaker=Deoran
-#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:660
+#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:662
 #, fuzzy
 msgid ""
 "No. I have been sent by King Haldric to take command of the South Guard. The "
@@ -666,7 +666,7 @@ msgstr ""
 "herfra på over to uker. Hvor lenge har dere vært innestengt i fortet?"
 
 #. [message]: speaker=Sir Gerrick
-#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:665
+#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:667
 #, fuzzy
 msgid ""
 "Almost two months. Sir Loris took one of our patrols along the Westin road "
@@ -681,7 +681,7 @@ msgstr ""
 "tropper langveis fra som skulle komme og redde oss!"
 
 #. [message]: speaker=Deoran
-#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:671
+#: data/campaigns/The_South_Guard/scenarios/01_Born_to_the_Banner.cfg:673
 #, fuzzy
 msgid ""
 "This is worse than even my darkest fears. We must ride to Westin at once, "
@@ -775,13 +775,13 @@ msgid "Minister Hylas"
 msgstr "Fader Hylas"
 
 #. [message]: speaker=Deoran
-#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:300
+#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:301
 #, fuzzy
 msgid "More bandits?! They’ll feel the deadly bite of my lance!"
 msgstr "Mer røverpakk? De vil snart nok kjenne smaken av min lanse!"
 
 #. [message]: speaker=Minister Hylas
-#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:304
+#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:305
 #, fuzzy
 msgid ""
 "Peace! For I am no enemy. I am Minister Hylas, advisor to Sir Loris! You "
@@ -792,7 +792,7 @@ msgstr ""
 "knapt holdt ut en dag mer."
 
 #. [message]: speaker=Deoran
-#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:308
+#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:309
 #, fuzzy
 msgid ""
 "Indeed, our arrival was timely. But where is Sir Loris? Where is the "
@@ -805,7 +805,7 @@ msgstr ""
 "hørte intet nytt herfra på over to uker."
 
 #. [message]: speaker=Minister Hylas
-#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:312
+#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:313
 #, fuzzy
 msgid ""
 "Alas, Sir Loris will find no relief now. He is buried northwest of the city "
@@ -820,7 +820,7 @@ msgstr ""
 "håndtere."
 
 #. [message]: speaker=Deoran
-#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:317
+#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:318
 #, fuzzy
 msgid ""
 "It grieves me to learn of his death, foolish though he may have been! Now, "
@@ -832,27 +832,27 @@ msgstr ""
 "disse bandittene ut av byen vår, en gang for alle!"
 
 #. [event]
-#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:320
+#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:321
 msgid "Ufes"
 msgstr "Ufes"
 
 #. [event]
-#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:321
+#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:322
 msgid "Joran"
 msgstr "Joran"
 
 #. [event]
-#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:322
+#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:323
 msgid "Makees"
 msgstr "Makees"
 
 #. [event]
-#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:323
+#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:324
 msgid "Tyborg"
 msgstr "Tyborg"
 
 #. [message]: speaker=Ufes
-#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:327
+#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:328
 #, fuzzy
 msgid ""
 "We will do our best to hold the city — you lead your men across the river "
@@ -862,28 +862,28 @@ msgstr ""
 "røvernes leder!"
 
 #. [objective]: condition=win
-#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:333
+#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:334
 #, fuzzy
 msgid "Kill Urza Nalmath, the bandit leader"
 msgstr "Drep Urza Nalmath, bandittenes leder."
 
 #. [objective]: condition=lose
-#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:345
-#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:188
+#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:346
+#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:189
 #: data/campaigns/The_South_Guard/scenarios/04_Vale_of_Tears.cfg:247
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:258
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:621
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:687
-#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:533
-#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:284
-#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:475
-#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:533
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:259
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:567
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:688
+#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:538
+#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:306
+#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:497
+#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:555
 #: data/campaigns/The_South_Guard/scenarios/08a_Return_to_Kerlath.cfg:41
 msgid "Death of Minister Hylas"
 msgstr "Fader Hylas' død"
 
 #. [message]: speaker=Sir Gerrick
-#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:396
+#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:397
 #, fuzzy
 msgid ""
 "They are almost to the great hall! Hurry, Deoran! You must reach the citadel "
@@ -893,7 +893,7 @@ msgstr ""
 "festningen nå, ellers vil både den og byen falle!"
 
 #. [message]: speaker=narrator
-#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:402
+#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:403
 msgid ""
 "You must move Deoran here by the end of the next turn, or Westin will fall "
 "and you will be defeated!"
@@ -902,13 +902,13 @@ msgstr ""
 "tilintetgjøres, og du tape!"
 
 #. [message]: speaker=Sir Gerrick
-#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:420
+#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:421
 #, fuzzy
 msgid "We’re too late! They’re burning the city..."
 msgstr "Vi kommer for sent! Westin er i ruiner!"
 
 #. [message]: speaker=Deoran
-#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:425
+#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:426
 #, fuzzy
 msgid ""
 "Westin has fallen! This is a problem too great for me to handle — I must "
@@ -918,7 +918,7 @@ msgstr ""
 "returnere til Haldrik og fortelle om grusomhetene..."
 
 #. [message]: speaker=Urza Nalmath
-#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:447
+#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:448
 #, fuzzy
 msgid ""
 "Now the Guard will feel the wrath of my new friends! It is time for the dead "
@@ -928,7 +928,7 @@ msgstr ""
 "reise seg og spre frykt og fordervelse blant de levende!"
 
 #. [message]: speaker=Sir Gerrick
-#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:459
+#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:460
 #, fuzzy
 msgid "What devilry is this?! Those are no living men that fight for him!"
 msgstr ""
@@ -936,7 +936,7 @@ msgstr ""
 "blod!"
 
 #. [message]: speaker=Minister Hylas
-#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:464
+#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:465
 #, fuzzy
 msgid ""
 "He has made some pact with the undead. How could a mere brigand have gained "
@@ -946,14 +946,14 @@ msgstr ""
 "slike krefter!"
 
 #. [message]: speaker=Deoran
-#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:469
+#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:470
 msgid "However he has done this fell thing, we must defeat him!"
 msgstr ""
 "Uansett hva som er årsaken til denne grusomheten, er en ting sikkert: Vi må "
 "beseire ham!"
 
 #. [message]: speaker=narrator
-#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:477
+#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:478
 #, fuzzy
 msgid ""
 "Not only will Minister Hylas’s <i>arcane</i> attack melt undead bones, but "
@@ -963,19 +963,19 @@ msgstr ""
 "helbrede enheter i nærheten."
 
 #. [message]: speaker=Urza Nalmath
-#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:495
+#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:496
 #, fuzzy
 msgid "Leave nothing standing! Burn their villages down and kill them all!"
 msgstr "Ikke la noen unslippe! Brenn husene og drep alle som en!"
 
 #. [message]: speaker=unit
-#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:499
+#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:500
 #, fuzzy
 msgid "We will avenge your brother’s death!"
 msgstr "Jeg vil hevne min brors død!"
 
 #. [message]: speaker=Sir Gerrick
-#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:503
+#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:504
 #, fuzzy
 msgid "They are burning our villages! We must stop them!"
 msgstr ""
@@ -983,21 +983,21 @@ msgstr ""
 "landsbyene og ta knekken på røverpakket!"
 
 #. [message]: speaker=unit
-#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:542
+#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:543
 #, fuzzy
 msgid "My brother has died unavenged! What have we done?!"
 msgstr "Jeg skulle hevne min bror! Hvordan kan dere beseire også meg?!"
 
 #. [message]: speaker=Deoran
 #. [message]: speaker=second_unit
-#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:559
-#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:566
+#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:560
+#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:567
 #, fuzzy
 msgid "How can a bandit have summoned undead?"
 msgstr "Hvordan kan denne røveren ha påkalt de vandøde?"
 
 #. [message]: speaker=Minister Hylas
-#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:573
+#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:574
 #, fuzzy
 msgid ""
 "Just before the bandit raids began, an ambassador came to Sir Loris from the "
@@ -1009,12 +1009,12 @@ msgstr ""
 "hittil ukjent trussel."
 
 #. [message]: speaker=Deoran
-#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:578
+#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:579
 msgid "And did Sir Loris go to the elves?"
 msgstr "Reiste så Loris til alvene?"
 
 #. [message]: speaker=Minister Hylas
-#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:583
+#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:584
 #, fuzzy
 msgid ""
 "No. He suspected the elves of some trickery and made no reply to them. "
@@ -1024,7 +1024,7 @@ msgstr ""
 "på anmodningen. Alvene vet kanskje hvor disse døde krigerne stammer fra."
 
 #. [message]: speaker=Deoran
-#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:588
+#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:589
 #, fuzzy
 msgid ""
 "My men have been trained to fight the living. I do not know that we can "
@@ -1036,7 +1036,7 @@ msgstr ""
 "Jeg drar selv til skogen og ser om alvenes råd kan være til hjelp!"
 
 #. [message]: speaker=Minister Hylas
-#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:593
+#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:594
 #, fuzzy
 msgid ""
 "I will accompany you, my lord. I have studied the arts of holy magic and my "
@@ -1046,7 +1046,7 @@ msgstr ""
 "fiender."
 
 #. [message]: speaker=narrator
-#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:598
+#: data/campaigns/The_South_Guard/scenarios/02_Proven_by_the_Sword.cfg:599
 #, fuzzy
 msgid ""
 "Deoran sent a rider to request mounted reinforcements and set out at once "
@@ -1066,13 +1066,13 @@ msgid "Urza Fastik"
 msgstr "Urza Fastik"
 
 #. [message]: speaker=narrator
-#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:135
+#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:136
 #, fuzzy
 msgid "Deoran and his men came to the eastern border of the Aethenwood..."
 msgstr "Deoran og hans menn sto snart på grensen til skogene i vest..."
 
 #. [message]: speaker=Deoran
-#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:141
+#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:142
 #, fuzzy
 msgid ""
 "Look, men! There is the forest of the Elves to the northwest. Let us hasten "
@@ -1082,7 +1082,7 @@ msgstr ""
 "krysser elven og fjellene!"
 
 #. [message]: speaker=Minister Hylas
-#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:146
+#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:147
 #, fuzzy
 msgid ""
 "Be careful, Deoran. No man has set foot in the elvish woods for many a year. "
@@ -1095,7 +1095,7 @@ msgstr ""
 "skogen."
 
 #. [message]: speaker=Deoran
-#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:151
+#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:152
 #, fuzzy
 msgid ""
 "But if we do not discover the source of these undead warriors, the whole "
@@ -1107,7 +1107,7 @@ msgstr ""
 "og ondskap."
 
 #. [message]: speaker=Urza Fastik
-#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:156
+#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:157
 #, fuzzy
 msgid ""
 "I have lost two brothers to Deoran — I shall not allow him to reach the "
@@ -1117,7 +1117,7 @@ msgstr ""
 "live!"
 
 #. [message]: speaker=narrator
-#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:164
+#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:165
 #, fuzzy
 msgid ""
 "You must move Deoran to the center of the elvish citadel. Be sure to recruit "
@@ -1128,13 +1128,13 @@ msgstr ""
 "rekruterer nok soldater til å holde røverne på avstand før du legger avgårde."
 
 #. [objective]: condition=win
-#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:176
+#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:177
 #, fuzzy
 msgid "Move Deoran to the elvish city in the northern woods"
 msgstr "Bring Deoran til alvebyen i nordvest"
 
 #. [message]: speaker=Deoran
-#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:206
+#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:207
 #, fuzzy
 msgid "There is so much ground to cover. If only our riders would arrive!"
 msgstr ""
@@ -1142,12 +1142,12 @@ msgstr ""
 "kavaleri!"
 
 #. [unit]: id=Jarek
-#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:216
+#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:217
 msgid "Jarek"
 msgstr "Jarek"
 
 #. [message]: speaker=Jarek
-#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:228
+#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:229
 #, fuzzy
 msgid ""
 "Commander, I received your request for reinforcements, and I have brought my "
@@ -1157,7 +1157,7 @@ msgstr ""
 "med meg en gruppe kavalerister."
 
 #. [message]: speaker=narrator
-#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:235
+#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:236
 #, fuzzy
 msgid ""
 "You may now recruit Cavalrymen. They are fast and deadly on grassland, but "
@@ -1169,12 +1169,12 @@ msgstr ""
 "bruk de for å forsvare han på reisen videre."
 
 #. [message]: speaker=narrator
-#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:237
+#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:238
 msgid "You may now recruit Cavalrymen."
 msgstr ""
 
 #. [message]: speaker=unit
-#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:255
+#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:256
 #, fuzzy
 msgid ""
 "What have we done?! Even our undead allies cannot stand against this "
@@ -1184,7 +1184,7 @@ msgstr ""
 "nederlag!"
 
 #. [message]: role=second
-#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:270
+#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:271
 #, fuzzy
 msgid ""
 "I hope that’s the last of the bandits! How many more of these foul creatures "
@@ -1194,62 +1194,62 @@ msgstr ""
 "kjempe mot flere ondsinnede vandøde."
 
 #. [message]: speaker=Deoran
-#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:277
+#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:278
 msgid ""
 "If we are to check the advance of the dead, I must reach the home of the "
 "elves!"
 msgstr "Vi må nå alvebyen om vi skal få undersøkt årsaken til disse vandøde."
 
 #. [event]
-#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:292
+#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:293
 msgid "Linderion"
 msgstr ""
 
 #. [event]
-#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:293
+#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:294
 #, fuzzy
 msgid "Mithalwe"
 msgstr "Mitche"
 
 #. [event]
-#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:294
+#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:295
 msgid "Sidaurios"
 msgstr ""
 
 #. [event]
-#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:295
+#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:296
 #, fuzzy
 msgid "Eltenmir"
 msgstr "Eera"
 
 #. [event]
-#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:296
+#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:297
 msgid "Vardanos"
 msgstr ""
 
 #. [event]
-#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:297
+#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:298
 msgid "Talchar"
 msgstr ""
 
 #. [unit]: type=Elvish Shyde, type=Elvish Druid, id=Ethiliel
-#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:306
+#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:307
 msgid "Ethiliel"
 msgstr "Ethiliel"
 
 #. [message]: speaker=Linderion
-#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:320
+#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:322
 #, fuzzy
 msgid "Halt! Who has entered our citadel without leave?"
 msgstr "Holdt! Hvem våger å tre inn i vår by uten tillatelse?"
 
 #. [message]: speaker=Deoran
-#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:325
+#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:327
 msgid "De..."
 msgstr "De..."
 
 #. [message]: speaker=Linderion
-#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:330
+#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:332
 #, fuzzy
 msgid ""
 "Speak carefully, for the penalty for trespass on our lands is death, and "
@@ -1259,12 +1259,12 @@ msgstr ""
 "sjebne er i våre hender!"
 
 #. [message]: speaker=Deoran
-#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:335
+#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:337
 msgid "Deora..."
 msgstr "Deoran, ridder av Wesnoth."
 
 #. [message]: speaker=Ethiliel
-#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:341
+#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:343
 #, fuzzy
 msgid ""
 "Stay a moment. This man wears the colors of Wesnoth, and Kalenz told us not "
@@ -1276,7 +1276,7 @@ msgstr ""
 "ærend her i vår elskede by Elrath er?"
 
 #. [message]: speaker=Deoran
-#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:346
+#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:348
 #, fuzzy
 msgid ""
 "My lady, we have come to the elves to seek guidance. Bandits and criminals "
@@ -1290,7 +1290,7 @@ msgstr ""
 "den enorme skogen vi vet svært lite om."
 
 #. [message]: speaker=Ethiliel
-#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:351
+#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:353
 #, fuzzy
 msgid ""
 "The elves know of the great southern forest, and have walked its paths many "
@@ -1301,7 +1301,7 @@ msgstr ""
 "Deoran?"
 
 #. [message]: speaker=Deoran
-#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:356
+#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:358
 #, fuzzy
 msgid ""
 "I would lead my men south of the river to find the source of these beings of "
@@ -1313,7 +1313,7 @@ msgstr ""
 "fra både banditter og vandøde."
 
 #. [message]: speaker=Ethiliel
-#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:361
+#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:363
 #, fuzzy
 msgid ""
 "Indeed you are brave to face such foes. But I fear that alone you will fail "
@@ -1328,7 +1328,7 @@ msgstr ""
 "langt herfra. Jeg vil føre deg til ham."
 
 #. [message]: speaker=Deoran
-#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:367
+#: data/campaigns/The_South_Guard/scenarios/03_A_Desparate_Errand.cfg:369
 msgid "My thanks, lady."
 msgstr "Du skal ha mange takk."
 
@@ -1353,11 +1353,11 @@ msgstr "Mal A'kai"
 #. [side]: type=Soulless, id=Gruth
 #: data/campaigns/The_South_Guard/scenarios/04_Vale_of_Tears.cfg:76
 #: data/campaigns/The_South_Guard/scenarios/04_Vale_of_Tears.cfg:122
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:92
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:128
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:93
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:129
 #: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:69
 #: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:55
-#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:106
+#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:107
 #: data/campaigns/The_South_Guard/scenarios/07b_Pebbles_in_the_Flood.cfg:60
 #: data/campaigns/The_South_Guard/scenarios/07b_Pebbles_in_the_Flood.cfg:92
 #: data/campaigns/The_South_Guard/scenarios/08b_The_Tides_of_War.cfg:54
@@ -1480,11 +1480,11 @@ msgstr "Bring Ethiliel til Mebrins landsby"
 
 #. [objective]: condition=lose
 #: data/campaigns/The_South_Guard/scenarios/04_Vale_of_Tears.cfg:251
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:262
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:691
-#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:288
-#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:479
-#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:537
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:263
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:571
+#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:310
+#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:501
+#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:559
 #: data/campaigns/The_South_Guard/scenarios/08a_Return_to_Kerlath.cfg:45
 #: data/campaigns/The_South_Guard/scenarios/09a_Vengeance.cfg:263
 msgid "Death of Ethiliel"
@@ -1599,7 +1599,7 @@ msgstr "Mebrin! Vi søker din hjelp!"
 #. [message]: speaker=narrator
 #: data/campaigns/The_South_Guard/scenarios/04_Vale_of_Tears.cfg:557
 #: data/campaigns/The_South_Guard/scenarios/04_Vale_of_Tears.cfg:568
-#: data/campaigns/The_South_Guard/scenarios/06a_Tidings_Good_and_Ill.cfg:373
+#: data/campaigns/The_South_Guard/scenarios/06a_Tidings_Good_and_Ill.cfg:378
 msgid "..."
 msgstr "..."
 
@@ -1673,17 +1673,17 @@ msgid "Urza Afalas"
 msgstr "Urza Afalas"
 
 #. [side]: type=Soulless, id=Gruth
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:89
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:90
 msgid "Gruth"
 msgstr "Gruth"
 
 #. [side]: type=Lich, id=Mal M'Brin
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:123
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:124
 msgid "?"
 msgstr ""
 
 #. [message]: speaker=Deoran
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:194
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:195
 #, fuzzy
 msgid ""
 "The heat in this forest is oppressive, and this fog cannot be natural. I "
@@ -1693,7 +1693,7 @@ msgstr ""
 "naturlig. Jeg er spent på hva slags ondskap vi vil møte her."
 
 #. [message]: speaker=Minister Hylas
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:199
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:200
 #, fuzzy
 msgid ""
 "I fear the fog emanates from some powerful lord of the undead. We may be "
@@ -1703,7 +1703,7 @@ msgstr ""
 "nederlag mot en slik fiende..."
 
 #. [message]: speaker=Sir Gerrick
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:204
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:205
 msgid ""
 "This is quite a change from fighting bandits in the farmland near Westin!"
 msgstr ""
@@ -1711,7 +1711,7 @@ msgstr ""
 "vårt hjemland!"
 
 #. [message]: speaker=Ethiliel
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:209
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:210
 #, fuzzy
 msgid ""
 "I have brought many of my people along to aid us. My soldiers and shamans "
@@ -1721,7 +1721,7 @@ msgstr ""
 "dine ordre herfra."
 
 #. [message]: speaker=narrator
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:215
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:216
 #, fuzzy
 msgid ""
 "Elvish Fighters are at home in the thick forests. They have both a sword and "
@@ -1733,7 +1733,7 @@ msgstr ""
 "stand mot nærmest alle typer fiender."
 
 #. [message]: speaker=narrator
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:220
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:221
 #, fuzzy
 msgid ""
 "Elvish Shamans are no match for most enemies in single combat. They do, "
@@ -1745,17 +1745,17 @@ msgstr ""
 "helbreder skadede enheter ved siden av dem hver runde."
 
 #. [message]: speaker=Deoran
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:225
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:226
 msgid "Why did we stop and make camp here?"
 msgstr "Vi har reist langt. Men hvorfor slår vi leir akkurat her?"
 
 #. [message]: speaker=Ethiliel
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:230
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:231
 #, fuzzy
 msgid ""
-"The Black River is before us. No elf, still living, has crossed it. If the "
-"undead come from across the river, then we must search for them carefully, "
-"for I know not the way."
+"The Black River is before us. Few elves have crossed it, and fewer still "
+"have lingered there long. If the undead come from across the river, then we "
+"must search for them carefully, for I know not the way."
 msgstr ""
 "Det ligger en enorm elv foran oss. Det finnes ikke lenger noen gjenlevende "
 "alver som har vært på den andre siden. Hvis de vandøde kommer fra den andre "
@@ -1763,7 +1763,7 @@ msgstr ""
 "lenger veien."
 
 #. [message]: speaker=Sir Gerrick
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:235
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:236
 #, fuzzy
 msgid ""
 "I fear no forests. Let us find this river and whatever enemies lie beyond."
@@ -1772,26 +1772,26 @@ msgstr ""
 "måtte være."
 
 #. [message]: speaker=Deoran
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:240
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:241
 #, fuzzy
 msgid "Very well. We will seek the river and probe its secrets."
 msgstr "Godt. Vi vil krysse elven og gå skogens mysterier i møte."
 
 #. [objective]: condition=win
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:246
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:247
 #, fuzzy
 msgid "Investigate the areas to the south of the Black River"
 msgstr "Undersøk skogen sør for den enorme elven"
 
 #. [message]: speaker=Sir Gerrick
 #. [message]: speaker=second_unit
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:303
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:310
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:304
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:311
 msgid "The master of the undead is defeated!"
 msgstr "De vandødes mester er tatt av dage!"
 
 #. [message]: speaker=Minister Hylas
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:317
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:318
 #, fuzzy
 msgid "No... I fear there is still much evil present."
 msgstr ""
@@ -1799,31 +1799,31 @@ msgstr ""
 "stoppet annet enn en ussel tjener av en langt farligere fiende."
 
 #. [message]: speaker=Deoran
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:322
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:323
 msgid ""
 "Surely the undead infestation cannot be dispatched so easily. We have merely "
 "destroyed a servant of a far darker master."
 msgstr ""
 
 #. [message]: speaker=second_unit
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:377
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:378
 msgid "We found the lich!"
 msgstr ""
 
 #. [message]: speaker=second_unit
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:424
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:425
 msgid ""
 "I think I see something moving in the fog... it looks like an encampment!"
 msgstr ""
 
 #. [message]: speaker=Urza Afalas
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:450
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:451
 #, fuzzy
 msgid "Thank heaven! You’re alive!"
 msgstr "Takk og pris! Dere lever!"
 
 #. [message]: speaker=Ethiliel
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:455
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:456
 #, fuzzy
 msgid ""
 "Save your thanks! We are here to root out all the evil from these woods, and "
@@ -1833,7 +1833,7 @@ msgstr ""
 "med roten, og det inkluderer deg!"
 
 #. [message]: speaker=Sir Gerrick
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:460
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:461
 #, fuzzy
 msgid ""
 "Draw your swords and say your prayers! You cannot stand against us! You will "
@@ -1843,7 +1843,7 @@ msgstr ""
 "synder med blod!"
 
 #. [message]: speaker=Urza Afalas
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:465
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:466
 #, fuzzy
 msgid ""
 "But have you not seen the undead in these forests? I know you have seen them "
@@ -1853,12 +1853,12 @@ msgstr ""
 "som mang en bandittleder har brukt for å plyndre ditt hjemland..."
 
 #. [message]: speaker=Deoran
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:470
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:471
 msgid "What of them?"
 msgstr "Du er ikke annet enn røverpakk selv. Hvem er så disse vandøde?"
 
 #. [message]: speaker=Urza Afalas
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:475
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:476
 #, fuzzy
 msgid ""
 "A year ago we ventured into the land of the elves in secret, and we captured "
@@ -1870,7 +1870,7 @@ msgstr ""
 "vandøde."
 
 #. [message]: speaker=Ethiliel
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:480
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:481
 #, fuzzy
 msgid ""
 "You imprisoned Mebrin?! For that you must surely pay. Speak swiftly so that "
@@ -1880,7 +1880,7 @@ msgstr ""
 "Snakk fort, så får vi gjort det av med deg snarlig. Vi vil ha vår hevn!"
 
 #. [message]: speaker=Urza Afalas
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:485
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:486
 #, fuzzy
 msgid ""
 "Hear me out! He taught us to summon the dead to fight for us. We were weak "
@@ -1896,7 +1896,7 @@ msgstr ""
 "angriper oss også!"
 
 #. [message]: speaker=Ethiliel
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:491
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:492
 #, fuzzy
 msgid "Lies! Mebrin would never fight for the undead, much less lead them!"
 msgstr ""
@@ -1904,7 +1904,7 @@ msgstr ""
 "ledet dem!"
 
 #. [message]: speaker=Deoran
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:496
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:497
 #, fuzzy
 msgid "But what do you want us to do about it? You are criminals!"
 msgstr ""
@@ -1912,7 +1912,7 @@ msgstr ""
 "selv skyld i ondskapen!"
 
 #. [message]: speaker=Urza Afalas
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:501
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:502
 #, fuzzy
 msgid ""
 "Join us in the fight! Together we can drive off these cruel undead and "
@@ -1922,7 +1922,7 @@ msgstr ""
 "ondskapen."
 
 #. [message]: speaker=Sir Gerrick
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:506
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:507
 #, fuzzy
 msgid ""
 "My lord, they could be valuable allies, and the undead are a greater threat "
@@ -1933,7 +1933,7 @@ msgstr ""
 "fredelig Westin."
 
 #. [message]: speaker=Ethiliel
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:512
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:513
 #, fuzzy
 msgid ""
 "But think of the destruction they wrought on your borders! You cannot ally "
@@ -1943,19 +1943,53 @@ msgstr ""
 "og alvenes enemerker. Du kan ikke alliere deg med dem! Vi krever vår hevn!"
 
 #. [message]: speaker=Deoran
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:517
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:518
 msgid ""
 "Hmm... I have to consider this... If I ally with the elves, I must fight the "
 "bandits, but if I ally with the bandits I will make enemies of the elves..."
 msgstr ""
 
 #. [option]: speaker=Deoran
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:519
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:520
+#, fuzzy
+msgid ""
+"Your crimes are too great. You will fall with the rest of the foul undead!"
+msgstr "Deres udåder er utilgivelige. Dere vil falle sammen de vandøde!"
+
+#. [message]: speaker=Urza Afalas
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:534
+#, fuzzy
+msgid "Then this parley is over! You may have sounded the doom of all of us!"
+msgstr ""
+"Da er mer prat bortkastet! Du kan allerede ha forårsaket alles undergang!"
+
+#. [message]: speaker=Ethiliel
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:540
+#, fuzzy
+msgid "You will pay for taking Mebrin from us! If he is harmed..."
+msgstr ""
+"Dere skal betale for deres synder og hva enn dere har gjort mot Mebrin!"
+
+#. [objective]: condition=win
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:551
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:676
+#, fuzzy
+msgid "Find the source of the undead and destroy it"
+msgstr "Finn og ødelegg det som påkaller de vandøde"
+
+#. [objective]: condition=win
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:555
+#, fuzzy
+msgid "Defeat Urza Afalas"
+msgstr "Urza Afalas' død"
+
+#. [option]: speaker=Deoran
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:586
 msgid "Very well. All men must unite against the undead."
 msgstr "Vel. Alle menn må stå sammen mot de vandøde."
 
 #. [message]: speaker=Urza Afalas
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:563
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:630
 #, fuzzy
 msgid ""
 "We will now fight alongside you. Come, my thugs and footpads, rally to me!"
@@ -1964,7 +1998,7 @@ msgstr ""
 "gjøre som du befaler."
 
 #. [message]: speaker=Ethiliel
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:569
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:636
 #, fuzzy
 msgid ""
 "You are no better than these criminals! We shall see if you can find your "
@@ -1978,85 +2012,51 @@ msgstr ""
 "enemerker igjen, Deoran, for du har ikke påført oss annet enn sorg."
 
 #. [message]: speaker=Sir Gerrick
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:581
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:648
 #, fuzzy
 msgid ""
 "The elves have abandoned us in this accursed forest! We are surely lost!"
 msgstr "Alvene har forlatt oss midt i skogen! Hvordan skal vi nå finne veien?"
 
 #. [message]: speaker=Urza Afalas
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:586
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:653
 msgid "Do not fear, I can lead you out when the time is right."
 msgstr "Frykt ikke, jeg skal lede dere ut når den tid kommer."
 
-#. [objective]: condition=win
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:609
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:671
-#, fuzzy
-msgid "Find the source of the undead and destroy it"
-msgstr "Finn og ødelegg det som påkaller de vandøde"
-
 #. [objective]: condition=lose
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:625
-#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:537
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:692
+#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:542
 msgid "Death of Urza Afalas"
-msgstr "Urza Afalas' død"
-
-#. [option]: speaker=Deoran
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:640
-#, fuzzy
-msgid ""
-"Your crimes are too great. You will fall with the rest of the foul undead!"
-msgstr "Deres udåder er utilgivelige. Dere vil falle sammen de vandøde!"
-
-#. [message]: speaker=Urza Afalas
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:654
-#, fuzzy
-msgid "Then this parley is over! You may have sounded the doom of all of us!"
-msgstr ""
-"Da er mer prat bortkastet! Du kan allerede ha forårsaket alles undergang!"
-
-#. [message]: speaker=Ethiliel
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:660
-#, fuzzy
-msgid "You will pay for taking Mebrin from us! If he is harmed..."
-msgstr ""
-"Dere skal betale for deres synder og hva enn dere har gjort mot Mebrin!"
-
-#. [objective]: condition=win
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:675
-#, fuzzy
-msgid "Defeat Urza Afalas"
 msgstr "Urza Afalas' død"
 
 #. [message]: speaker=Urza Afalas
 #. [message]: speaker=unit
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:731
-#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:1125
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:732
+#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:1129
 msgid "Now I pay for my crimes. But how many others will also suffer for them?"
 msgstr ""
 "Jeg har nå fått straff for mine synder. Men hvor mange andre tror dere også "
 "må lide for dem?"
 
 #. [message]: speaker=Urza Afalas
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:745
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:746
 #, fuzzy
 msgid "Fools! That lich will be the death of us all! You have sealed our doom!"
 msgstr ""
 "Tosker! Heksemesteren vil slakte oss alle. Dere har forseglet vår sjebne!"
 
 #. [unit]: type=Water Serpent, id=Beast of the Lake
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:771
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:772
 msgid "Beast of the Lake"
 msgstr "En fiende i innsjøen"
 
 #. [message]: speaker=Beast of the Lake
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:777
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:778
 msgid "Graar!"
 msgstr "Grarr!"
 
 #. [message]: speaker=Sir Gerrick
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:800
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:801
 #, fuzzy
 msgid ""
 "Well! That was easier than I thought it’d be. Looks like the undead aren’t "
@@ -2066,12 +2066,12 @@ msgstr ""
 "syvende og sist!"
 
 #. [message]: speaker=Deoran
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:805
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:806
 msgid "Indeed. The dark king has fallen."
 msgstr ""
 
 #. [message]: speaker=Urza Afalas
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:809
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:810
 msgid ""
 "I’m afraid it is not so. This was not the real Mebrin we destroyed, but a "
 "mere phantom. He resides in catacombs deep underneath the castle, but they "
@@ -2079,7 +2079,7 @@ msgid ""
 msgstr ""
 
 #. [message]: speaker=Deoran
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:814
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:815
 msgid ""
 "We spared your life in order to defeat the source of these undead, and now "
 "you tell us we cannot even reach it?! Ethiliel could have dispelled these "
@@ -2087,19 +2087,19 @@ msgid ""
 msgstr ""
 
 #. [message]: speaker=Urza Afalas
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:818
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:819
 msgid ""
 "If I had told you, you and the elves would have killed me! I didn’t have a "
 "choice!"
 msgstr ""
 
 #. [message]: speaker=Sir Gerrick
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:822
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:823
 msgid "Perhaps we should correct that error now."
 msgstr ""
 
 #. [message]: speaker=Urza Afalas
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:826
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:827
 #, fuzzy
 msgid ""
 "Then you would surely be lost in these woods forever at the mercy of the "
@@ -2110,7 +2110,7 @@ msgstr ""
 "og dine men tilbake til Wesnoth om du kan love meg tilgivelse."
 
 #. [message]: speaker=Deoran
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:831
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:832
 msgid ""
 "Now that the elves have abandoned us, that would seem to be our only choice. "
 "But what about Mebrin? The undead will keep attacking our homes unless we "
@@ -2118,7 +2118,7 @@ msgid ""
 msgstr ""
 
 #. [message]: speaker=Urza Afalas
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:835
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:836
 msgid ""
 "I do not know. But if we cannot storm his underground fastness we must "
 "either flee or wait here and certainly perish fighting him on his own terms. "
@@ -2127,24 +2127,24 @@ msgid ""
 msgstr ""
 
 #. [message]: speaker=Deoran
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:840
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:841
 msgid ""
 "Then we shall retreat towards Westin and prepare for the oncoming battle. I "
 "pray our only chance at victory was not lost today."
 msgstr ""
 
 #. [message]: speaker=Sir Gerrick
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:857
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:858
 msgid "Now, on with those bandits!"
 msgstr ""
 
 #. [message]: speaker=Sir Gerrick
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:875
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:876
 msgid "We have beaten them both, criminals and undead!"
 msgstr "Vi har beseiret både kriminelle og vandøde!"
 
 #. [message]: speaker=Deoran
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:880
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:881
 #, fuzzy
 msgid ""
 "We should make haste to return to Wesnoth before the harvest. Fall arrived "
@@ -2154,7 +2154,7 @@ msgstr ""
 "begynt å gulne, og vår hjelp trengs utvilsomt hjemme."
 
 #. [message]: speaker=Ethiliel
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:884
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:885
 #, fuzzy
 msgid ""
 "Do not be so hasty; great mages are no mere tricksters to be easily "
@@ -2170,14 +2170,14 @@ msgstr ""
 "på ondskapen, må vi søke dypere i mørket og rykke ondskapen opp med roten."
 
 #. [message]: speaker=Ethiliel
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:888
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:889
 msgid ""
 "There are strong magical wards placed here that would prevent you from "
 "entering, but I am capable of opening them to let us all pass."
 msgstr ""
 
 #. [message]: speaker=Deoran
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:893
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:894
 #, fuzzy
 msgid "My men are not dwarves! How are we to fight in catacombs and tunnels?"
 msgstr ""
@@ -2185,7 +2185,7 @@ msgstr ""
 "tidligere."
 
 #. [message]: speaker=Sir Gerrick
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:897
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:898
 #, fuzzy
 msgid ""
 "Someone must take news back to Wesnoth of this new evil that lurks near our "
@@ -2196,7 +2196,7 @@ msgstr ""
 "våre grenser."
 
 #. [message]: speaker=Deoran
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:901
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:902
 msgid ""
 "Go, Sir Gerrick, and take with you an escort of elves, if Ethiliel will "
 "permit it."
@@ -2205,13 +2205,13 @@ msgstr ""
 "avse for å eskortere han, Ethiliel?"
 
 #. [message]: speaker=Ethiliel
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:905
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:906
 #, fuzzy
 msgid "Indeed I will. My kinsfolk will protect you and your message!"
 msgstr "Hans budskap er av stor betydning, mine alver skal beskytte Gerrikk."
 
 #. [message]: speaker=Sir Gerrick
-#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:909
+#: data/campaigns/The_South_Guard/scenarios/05_Choice_In_The_Fog.cfg:910
 #, fuzzy
 msgid ""
 "Fare well, Deoran! I will be there to greet you when you return to Kerlath "
@@ -2412,54 +2412,54 @@ msgid "Defeat the Queen Xeila"
 msgstr "Beseire Nagadronningen"
 
 #. [message]: speaker=second_unit
-#: data/campaigns/The_South_Guard/scenarios/06a_Tidings_Good_and_Ill.cfg:326
+#: data/campaigns/The_South_Guard/scenarios/06a_Tidings_Good_and_Ill.cfg:331
 msgid ""
 "There are a group of naga occupying this area... they don’t look very "
 "friendly."
 msgstr ""
 
 #. [message]: speaker=Sir Gerrick
-#: data/campaigns/The_South_Guard/scenarios/06a_Tidings_Good_and_Ill.cfg:331
+#: data/campaigns/The_South_Guard/scenarios/06a_Tidings_Good_and_Ill.cfg:336
 msgid ""
-"if they are hostile to us, they could endanger Deoran and Ethiliel as well. "
+"If they are hostile to us, they could endanger Deoran and Ethiliel as well. "
 "Perhaps their leader can be reasoned with."
 msgstr ""
 
 #. [message]: speaker=Queen Xeila
-#: data/campaigns/The_South_Guard/scenarios/06a_Tidings_Good_and_Ill.cfg:346
+#: data/campaigns/The_South_Guard/scenarios/06a_Tidings_Good_and_Ill.cfg:351
 #, fuzzy
 msgid "Hss... Who will watch over my brood now? Hss..."
 msgstr "Hss... Hvem vil vokte over mine rollinger nå? Hss..."
 
 #. [message]: speaker=Kramak
-#: data/campaigns/The_South_Guard/scenarios/06a_Tidings_Good_and_Ill.cfg:360
+#: data/campaigns/The_South_Guard/scenarios/06a_Tidings_Good_and_Ill.cfg:365
 msgid "Ho! Me see elves. Elves tasty? Me take elves to eat."
 msgstr "Hå! Meg se alv! Alv smake bra? Åå, meg spise alv?"
 
 #. [message]: race=elf
-#: data/campaigns/The_South_Guard/scenarios/06a_Tidings_Good_and_Ill.cfg:365
+#: data/campaigns/The_South_Guard/scenarios/06a_Tidings_Good_and_Ill.cfg:370
 msgid "Err, Mr. Ogre, we are not very tasty."
 msgstr "Kjære rise, vi alver smaker ikke særlig godt..."
 
 #. [message]: speaker=Kramak
-#: data/campaigns/The_South_Guard/scenarios/06a_Tidings_Good_and_Ill.cfg:369
+#: data/campaigns/The_South_Guard/scenarios/06a_Tidings_Good_and_Ill.cfg:374
 #, fuzzy
 msgid "Oh. Me only want tasty food. Go away."
 msgstr "Umm. Meg bare vil ha njammemat. Alv gå!"
 
 #. [message]: speaker=Kramak
-#: data/campaigns/The_South_Guard/scenarios/06a_Tidings_Good_and_Ill.cfg:377
+#: data/campaigns/The_South_Guard/scenarios/06a_Tidings_Good_and_Ill.cfg:382
 #, fuzzy
 msgid "Wait! Me not believe you. Me eat you!"
 msgstr "Hum, vente! Meg tror alv lyver. Meg spise alv!"
 
 #. [message]: speaker=Kramak
-#: data/campaigns/The_South_Guard/scenarios/06a_Tidings_Good_and_Ill.cfg:388
+#: data/campaigns/The_South_Guard/scenarios/06a_Tidings_Good_and_Ill.cfg:393
 msgid "Bad food! It hurt me. Arrrrggghhhh!!"
 msgstr "Dumme mat! Mat skade meg! Arrrrrg!"
 
 #. [message]: speaker=Abdur
-#: data/campaigns/The_South_Guard/scenarios/06a_Tidings_Good_and_Ill.cfg:400
+#: data/campaigns/The_South_Guard/scenarios/06a_Tidings_Good_and_Ill.cfg:405
 #, fuzzy
 msgid ""
 "Travelers in this desolate land! I seek that dark Sage who is rumored to "
@@ -2469,7 +2469,7 @@ msgstr ""
 "er sagt å oppholde seg i skogen. Dere må være utsendt av ham?"
 
 #. [message]: speaker=Sir Gerrick
-#: data/campaigns/The_South_Guard/scenarios/06a_Tidings_Good_and_Ill.cfg:404
+#: data/campaigns/The_South_Guard/scenarios/06a_Tidings_Good_and_Ill.cfg:409
 msgid ""
 "Indeed! I just left my comrades, who were preparing to kill the vile "
 "Necromancer."
@@ -2478,20 +2478,20 @@ msgstr ""
 "ende på denne groteske åndemaneren."
 
 #. [message]: speaker=Abdur
-#: data/campaigns/The_South_Guard/scenarios/06a_Tidings_Good_and_Ill.cfg:408
+#: data/campaigns/The_South_Guard/scenarios/06a_Tidings_Good_and_Ill.cfg:413
 #, fuzzy
 msgid "Unworthy fools! I’ll kill you for this sacrilege!"
 msgstr "Uverdige tosker! Dere skal dø for deres dårskap!"
 
 #. [message]: speaker=Sir Gerrick
-#: data/campaigns/The_South_Guard/scenarios/06a_Tidings_Good_and_Ill.cfg:429
+#: data/campaigns/The_South_Guard/scenarios/06a_Tidings_Good_and_Ill.cfg:434
 msgid ""
 "These naga are still in control of the road. We must clear the way for "
 "Deoran and Ethiliel!"
 msgstr ""
 
 #. [message]: speaker=Sir Gerrick
-#: data/campaigns/The_South_Guard/scenarios/06a_Tidings_Good_and_Ill.cfg:442
+#: data/campaigns/The_South_Guard/scenarios/06a_Tidings_Good_and_Ill.cfg:447
 #, fuzzy
 msgid ""
 "I will hasten back to Kerlath Province now and seek the advice of the "
@@ -2500,14 +2500,14 @@ msgstr ""
 "Jeg skal skynde meg tilbake til Kerlath og rådslå med formannskapet i Westin!"
 
 #. [message]: speaker=Eliomir
-#: data/campaigns/The_South_Guard/scenarios/06a_Tidings_Good_and_Ill.cfg:446
+#: data/campaigns/The_South_Guard/scenarios/06a_Tidings_Good_and_Ill.cfg:451
 #, fuzzy
 msgid ""
 "We too will return to our councils. We have much to tell them... Much indeed."
 msgstr "Vi vil og dra for å advare våre råd. Det er sannelig mye å fortelle..."
 
 #. [message]: speaker=narrator
-#: data/campaigns/The_South_Guard/scenarios/06a_Tidings_Good_and_Ill.cfg:450
+#: data/campaigns/The_South_Guard/scenarios/06a_Tidings_Good_and_Ill.cfg:455
 #, fuzzy
 msgid ""
 "While the council debated the best course of action, Deoran and Ethiliel "
@@ -2527,18 +2527,18 @@ msgid "Elves"
 msgstr ""
 
 #. [event]
-#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:318
+#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:323
 msgid "Fssth"
 msgstr "Fssth"
 
 #. [event]
-#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:321
-#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:325
+#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:326
+#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:330
 msgid "Wizzi"
 msgstr ""
 
 #. [message]: speaker=narrator
-#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:469
+#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:474
 #, fuzzy
 msgid "Deoran and Urza Afalas led their men quickly from Mebrin’s fortress..."
 msgstr ""
@@ -2546,46 +2546,46 @@ msgstr ""
 "Mal M'brins festning..."
 
 #. [message]: speaker=Deoran
-#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:488
+#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:493
 #, fuzzy
 msgid "Will this forest ever end? How can we know what path to take?!"
 msgstr ""
 "Har denne skogen ingen ende? Hvordan skal vi vite hvilke stier vi skal følge?"
 
 #. [message]: speaker=Urza Afalas
-#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:492
+#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:497
 msgid ""
 "You have to follow me! I have often traveled these woods avoiding the elves "
 "with my comrades, and I know a secret path through it."
 msgstr ""
 
 #. [message]: speaker=Sir Gerrick
-#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:496
+#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:501
 #, fuzzy
 msgid "Can we trust him? His people are murderers and thieves!"
 msgstr "Kan vi stole på ham? Hans folk er mordere og tyver!"
 
 #. [message]: speaker=Minister Hylas
-#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:500
+#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:505
 #, fuzzy
 msgid ""
 "Do we have any choice? Our food is running out, and it will be winter soon..."
 msgstr "Har vi noe valg? Rasjonene er snart slutt, og vinteren nærmer seg."
 
 #. [message]: speaker=Minister Hylas
-#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:504
+#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:509
 msgid ""
 "Beware! I sense that there are many undead creatures chasing us. We should "
 "move quickly."
 msgstr ""
 
 #. [message]: speaker=Urza Afalas
-#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:508
+#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:513
 msgid "Let us go quickly, then. I will show you the way."
 msgstr ""
 
 #. [message]: speaker=Urza Afalas
-#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:515
+#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:520
 msgid ""
 "Remember that these woods are crawling with elves, and I don’t think they’ll "
 "receive us too kindly. Stay on the path and perhaps we can avoid at least "
@@ -2593,42 +2593,42 @@ msgid ""
 msgstr ""
 
 #. [objective]: condition=win
-#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:521
+#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:526
 #, fuzzy
 msgid "Move Deoran through the woods and over the river"
 msgstr "Bring Deoran til alvebyen i nordvest"
 
 #. [note]
-#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:549
+#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:554
 msgid ""
 "At the start of each turn, Urza Afalas will reveal as much of the secret "
 "path as is within his vision range."
 msgstr ""
 
 #. [message]: speaker=Urza Afalas
-#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:736
+#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:741
 msgid "Just a little further!"
 msgstr "Bare et lite stykke igjen!"
 
 #. [message]: speaker=Urza Afalas
-#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:755
+#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:760
 #, fuzzy
 msgid "We’re almost there!"
 msgstr "Vi er snart fremme!"
 
 #. [message]: speaker=Urza Afalas
-#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:774
+#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:779
 #, fuzzy
 msgid "Come on! Hurry!"
 msgstr "Kom igjen! Fort dere!"
 
 #. [message]: speaker=Urza Afalas
-#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:793
+#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:798
 msgid "Keep moving!"
 msgstr "Fortsett nordover!"
 
 #. [message]: speaker=Urza Afalas
-#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:817
+#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:822
 #, fuzzy
 msgid ""
 "From here you can see the banks of the river! Across it we will find the sun "
@@ -2638,13 +2638,13 @@ msgstr ""
 "vi få se solen igjen, og være ute av denne hersens skogen."
 
 #. [message]: race=elf
-#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:871
+#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:876
 msgid ""
 "You humans have kidnapped Mebrin the Sage. You will pay for your crimes."
 msgstr ""
 
 #. [message]: id=Deoran
-#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:875
+#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:880
 msgid ""
 "Your sage Mebrin is the criminal. He practices necromancy and now commands "
 "an army of undead. By the laws of Wesnoth, the punishment for his crimes is "
@@ -2652,19 +2652,19 @@ msgid ""
 msgstr ""
 
 #. [message]: race=elf
-#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:884
+#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:889
 msgid ""
 "It is you who is a criminal and who is in a company of criminals. We will "
 "not let you kill Mebrin!"
 msgstr ""
 
 #. [message]: race=elf
-#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:918
+#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:923
 msgid "We cannot allow you bandits and criminals to pass through our lands!"
 msgstr "Vi kan ikke la dere banditter passere gjennom våre enemerker!"
 
 #. [message]: speaker=Urza Afalas
-#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:922
+#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:927
 #, fuzzy
 msgid "We wish only to return to our homes!"
 msgstr ""
@@ -2672,23 +2672,23 @@ msgstr ""
 "hjemland!"
 
 #. [message]: race=elf
-#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:931
+#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:936
 #, fuzzy
 msgid "Nevertheless, we will have vengeance for Mebrin!!"
 msgstr "Det gjør på ingen måte opp for tapet av Mebrin. Hevn!!"
 
 #. [message]: race=elf
-#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:965
+#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:970
 msgid "Get them!"
 msgstr ""
 
 #. [message]: speaker=Deoran
-#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:1152
+#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:1156
 msgid "Thank heaven we have escaped that awful forest!"
 msgstr "Takk og pris for at vi endelig har sluppet ut av den grusomme skogen!"
 
 #. [message]: speaker=Sir Gerrick
-#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:1156
+#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:1160
 #, fuzzy
 msgid "Indeed, Afalas, you’ve earned my trust today."
 msgstr ""
@@ -2696,12 +2696,12 @@ msgstr ""
 "tillit."
 
 #. [message]: speaker=Urza Afalas
-#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:1160
+#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:1164
 msgid "I can only hope for mercy when I return to Westin."
 msgstr "Takk. Jeg håper selv å være verdig nåde når vi er tilbake i Westin."
 
 #. [message]: speaker=narrator
-#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:1165
+#: data/campaigns/The_South_Guard/scenarios/06b_The_Long_March.cfg:1169
 #, fuzzy
 msgid "But there was a dark cloud looming behind Deoran and his men..."
 msgstr "Men det var en mørk skygge i hælene på Deoran og hans menn..."
@@ -2721,25 +2721,25 @@ msgid "Mal M’Brin"
 msgstr "Mal M'Brin"
 
 #. [side]: type=Soulless, id=Groth
-#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:103
+#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:104
 #, fuzzy
 msgid "Groth"
 msgstr "Gruth"
 
 #. [side]: type=Troll Hero, id=Grek
-#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:143
+#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:144
 #, fuzzy
 msgid "Grek"
 msgstr "Jarek"
 
 #. [unit]: type=Eyestalk, id=Eye Guardian
-#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:224
+#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:225
 #, fuzzy
 msgid "Eye Guardian"
 msgstr "Vandød Vokter"
 
 #. [message]: speaker=Ethiliel
-#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:257
+#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:279
 #, fuzzy
 msgid ""
 "Proceed slowly, who knows what evils inhabited these parts before Mebrin was "
@@ -2749,35 +2749,35 @@ msgstr ""
 "ankom! Vi kan knapt ta for mange forholdsregler."
 
 #. [message]: speaker=narrator
-#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:263
+#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:285
 msgid ""
 "Cavalrymen and Dragoons will be less useful in the caves than soldiers who "
 "fight on foot."
 msgstr "Kavaleri vil være mindre effektive enn fotsoldater her nede."
 
 #. [message]: speaker=narrator
-#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:268
+#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:290
 #, fuzzy
 msgid "Also, soldiers with the <i>quick</i> trait will be useful in the dark."
 msgstr "Raske fotsoldater vil være best til å utforske de mørke hulene."
 
 #. [objective]: condition=win
-#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:276
-#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:463
-#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:521
+#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:298
+#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:485
+#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:543
 #, fuzzy
 msgid "Find the source of the undead under the citadel"
 msgstr "Finn de vandøde som har søkt tilflukt i hulene"
 
 #. [message]: speaker=Minister Hylas
-#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:318
+#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:340
 msgid ""
 "What horrid creature may that be? I’ve seen many wicked things in my life, "
 "but never one such as that."
 msgstr ""
 
 #. [message]: speaker=Ethiliel
-#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:323
+#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:345
 msgid ""
 "It must be a guardian of some kind set here by Mebrin. We elves have heard "
 "stories of these creatures but I wouldn’t have expected to come across "
@@ -2785,7 +2785,7 @@ msgid ""
 msgstr ""
 
 #. [message]: speaker=Grek
-#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:341
+#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:363
 #, fuzzy
 msgid ""
 "Ha! Humans and elves! What are you doing in our caves, and why shouldn’t we "
@@ -2795,7 +2795,7 @@ msgstr ""
 "grunn til at dere ikke skal bli vårt neste måltid?"
 
 #. [message]: speaker=Deoran
-#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:346
+#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:368
 #, fuzzy
 msgid "We mean no trespass. We are hunting the undead."
 msgstr ""
@@ -2803,7 +2803,7 @@ msgstr ""
 "søkt tilflukt i grottene."
 
 #. [message]: speaker=Grek
-#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:351
+#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:373
 #, fuzzy
 msgid ""
 "Undead! Ha! We kill undead all the time. You be friendly enough so we won’t "
@@ -2811,7 +2811,7 @@ msgid ""
 msgstr "Vandøde! Pah! Vi slakter vandøde hele tiden. Hva godt kan dere gjøre?"
 
 #. [message]: speaker=Grek
-#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:412
+#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:434
 #, fuzzy
 msgid ""
 "Gold is good. We can trade gold for weapons and fire. We will help you "
@@ -2821,7 +2821,7 @@ msgstr ""
 "reise fritt gjennom våre huler."
 
 #. [message]: speaker=Deoran
-#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:416
+#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:438
 #, fuzzy
 msgid ""
 "What aid can you offer us? We are not well suited to fighting in the caves."
@@ -2830,7 +2830,7 @@ msgstr ""
 "før."
 
 #. [message]: speaker=Grek
-#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:420
+#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:442
 #, fuzzy
 msgid ""
 "We already planned to kill the undead ourselves... First we kill dwarves "
@@ -2841,7 +2841,7 @@ msgstr ""
 "først drepte vi dverger! Nå har vi dvergenes tordenild."
 
 #. [message]: speaker=Grek
-#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:424
+#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:446
 #, fuzzy
 msgid ""
 "Go here and light the thunder fire and it will blast a back door into the "
@@ -2851,12 +2851,12 @@ msgstr ""
 "blåse veggen inn til de vandødes skjulested i filler!"
 
 #. [message]: speaker=Deoran
-#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:435
+#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:457
 msgid "What should we offer them for their help?"
 msgstr "Hva bør vi tilby for å få trollene til å hjelpe oss?"
 
 #. [option]: speaker=Deoran
-#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:437
+#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:459
 #, fuzzy
 msgid ""
 "We will give you $troll_help_cost gold pieces if you help us defeat the "
@@ -2864,98 +2864,98 @@ msgid ""
 msgstr "Vi vil gi dere 75 gullmynter så snart de vandøde er slått tilbake"
 
 #. [message]: speaker=Grek
-#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:457
+#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:479
 msgid ""
 "Haha, you humans and elves poor, you have not enough gold! If you want troll "
 "help, you must come to me when you have the gold."
 msgstr ""
 
 #. [objective]: condition=win
-#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:467
-#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:525
+#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:489
+#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:547
 msgid ""
 "Meet with and pay the troll leader $troll_help_cost gold to receive their "
 "help"
 msgstr ""
 
 #. [option]: speaker=Deoran
-#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:498
+#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:520
 msgid "We will offer you freedom and a place in our lands."
 msgstr "Vi kan tilby frihet og et fredelig liv i vårt land."
 
 #. [message]: speaker=Grek
-#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:502
+#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:524
 #, fuzzy
 msgid "Ha! Who wants stupid human lands!"
 msgstr "Bøff! Hvem vil ha fred og frihet!? Vi vil slåss og herje!"
 
 #. [message]: speaker=Minister Hylas
-#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:506
+#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:528
 #, fuzzy
 msgid "Then you will not aid us in our quest to destroy the undead menace?"
 msgstr "Betyr det at dere vil dere hjelpe oss i kampen mot de vandøde?"
 
 #. [message]: speaker=Grek
-#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:511
+#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:533
 msgid ""
 "Bah! We destroy the undead when we want. Maybe wait for a few years first. "
 "If you want troll help, you come see me and give proper payment!"
 msgstr ""
 
 #. [message]: speaker=Ethiliel
-#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:515
+#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:537
 msgid ""
 "These creatures are much too simpleminded to be of any help to us but at "
 "least they will not attack us outright. We will have to face Mebrin alone."
 msgstr ""
 
 #. [message]: speaker=Grek
-#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:585
+#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:607
 msgid "Ha, you can afford troll help this time?"
 msgstr ""
 
 #. [option]: speaker=Grek
-#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:594
+#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:616
 #, fuzzy
 msgid "Here’s $troll_help_cost for your help against the undead."
 msgstr "Vel. Alle menn må stå sammen mot de vandøde."
 
 #. [option]: speaker=Grek
-#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:602
+#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:624
 msgid "No, sorry."
 msgstr ""
 
 #. [message]: speaker=unit
-#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:635
+#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:657
 #, fuzzy
 msgid "I’m lighting it!"
 msgstr "Jeg tenner på..."
 
 #. [message]: speaker=unit
-#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:669
+#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:691
 #, fuzzy
 msgid "I’ve broken through!"
 msgstr "Vi har brutt gjennom!"
 
 #. [message]: speaker=Ethiliel
-#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:696
+#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:718
 msgid "Mebrin! My teacher of old! Can that truly be you?"
 msgstr ""
 
 #. [message]: speaker=Mal M'Brin
-#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:702
+#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:724
 msgid "Eth...Ethiliel? You are here?"
 msgstr ""
 
 #. [message]: speaker=Ethiliel
-#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:707
+#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:729
 msgid ""
 "How did you come to be here, you of all people, shut away from the trees and "
 "the light of the sun?"
 msgstr ""
 
 #. [message]: speaker=Mal M'Brin
-#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:712
+#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:734
 msgid ""
 "I broke their chains. They bound me, the accursed humans. Bound me! "
 "Kidnapped me to raise undead for them. Menaced me with cold iron... ahh, the "
@@ -2963,12 +2963,12 @@ msgid ""
 msgstr ""
 
 #. [message]: speaker=Deoran
-#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:717
+#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:739
 msgid "What is this? Elves bear steel swords."
 msgstr ""
 
 #. [message]: speaker=Ethiliel
-#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:722
+#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:744
 msgid ""
 "They are but warriors. All elves feel the shadow of iron, and to those who "
 "walk our higher paths it is a bane, interfering with our magic. But this "
@@ -2977,7 +2977,7 @@ msgid ""
 msgstr ""
 
 #. [message]: speaker=Mal M'Brin
-#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:727
+#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:749
 msgid ""
 "Humans! Betrayers! Tree-killers! They are a blight on the world! I shall "
 "bring my new servants north to the lands we so foolishly granted to men in "
@@ -2985,7 +2985,7 @@ msgid ""
 msgstr ""
 
 #. [message]: speaker=Ethiliel
-#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:732
+#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:754
 msgid ""
 "Your servants! Your servants are abominations worse than any human. They "
 "stink of the grave. This cannot be the sage Mebrin that I knew and revered "
@@ -2994,7 +2994,7 @@ msgid ""
 msgstr ""
 
 #. [message]: speaker=Mal M'Brin
-#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:737
+#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:759
 msgid ""
 "I am called Mal M’Brin now, Ethiliel, best student of mine. It is time for a "
 "new lesson. I was such as you, full of doubt and weakness, but now I have "
@@ -3004,27 +3004,27 @@ msgid ""
 msgstr ""
 
 #. [message]: speaker=Mal M'Brin
-#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:742
+#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:764
 msgid ""
 "Join me! Stand by my side! We shall rise and sweep the humans from the green "
 "world. Their corpses will serve us; their bones will dance for our pleasure."
 msgstr ""
 
 #. [message]: speaker=Ethiliel
-#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:747
+#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:769
 msgid ""
 "And when we were done, what would we have become? Unlife. Hungering shadows, "
 "devouring all we once cherished."
 msgstr ""
 
 #. [message]: speaker=Ethiliel
-#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:753
+#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:775
 msgid ""
 "No. It shall not be. The sage Mebrin is dead. It is time to put him to rest."
 msgstr ""
 
 #. [message]: speaker=Deoran
-#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:759
+#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:781
 #, fuzzy
 msgid ""
 "Even a mere human can see that you have become a mockery of all that you "
@@ -3035,14 +3035,14 @@ msgstr ""
 "skal sende deg til evig hvile, om det så blir det siste jeg gjør!"
 
 #. [message]: speaker=Mal M'Brin
-#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:763
+#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:785
 msgid ""
 "You, destroy me? Fool human. You will die, and the elves you have seduced "
 "with you. And you shall serve me beyond death, forever."
 msgstr ""
 
 #. [message]: speaker=Mal M'Brin
-#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:775
+#: data/campaigns/The_South_Guard/scenarios/07a_Into_the_Depths.cfg:797
 #, fuzzy
 msgid ""
 "Nooo! This cannot be. The elves I once led have destroyed me. After all I "
@@ -3962,9 +3962,9 @@ msgstr ""
 #: data/campaigns/The_South_Guard/utils/sg_story.cfg:33
 msgid ""
 "King Haldric summoned a young, undistinguished but promising cavalry officer "
-"named Deoran. Deoran was the son of Haldiel, who had fought with distinction "
-"alongside Konrad I in the wars against the orcs. The King had a mission for "
-"Haldiel’s son."
+"named Deoran. Deoran was the grandson of Haldiel, who had fought with "
+"distinction alongside Konrad I in the war to reclaim the throne. The King "
+"had a mission for him."
 msgstr ""
 
 #. [part]
@@ -4142,10 +4142,11 @@ msgstr ""
 
 #. [part]
 #: data/campaigns/The_South_Guard/utils/sg_story.cfg:133
+#: data/campaigns/The_South_Guard/utils/sg_story.cfg:173
 #, fuzzy
 msgid ""
 "Sir Deoran, Knight of Wesnoth, was summoned to Weldyn for a council with "
-"King Haldric himself. Storm clouds were brewing throughout the realm, and "
+"King Haldric himself. Dark clouds were brewing throughout the realm, and "
 "every commander would be needed to weather the storm..."
 msgstr ""
 "Deoran, ridder av Wesnoth, var innkalt foran hovedrådet ledet av Kong "
@@ -4232,17 +4233,16 @@ msgstr ""
 "gjenreisningen av den hardt rammede byen. Da snøen endelig smeltet, kom en "
 "budbringer fra Kong Haldrik."
 
-#. [part]
-#: data/campaigns/The_South_Guard/utils/sg_story.cfg:173
 #, fuzzy
-msgid ""
-"Sir Deoran, Knight of Wesnoth, was summoned to Weldyn for a council with "
-"King Haldric himself. Storm clouds were brewing throughout the realm, and "
-"every commander would be needed to weather the onslaught..."
-msgstr ""
-"Deoran, ridder av Wesnoth, ble innkalt foran det høyeste rådet i Weldyn av "
-"Kong Haldrik selv. Det brygget til uroligheter i store deler av landet, og "
-"alle tapre menn ville trenges for å stå imot herjingene som ventet..."
+#~ msgid ""
+#~ "Sir Deoran, Knight of Wesnoth, was summoned to Weldyn for a council with "
+#~ "King Haldric himself. Storm clouds were brewing throughout the realm, and "
+#~ "every commander would be needed to weather the onslaught..."
+#~ msgstr ""
+#~ "Deoran, ridder av Wesnoth, ble innkalt foran det høyeste rådet i Weldyn "
+#~ "av Kong Haldrik selv. Det brygget til uroligheter i store deler av "
+#~ "landet, og alle tapre menn ville trenges for å stå imot herjingene som "
+#~ "ventet..."
 
 #~ msgid "Time runs out"
 #~ msgstr "Tiden utløper"

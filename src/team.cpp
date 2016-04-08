@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2003 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2003 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -20,24 +20,21 @@
 #include "team.hpp"
 
 #include "ai/manager.hpp"
-#include "formula_string_utils.hpp"
+#include "formula/string_utils.hpp"
 #include "game_events/manager.hpp"
 #include "game_events/pump.hpp"
 #include "game_data.hpp"
-#include "map.hpp"
+#include "map/map.hpp"
 #include "resources.hpp"
 #include "play_controller.hpp"
 #include "game_preferences.hpp"
 #include "sdl/utils.hpp" // Only needed for int_to_color (!)
-#include "unit_types.hpp"
+#include "units/types.hpp"
 #include "synced_context.hpp"
 #include "whiteboard/side_actions.hpp"
 #include "network.hpp"
 #include "config_assign.hpp"
 #include "serialization/string_utils.hpp"
-
-#include <boost/foreach.hpp>
-#include <boost/assign/list_of.hpp>
 
 static lg::log_domain log_engine("engine");
 #define DBG_NG LOG_STREAM(debug, log_engine)
@@ -65,9 +62,9 @@ const boost::container::flat_set<std::string> team::attributes = boost::assign::
 	("recall_cost")("recruit")("save_id")("scroll_to_leader")
 	("share_vision")("share_maps")("share_view")("shroud")("shroud_data")("start_gold")
 	("suppress_end_turn_confirmation")
-	("team_name")("user_team_name")("village_gold")("village_support")
+	("team_name")("user_team_name")("side_name")("village_gold")("village_support")("is_local")
 	// Multiplayer attributes.
-	("action_bonus_count")("allow_changes")("allow_player")("color_lock")
+	("player_id")("action_bonus_count")("allow_changes")("allow_player")("color_lock")
 	("countdown_time")("disallow_observers")("faction")
 	("faction_from_recruit")("faction_name")("gold_lock")("income_lock")
 	("leader")("random_leader")("team_lock")("terrain_liked")
@@ -75,7 +72,6 @@ const boost::container::flat_set<std::string> team::attributes = boost::assign::
 	("disallow_shuffle")("description").convert_to_container<boost::container::flat_set<std::string> >();
 
 team::team_info::team_info() :
-	name(),
 	gold(0),
 	start_gold(0),
 	income(0),
@@ -86,17 +82,19 @@ team::team_info::team_info() :
 	can_recruit(),
 	team_name(),
 	user_team_name(),
+	side_name(),
 	save_id(),
 	current_player(),
 	countdown_time(),
 	action_bonus_count(0),
 	flag(),
 	flag_icon(),
-	description(),
+	id(),
 	scroll_to_leader(true),
 	objectives(),
 	objectives_changed(false),
 	controller(),
+	is_local(true),
 	defeat_condition(team::DEFEAT_CONDITION::NO_LEADER),
 	proxy_controller(team::PROXY_CONTROLLER::PROXY_HUMAN),
 	share_vision(team::SHARE_VISION::ALL),
@@ -112,25 +110,25 @@ team::team_info::team_info() :
 	lost(false),
 	carryover_percentage(game_config::gold_carryover_percentage),
 	carryover_add(false),
-	carryover_bonus(false),
+	carryover_bonus(0),
 	carryover_gold(0)
 {
 }
 
 void team::team_info::read(const config &cfg)
 {
-	name = cfg["name"].str();
 	gold = cfg["gold"];
 	income = cfg["income"];
 	team_name = cfg["team_name"].str();
 	user_team_name = cfg["user_team_name"];
+	side_name = cfg["side_name"];
 	save_id = cfg["save_id"].str();
 	current_player = cfg["current_player"].str();
 	countdown_time = cfg["countdown_time"].str();
 	action_bonus_count = cfg["action_bonus_count"];
 	flag = cfg["flag"].str();
 	flag_icon = cfg["flag_icon"].str();
-	description = cfg["id"].str();
+	id = cfg["id"].str();
 	scroll_to_leader = cfg["scroll_to_leader"].to_bool(true);
 	objectives = cfg["objectives"];
 	objectives_changed = cfg["objectives_changed"].to_bool();
@@ -138,15 +136,17 @@ void team::team_info::read(const config &cfg)
 	allow_player = cfg["allow_player"].to_bool(true);
 	chose_random = cfg["chose_random"].to_bool(false);
 	no_leader = cfg["no_leader"].to_bool();
-	defeat_condition = lexical_cast_default<team::DEFEAT_CONDITION>(cfg["defeat_condition"].str(), team::DEFEAT_CONDITION::NO_LEADER);
+	defeat_condition = cfg["defeat_condition"].to_enum<team::DEFEAT_CONDITION>(team::DEFEAT_CONDITION::NO_LEADER);
 	lost = cfg["lost"].to_bool(false);
 	hidden = cfg["hidden"].to_bool();
 	no_turn_confirmation = cfg["suppress_end_turn_confirmation"].to_bool();
 	side = cfg["side"].to_int(1);
 	carryover_percentage = cfg["carryover_percentage"].to_int(game_config::gold_carryover_percentage);
 	carryover_add = cfg["carryover_add"].to_bool(false);
-	carryover_bonus = cfg["carryover_bonus"].to_bool(false);
+	carryover_bonus = cfg["carryover_bonus"].to_double(1);
 	carryover_gold = cfg["carryover_gold"].to_int(0);
+	variables = cfg.child_or_empty("variables");
+	is_local = cfg["is_local"].to_bool(true);
 
 	if(cfg.has_attribute("color")) {
 		color = cfg["color"].str();
@@ -181,10 +181,7 @@ void team::team_info::read(const config &cfg)
 	}
 
 	if(save_id.empty()) {
-		save_id = description;
-	}
-	if (current_player.empty()) {
-		current_player = save_id;
+		save_id = id;
 	}
 
 	income_per_village = cfg["village_gold"].to_int(game_config::village_income);
@@ -196,7 +193,8 @@ void team::team_info::read(const config &cfg)
 	else
 		support_per_village = lexical_cast_default<int>(village_support, game_config::village_support);
 
-	controller = lexical_cast_default<team::CONTROLLER> (cfg["controller"].str(), team::CONTROLLER::AI);
+	controller = team::CONTROLLER::AI;
+	controller.parse(cfg["controller"].str());
 
 	//TODO: Why do we read disallow observers differently when controller is empty?
 	if (controller == CONTROLLER::EMPTY) {
@@ -204,7 +202,7 @@ void team::team_info::read(const config &cfg)
 	}
 	//override persistence flag if it is explicitly defined in the config
 	//by default, persistence of a team is set depending on the controller
-	persistent = cfg["persistent"].to_bool(this->controller == CONTROLLER::HUMAN || this->controller == CONTROLLER::NETWORK);
+	persistent = cfg["persistent"].to_bool(this->controller == CONTROLLER::HUMAN);
 
 	//========================================================
 	//END OF MESSY CODE
@@ -232,19 +230,20 @@ void team::team_info::handle_legacy_share_vision(const config& cfg)
 		}
 	}
 }
+
 void team::team_info::write(config& cfg) const
 {
 	cfg["gold"] = gold;
 	cfg["start_gold"] = start_gold;
 	cfg["income"] = income;
-	cfg["name"] = name;
 	cfg["team_name"] = team_name;
 	cfg["user_team_name"] = user_team_name;
+	cfg["side_name"] = side_name;
 	cfg["save_id"] = save_id;
 	cfg["current_player"] = current_player;
 	cfg["flag"] = flag;
 	cfg["flag_icon"] = flag_icon;
-	cfg["id"] = description;
+	cfg["id"] = id;
 	cfg["objectives"] = objectives;
 	cfg["objectives_changed"] = objectives_changed;
 	cfg["countdown_time"]= countdown_time;
@@ -272,11 +271,11 @@ void team::team_info::write(config& cfg) const
 	cfg["carryover_bonus"] = carryover_bonus;
 	cfg["carryover_gold"] = carryover_gold;
 
+	cfg.add_child("variables", variables);
 	cfg.add_child("ai", ai::manager::to_config(side));
 }
 
 team::team() :
-	savegame_config(),
 	gold_(0),
 	villages_(),
 	shroud_(),
@@ -327,17 +326,17 @@ void team::build(const config &cfg, const gamemap& map, int gold)
 	if (gold_ != info_.gold)
 		info_.start_gold = gold;
 	// Old code was doing:
-	// info_.start_gold = str_cast(gold) + " (" + info_.start_gold + ")";
+	// info_.start_gold = std::to_string(gold) + " (" + info_.start_gold + ")";
 	// Was it correct?
 
 	// Load in the villages the side controls at the start
-	BOOST_FOREACH(const config &v, cfg.child_range("village"))
+	for (const config &v : cfg.child_range("village"))
 	{
 		map_location loc(v);
 		if (map.is_village(loc)) {
 			villages_.insert(loc);
 		} else {
-			WRN_NG << "[side] " << name() << " [village] points to a non-village location " << loc << std::endl;
+			WRN_NG << "[side] " << current_player() << " [village] points to a non-village location " << loc << std::endl;
 		}
 	}
 
@@ -419,7 +418,7 @@ int team::minimum_recruit_price() const
 		return info_.minimum_recruit_price;
 	}else{
 		int min = 20;
-		BOOST_FOREACH(std::string recruit, info_.can_recruit){
+		for(std::string recruit : info_.can_recruit) {
 			const unit_type *ut = unit_types.find(recruit);
 			if(!ut)
 				continue;
@@ -436,7 +435,7 @@ int team::minimum_recruit_price() const
 
 bool team::calculate_enemies(size_t index) const
 {
-	if(teams == NULL || index >= teams->size()) {
+	if(teams == nullptr || index >= teams->size()) {
 		return false;
 	}
 
@@ -472,16 +471,8 @@ bool team::calculate_is_enemy(size_t index) const
 	return true;
 }
 
-namespace 
+namespace
 {
-	team::CONTROLLER unified_controller(team::CONTROLLER c)
-	{
-		if(c == team::CONTROLLER::NETWORK)
-			return team::CONTROLLER::HUMAN;
-		if(c == team::CONTROLLER::NETWORK_AI)
-			return team::CONTROLLER::AI;
-		return c;
-	}
 	class controller_server_choice : public synced_context::server_choice
 	{
 	public:
@@ -493,14 +484,14 @@ namespace
 		/// We are in a game with no mp server and need to do this choice locally
 		virtual config local_choice() const
 		{
-			return config_of("controller", new_controller_);
+			return config_of("controller", new_controller_)("is_local", true);
 		}
 		/// the request which is sended to the mp server.
 		virtual config request() const
 		{
 			return config_of
 				("new_controller", new_controller_)
-				("old_controller", unified_controller(team_.controller()))
+				("old_controller", team_.controller())
 				("side", team_.side());
 		}
 		virtual const char* name() const
@@ -515,26 +506,24 @@ namespace
 
 void team::change_controller_by_wml(const std::string& new_controller_string)
 {
-	try
-	{
-		CONTROLLER new_controller = lexical_cast<CONTROLLER> (new_controller_string);
-		if(new_controller == CONTROLLER::NETWORK || new_controller == CONTROLLER::NETWORK_AI) {
-			throw bad_enum_cast(new_controller_string, "CONTROLLER"); //catched below
-		}
-		if(new_controller == CONTROLLER::EMPTY && resources::controller->current_side() == this->side()) {
-			//We dont allow changing the currently active side to "null" controlled.
-			throw bad_enum_cast(new_controller_string, "CONTROLLER"); //catched below 
-		}
-		config choice = synced_context::ask_server_choice(controller_server_choice(new_controller, *this));
-		if(!new_controller.parse(choice["controller"])) {
-			ERR_NG << "recieved an invalid controller string from the server" << choice["controller"] << std::endl;
-		}
-		change_controller(new_controller);
-	}
-	catch(const bad_enum_cast&)
-	{
+	CONTROLLER new_controller;
+	if(!new_controller.parse(new_controller_string)) {
 		ERR_NG << "ignored attempt to change controller to " << new_controller_string << std::endl;
+		return;
 	}
+	if(new_controller == CONTROLLER::EMPTY && resources::controller->current_side() == this->side()) {
+		ERR_NG << "ignored attempt to change the currently playing side's controller to 'null'" << std::endl;
+		return;
+	}
+	config choice = synced_context::ask_server_choice(controller_server_choice(new_controller, *this));
+	if(!new_controller.parse(choice["controller"])) {
+		//TODO: this should be more than a ERR_NG message.
+		ERR_NG << "recieved an invalid controller string from the server" << choice["controller"] << std::endl;
+	}
+	if(!resources::controller->is_replay()) {
+		set_local(choice["is_local"].to_bool());
+	}
+	change_controller(new_controller);
 }
 
 void team::change_team(const std::string &name, const t_string &user_name)
@@ -554,7 +543,7 @@ void team::change_team(const std::string &name, const t_string &user_name)
 
 void team::clear_caches(){
 	// Reset the cache of allies for all teams
-	if(teams != NULL) {
+	if(teams != nullptr) {
 		for(std::vector<team>::const_iterator i = teams->begin(); i != teams->end(); ++i) {
 			i->enemies_.clear();
 			i->ally_shroud_.clear();
@@ -662,12 +651,12 @@ void team::remove_fog_override(const std::set<map_location> &hexes)
 
 void validate_side(int side)
 {
-	if(teams == NULL) {
+	if(teams == nullptr) {
 		return;
 	}
 
 	if(side < 1 || side > int(teams->size())) {
-		throw game::game_error("invalid side(" + str_cast(side) + ") found in unit definition");
+		throw game::game_error("invalid side(" + std::to_string(side) + ") found in unit definition");
 	}
 }
 
@@ -742,7 +731,7 @@ bool team::shroud_map::shared_value(const std::vector<const shroud_map*>& maps, 
 		return true;
 
 	// A tile is uncovered if it is uncovered on any shared map.
-	BOOST_FOREACH(const shroud_map * const shared_map, maps) {
+	for (const shroud_map * const shared_map : maps) {
 		if ( shared_map->enabled_  &&  !shared_map->value(x,y) )
 			return false;
 	}
@@ -847,13 +836,13 @@ std::string team::get_side_color_index(int side)
 {
 	size_t index = size_t(side-1);
 
-	if(teams != NULL && index < teams->size()) {
+	if(teams != nullptr && index < teams->size()) {
 		const std::string side_map = (*teams)[index].color();
 		if(!side_map.empty()) {
 			return side_map;
 		}
 	}
-	return str_cast(side);
+	return std::to_string(side);
 }
 
 std::string team::get_side_highlight(int side)
@@ -886,7 +875,7 @@ config team::to_config() const
 std::string team::allied_human_teams() const
 {
 	std::vector<int> res;
-	BOOST_FOREACH(const team& t, *teams)
+	for(const team& t : *teams)
 	{
 		if(!t.is_enemy(this->side()) && t.is_human()) {
 			res.push_back(t.side());

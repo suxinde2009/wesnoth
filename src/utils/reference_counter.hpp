@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2004 - 2015 by Philippe Plantier <ayin@anathas.org>
+   Copyright (C) 2004 - 2016 by Philippe Plantier <ayin@anathas.org>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org
 
    This program is free software; you can redistribute it and/or modify
@@ -21,7 +21,6 @@
 
 
 #include <limits>
-#include <boost/static_assert.hpp>
 
 namespace n_ref_counter {
 
@@ -32,7 +31,7 @@ namespace n_ref_counter {
    So any negative count disables reference counting.
 **/
 template <typename T_integral> class t_ref_counter {
-	BOOST_STATIC_ASSERT( std::numeric_limits<T_integral>::is_signed);
+	static_assert(std::numeric_limits<T_integral>::is_signed, "Reference counter must be a signed integer");
 
 	T_integral count_;
 

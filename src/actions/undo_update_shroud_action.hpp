@@ -1,14 +1,14 @@
 #pragma once
 
 #include "undo_action.hpp"
-#include "../unit_ptr.hpp"
-#include "../unit.hpp"
+#include "units/ptr.hpp"
+#include "units/unit.hpp"
 
 namespace actions
 {
 namespace undo
 {
-	
+
 struct auto_shroud_action : undo_action_base {
 	bool active;
 

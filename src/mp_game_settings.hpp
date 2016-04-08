@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2003 - 2015 by Jörg Hinrichs
+   Copyright (C) 2003 - 2016 by Jörg Hinrichs
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -19,13 +19,12 @@
 
 #include "config.hpp"
 #include "gettext.hpp"
-#include "make_enum.hpp"
-#include "savegame_config.hpp"
+#include "utils/make_enum.hpp"
 #include "version.hpp"
 
 #include <boost/optional.hpp>
 
-struct mp_game_settings : public savegame::savegame_config
+struct mp_game_settings
 {
 	mp_game_settings();
 	mp_game_settings(const config& cfg);

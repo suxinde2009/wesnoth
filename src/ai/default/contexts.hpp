@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2009 - 2015 by Yurii Chernyi <terraninfo@terraninfo.net>
+   Copyright (C) 2009 - 2016 by Yurii Chernyi <terraninfo@terraninfo.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -20,10 +20,15 @@
 #ifndef AI_DEFAULT_CONTEXTS_HPP_INCLUDED
 #define AI_DEFAULT_CONTEXTS_HPP_INCLUDED
 
-#include "../contexts.hpp"
-#include "formula_callable.hpp"
+#include "ai/contexts.hpp"
+#include "formula/callable.hpp"
+#include "utils/make_enum.hpp"
 
 #ifdef _MSC_VER
+#if _MSC_VER < 1600
+// SDL2 uses [dfi]vec.h which used to define EXPLICIT
+#undef EXPLICIT
+#endif
 #pragma warning(push)
 //silence "inherits via dominance" warnings
 #pragma warning(disable:4250)
@@ -34,9 +39,17 @@ namespace ai {
 
 
 struct target {
-	enum TYPE { VILLAGE, LEADER, EXPLICIT, THREAT, BATTLE_AID, MASS, SUPPORT };
+	MAKE_ENUM(TYPE,
+		(VILLAGE, "village")
+		(LEADER, "leader")
+		(EXPLICIT, "explicit")
+		(THREAT, "threat")
+		(BATTLE_AID, "battle aid")
+		(MASS, "mass")
+		(SUPPORT, "support")
+	);
 
-	target(const map_location& pos, double val, TYPE target_type=VILLAGE) : loc(pos), value(val), type(target_type)
+	target(const map_location& pos, double val, TYPE target_type=TYPE::VILLAGE) : loc(pos), value(val), type(target_type)
 	{}
 	map_location loc;
 	double value;
@@ -182,7 +195,7 @@ public:
 
 
 	default_ai_context_proxy()
-		: target_(NULL)
+		: target_(nullptr)
 	{
 	}
 

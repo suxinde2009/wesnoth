@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2004 - 2015 by Philippe Plantier <ayin@anathas.org>
+   Copyright (C) 2004 - 2016 by Philippe Plantier <ayin@anathas.org>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org
 
    This program is free software; you can redistribute it and/or modify
@@ -70,7 +70,7 @@ void scrollpane::hide(bool value)
 
 void scrollpane::add_widget(widget* w, int x, int y, int z_order)
 {
-	if (w == NULL)
+	if (w == nullptr)
 		return;
 
 	widget_map::iterator itor = std::find_if(content_.begin(), content_.end(), widget_finder(w));
@@ -162,8 +162,8 @@ SDL_Rect scrollpane::client_area() const
 
 void scrollpane::update_content_size()
 {
-	unsigned int maxx = 0;
-	unsigned int maxy = 0;
+	int maxx = 0;
+	int maxy = 0;
 
 	for(widget_map::iterator itor = content_.begin(); itor != content_.end(); ++itor) {
 		if(itor->second.x + itor->second.w->width() > maxx) {

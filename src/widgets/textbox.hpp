@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2003 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2003 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -15,7 +15,7 @@
 #ifndef TEXTBOX_HPP_INCLUDED
 #define TEXTBOX_HPP_INCLUDED
 
-#include "../serialization/unicode.hpp"
+#include "serialization/unicode.hpp"
 #include "font.hpp"
 
 #include "scrollarea.hpp"
@@ -92,6 +92,12 @@ private:
 
 	textbox* edit_target_;
 
+	/* This boolean is used to filter out any TextInput events that are received without
+	 * the corresponding KeyPress events. This is needed to avoid a bug when creating a
+	 * textbox using a hotkey.
+	 * */
+	bool listening_;
+
 	void handle_event(const SDL_Event& event, bool was_forwarded);
 
 	void handle_event(const SDL_Event& event);
@@ -106,9 +112,11 @@ private:
 
 	//make it so that only one textbox object can be receiving
 	//events at a time.
-	bool requires_event_focus(const SDL_Event *event=NULL) const;
+	bool requires_event_focus(const SDL_Event *event=nullptr) const;
 
 	bool show_scrollbar() const;
+	bool handle_text_input(const SDL_Event& event);
+	bool handle_key_down(const SDL_Event &event);
 };
 
 }

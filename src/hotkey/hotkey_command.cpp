@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2003 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2003 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -19,14 +19,12 @@
 #include "hotkey_item.hpp"
 #include "config.hpp"
 #include "preferences.hpp"
-
-#include <boost/foreach.hpp>
 #include "log.hpp"
 
 static lg::log_domain log_config("config");
-#define ERR_G  LOG_STREAM(err,   lg::general)
-#define LOG_G  LOG_STREAM(info,  lg::general)
-#define DBG_G  LOG_STREAM(debug, lg::general)
+#define ERR_G  LOG_STREAM(err,   lg::general())
+#define LOG_G  LOG_STREAM(info,  lg::general())
+#define DBG_G  LOG_STREAM(debug, lg::general())
 #define ERR_CF LOG_STREAM(err,   log_config)
 
 
@@ -66,7 +64,7 @@ hotkey::hotkey_command_temp hotkey_list_[] = {
 	{ hotkey::HOTKEY_SAVE_GAME, "save", N_("Save Game"), false, scope_game, "" },
 	{ hotkey::HOTKEY_SAVE_REPLAY, "savereplay", N_("Save Replay"), false, scope_game, "" },
 	{ hotkey::HOTKEY_SAVE_MAP, "savemap", N_("Save Map"), false, scope_game, "" },
-	{ hotkey::HOTKEY_LOAD_GAME, "load", N_("Load Game"), false, scope_game, "" },
+	{ hotkey::HOTKEY_LOAD_GAME, "load", N_("Load Game"), false, scope_game | scope_main, "" },
 	{ hotkey::HOTKEY_RECRUIT, "recruit", N_("Recruit"), false, scope_game, "" },
 	{ hotkey::HOTKEY_REPEAT_RECRUIT, "repeatrecruit", N_("Repeat Recruit"), false, scope_game, "" },
 	{ hotkey::HOTKEY_RECALL, "recall", N_("Recall"), false, scope_game, "" },
@@ -88,7 +86,7 @@ hotkey::hotkey_command_temp hotkey_list_[] = {
 	{ hotkey::HOTKEY_STATISTICS, "statistics", N_("Statistics"), false, scope_game, "" },
 	{ hotkey::HOTKEY_STOP_NETWORK, "stopnetwork", N_("Pause Network Game"), false, scope_game, "" },
 	{ hotkey::HOTKEY_START_NETWORK, "startnetwork", N_("Continue Network Game"), false, scope_game, "" },
-	{ hotkey::HOTKEY_QUIT_GAME, "quit", N_("Quit to Titlescreen"), false, scope_game | scope_editor | scope_main, "" },
+	{ hotkey::HOTKEY_QUIT_GAME, "quit", N_("Quit to Titlescreen"), false, scope_game | scope_editor, "" },
 	{ hotkey::HOTKEY_LABEL_TEAM_TERRAIN, "labelteamterrain", N_("Set Team Label"), false, scope_game, "" },
 	{ hotkey::HOTKEY_LABEL_TERRAIN, "labelterrain", N_("Set Label"), false, scope_game, "" },
 	{ hotkey::HOTKEY_CLEAR_LABELS, "clearlabels", N_("Clear Labels"), false, scope_game, "" },
@@ -105,6 +103,7 @@ hotkey::hotkey_command_temp hotkey_list_[] = {
 	{ hotkey::HOTKEY_REPLAY_SHOW_EACH, "replayshoweach", N_("Each Team"), false, scope_game, "" },
 	{ hotkey::HOTKEY_REPLAY_SHOW_TEAM1, "replayshowteam1", N_("Human Team"), false, scope_game, "" },
 	{ hotkey::HOTKEY_REPLAY_SKIP_ANIMATION, "replayskipanimation", N_("Skip Animation"), false, scope_game, "" },
+	{ hotkey::HOTKEY_REPLAY_EXIT, "replayexit", N_("End Replay"), false, scope_game, "" },
 	// Whiteboard commands
 	// TRANSLATORS: whiteboard menu entry: toggle planning mode
 	{ hotkey::HOTKEY_WB_TOGGLE, "wbtoggle", N_("whiteboard^Planning Mode"), false, scope_game, "" },
@@ -121,7 +120,7 @@ hotkey::hotkey_command_temp hotkey_list_[] = {
 	// TRANSLATORS: whiteboard menu entry: plan as though the chosen unit were dead
 	{ hotkey::HOTKEY_WB_SUPPOSE_DEAD, "wbsupposedead", N_("whiteboard^Suppose Dead"), false, scope_game, "" },
 
-	{ hotkey::HOTKEY_EDITOR_QUIT_TO_DESKTOP, "editor-quit-to-desktop", N_("Quit to Desktop"), false, scope_editor, "" },
+	{ hotkey::HOTKEY_QUIT_TO_DESKTOP, "quit-to-desktop", N_("Quit to Desktop"), false, scope_game | scope_editor | scope_main, "" },
 	{ hotkey::HOTKEY_EDITOR_MAP_CLOSE, "editor-close-map", N_("Close Map"), false, scope_editor, "" },
 
 	// These are not really hotkey items but menu entries to get expanded.
@@ -239,8 +238,7 @@ hotkey::hotkey_command_temp hotkey_list_[] = {
 	{ hotkey::HOTKEY_SPEAK_ALL, "speaktoall", N_("Speak to All"), false, scope_game, "" },
 	{ hotkey::HOTKEY_HELP, "help", N_("Help"), false, scope_game | scope_editor | scope_main, "" },
 	{ hotkey::HOTKEY_CHAT_LOG, "chatlog", N_("View Chat Log"), false, scope_game, "" },
-	//TODO: why does HOTKEY_USER_CMD have not only scope_game ?
-	{ hotkey::HOTKEY_USER_CMD, "command", N_("Enter User Command"), false, scope_game | scope_editor | scope_main, "" },
+	{ hotkey::HOTKEY_USER_CMD, "command", N_("Enter User Command"), false, scope_game, "" },
 	{ hotkey::HOTKEY_CUSTOM_CMD, "customcommand", N_("Custom Command"), false, scope_game, "" },
 	{ hotkey::HOTKEY_AI_FORMULA, "aiformula", N_("Run Formula"), false, scope_game, "" },
 	{ hotkey::HOTKEY_CLEAR_MSG, "clearmessages", N_("Clear Messages"), false, scope_game, "" },
@@ -389,9 +387,9 @@ void add_wml_hotkey(const std::string& id, const t_string& description, const co
 
 		if(!default_hotkey.empty() && !has_hotkey_item(id))
 		{
-			hotkey_item new_item(default_hotkey, true);
-			new_item.set_command(id);
-			if(new_item.valid())
+			hotkey::hotkey_ptr new_item = hotkey::load_from_config(default_hotkey);
+			new_item->set_command(id);
+			if(new_item->valid())
 			{
 				DBG_G << "added default description for the wml hotkey with id=" + id;
 				add_hotkey(new_item);
@@ -442,7 +440,7 @@ bool hotkey_command::null() const
 
 const hotkey_command& hotkey_command::get_command_by_command(hotkey::HOTKEY_COMMAND command)
 {
-	BOOST_FOREACH(hotkey_command& cmd, known_hotkeys)
+	for(hotkey_command& cmd : known_hotkeys)
 	{
 		if(cmd.id == command)
 			return cmd;
@@ -488,7 +486,7 @@ void init_hotkey_commands()  {
 	known_hotkeys = known_hotkeys_temp;
 
 	size_t i = 0;
-	BOOST_FOREACH(hotkey_command_temp& cmd, hotkey_list_)
+	for(hotkey_command_temp& cmd : hotkey_list_)
 	{
 		known_hotkeys.push_back( new hotkey_command(cmd.id, cmd.command, t_string(cmd.description, "wesnoth-lib"), cmd.hidden, cmd.scope, t_string(cmd.tooltip, "wesnoth-lib")));
 		command_map_[cmd.command] = i;

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2003 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2003 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -20,7 +20,7 @@
 #include "display.hpp"
 #include "filesystem.hpp"
 #include "filechooser.hpp"
-#include "formula_string_utils.hpp"
+#include "formula/string_utils.hpp"
 #include "gettext.hpp"
 #include "generators/map_create.hpp"
 #include "generators/map_generator.hpp"
@@ -30,20 +30,18 @@
 #include "editor/controller/editor_controller.hpp"
 #include "editor/editor_preferences.hpp"
 
-#include "gui/dialogs/editor_generate_map.hpp"
-#include "gui/dialogs/editor_new_map.hpp"
-#include "gui/dialogs/editor_resize_map.hpp"
+#include "gui/dialogs/editor/generate_map.hpp"
+#include "gui/dialogs/editor/new_map.hpp"
+#include "gui/dialogs/editor/resize_map.hpp"
 #include "gui/dialogs/edit_text.hpp"
 #include "gui/dialogs/message.hpp"
 #include "gui/dialogs/transient_message.hpp"
 #include "gui/widgets/window.hpp"
 
-#include "gui/dialogs/editor/editor_edit_scenario.hpp"
-#include "gui/dialogs/editor/editor_edit_side.hpp"
+#include "gui/dialogs/editor/edit_scenario.hpp"
+#include "gui/dialogs/editor/edit_side.hpp"
 
-#include <boost/foreach.hpp>
-
-#include "terrain_translation.hpp"
+#include "terrain/translation.hpp"
 
 #include "wml_separators.hpp"
 
@@ -120,7 +118,7 @@ bool context_manager::is_active_transitions_hotkey(const std::string& item) {
 
 size_t context_manager::modified_maps(std::string& message) {
 	std::vector<std::string> modified;
-	BOOST_FOREACH(map_context* mc, map_contexts_) {
+	for (map_context* mc : map_contexts_) {
 		if (mc->modified()) {
 			if (!mc->get_filename().empty()) {
 				modified.push_back(mc->get_filename());
@@ -129,8 +127,8 @@ size_t context_manager::modified_maps(std::string& message) {
 			}
 		}
 	}
-	BOOST_FOREACH(std::string& str, modified) {
-		message += "\n" + str;
+	for (std::string& str : modified) {
+		message += "\n" + std::string("• ") + str;
 	}
 	return modified.size();
 }
@@ -140,11 +138,11 @@ context_manager::context_manager(editor_display& gui, const config& game_config)
 	, game_config_(game_config)
 	, default_dir_(preferences::editor::default_dir())
 	, map_generators_()
-	, last_map_generator_(NULL)
+	, last_map_generator_(nullptr)
 	, current_context_index_(0)
 	, auto_update_transitions_(preferences::editor::auto_update_transitions())
 	, map_contexts_()
-    , clipboard_()
+	, clipboard_()
 {
 	if (default_dir_.empty()) {
 		default_dir_ = filesystem::get_dir(filesystem::get_user_data_dir() + "/editor");
@@ -155,19 +153,24 @@ context_manager::context_manager(editor_display& gui, const config& game_config)
 
 context_manager::~context_manager()
 {
-	BOOST_FOREACH(map_generator* m, map_generators_) {
+	for (map_generator* m : map_generators_) {
 		delete m;
 	}
-	BOOST_FOREACH(map_context* mc, map_contexts_) {
+	for (map_context* mc : map_contexts_) {
 		delete mc;
 	}
+
+	// Restore default window title
+	CVideo::get_singleton().set_window_title(game_config::get_default_title_string());
 }
 
 void context_manager::refresh_all()
 {
 	gui_.rebuild_all();
 	get_map_context().set_needs_terrain_rebuild(false);
-	gui_.redraw_everything();
+	gui_.create_buttons();
+	gui_.invalidate_all();
+	gui_.draw(false);
 	get_map_context().clear_changed_locations();
 	gui_.recalculate_minimap();
 }
@@ -183,10 +186,21 @@ void context_manager::load_map_dialog(bool force_same_context /* = false */)
 	if (fn.empty()) {
 		fn = default_dir_;
 	}
-	int res = dialogs::show_file_chooser_dialog(gui_, fn, _("Choose a File to Open"));
+	int res = dialogs::show_file_chooser_dialog(gui_.video(), fn, _("Choose a File to Open"));
 	if (res == 0) {
 		load_map(fn, !force_same_context);
 	}
+}
+
+void context_manager::load_mru_item(unsigned int index, bool force_same_context /* = false */)
+{
+	const std::vector<std::string>& mru = preferences::editor::recent_files();
+
+	if(mru.empty() || index >= mru.size()) {
+		return;
+	}
+
+	load_map(mru[index], !force_same_context);
 }
 
 void context_manager::edit_side_dialog(int side)
@@ -208,21 +222,21 @@ void context_manager::edit_side_dialog(int side)
 
 	bool no_leader = t.no_leader();
 	bool hidden = t.hidden();
-	bool share_view = t.share_view();
-	bool share_maps = t.share_maps();
 	bool fog = t.uses_fog();
 	bool shroud = t.uses_shroud();
 
+	team::SHARE_VISION share_vision = t.share_vision();
+
 	bool ok = gui2::teditor_edit_side::execute(side +1, team_name, user_team_name,
 			gold, income, village_gold, village_support,
-			fog, share_view, shroud, share_maps,
+			fog, shroud, share_vision,
 			controller, no_leader, hidden,
 			gui_.video());
 
 	if (ok) {
 		get_map_context().set_side_setup(side, team_name, user_team_name,
 				gold, income, village_gold, village_support,
-				fog, share_view, shroud, share_maps, controller, hidden, no_leader);
+				fog, shroud, share_vision, controller, hidden, no_leader);
 	}
 }
 
@@ -289,7 +303,7 @@ void context_manager::expand_open_maps_menu(std::vector<std::string>& items)
 					else
 						filename = _("(New Scenario)");
 				}
-				std::string label = "[" + lexical_cast<std::string>(mci) + "] "
+				std::string label = "[" + std::to_string(mci) + "] "
 					+ filename + (changed ? " [*]" : "");
 				if (map_contexts_[mci]->is_embedded()) {
 					label += " (E)";
@@ -300,6 +314,36 @@ void context_manager::expand_open_maps_menu(std::vector<std::string>& items)
 			break;
 		}
 	}
+}
+
+void context_manager::expand_load_mru_menu(std::vector<std::string>& items)
+{
+	std::vector<std::string> mru = preferences::editor::recent_files();
+
+	for (unsigned int i = 0; i < items.size(); ++i) {
+		if (items[i] != "EDITOR-LOAD-MRU-PLACEHOLDER") {
+			continue;
+		}
+
+		items.erase(items.begin() + i);
+
+		if(mru.empty()) {
+			items.insert(items.begin() + i, _("No Recent Files"));
+			continue;
+		}
+
+		for (std::string& path : mru)
+		{
+			// TODO: add proper leading ellipsization instead, since otherwise
+			// it'll be impossible to tell apart files with identical names and
+			// different parent paths.
+			path = filesystem::base_name(path);
+		}
+
+		items.insert(items.begin() + i, mru.begin(), mru.end());
+		break;
+	}
+
 }
 
 void context_manager::expand_areas_menu(std::vector<std::string>& items)
@@ -347,9 +391,10 @@ void context_manager::expand_sides_menu(std::vector<std::string>& items)
 			for (size_t mci = 0; mci < get_map_context().get_teams().size(); ++mci) {
 
 				const team& t = get_map_context().get_teams()[mci];
+				const std::string& teamname = t.user_team_name();
 				std::stringstream label;
 				label << "[" << mci+1 << "] ";
-				label << (t.name().empty() ? _("(New Side)") : t.name());
+				label << (teamname.empty() ? _("(New Side)") : teamname);
 				contexts.push_back(label.str());
 			}
 
@@ -368,9 +413,9 @@ void context_manager::expand_time_menu(std::vector<std::string>& items)
 
 			tod_manager* tod_m = get_map_context().get_time_manager();
 
-			assert(tod_m != NULL);
+			assert(tod_m != nullptr);
 
-			BOOST_FOREACH(const time_of_day& time, tod_m->times()) {
+			for (const time_of_day& time : tod_m->times()) {
 
 				std::stringstream label;
 				if (!time.image.empty())
@@ -394,7 +439,7 @@ void context_manager::expand_local_time_menu(std::vector<std::string>& items)
 
 			tod_manager* tod_m = get_map_context().get_time_manager();
 
-			BOOST_FOREACH(const time_of_day& time, tod_m->times(get_map_context().get_active_area())) {
+			for (const time_of_day& time : tod_m->times(get_map_context().get_active_area())) {
 
 				std::stringstream label;
 				if (!time.image.empty())
@@ -415,7 +460,7 @@ void context_manager::apply_mask_dialog()
 	if (fn.empty()) {
 		fn = default_dir_;
 	}
-	int res = dialogs::show_file_chooser_dialog(gui_, fn, _("Choose a Mask to Apply"));
+	int res = dialogs::show_file_chooser_dialog(gui_.video(), fn, _("Choose a Mask to Apply"));
 	if (res == 0) {
 		try {
 			map_context mask(game_config_, fn, gui_);
@@ -452,7 +497,7 @@ void context_manager::create_mask_to_dialog()
 	if (fn.empty()) {
 		fn = default_dir_;
 	}
-	int res = dialogs::show_file_chooser_dialog(gui_, fn, _("Choose Target Map"));
+	int res = dialogs::show_file_chooser_dialog(gui_.video(), fn, _("Choose Target Map"));
 	if (res == 0) {
 		try {
 			map_context map(game_config_, fn, gui_);
@@ -485,7 +530,7 @@ void context_manager::refresh_after_action(bool drag_part)
 				get_map_context().set_needs_terrain_rebuild(false);
 				gui_.invalidate_all();
 			} else {
-				BOOST_FOREACH(const map_location& loc, changed_locs) {
+				for (const map_location& loc : changed_locs) {
 					gui_.rebuild_terrain(loc);
 				}
 				gui_.invalidate(changed_locs);
@@ -576,7 +621,7 @@ void context_manager::save_map_as_dialog()
 	int overwrite_res = 1;
 	do {
 		input_name = old_input_name;
-		int res = dialogs::show_file_chooser_dialog_save(gui_, input_name, _("Save the Map As"), ".map");
+		int res = dialogs::show_file_chooser_dialog_save(gui_.video(), input_name, _("Save the Map As"), ".map");
 		if (res == 0) {
 			if (filesystem::file_exists(input_name)) {
 				res = gui2::show_message(gui_.video(), "",
@@ -604,7 +649,7 @@ void context_manager::save_scenario_as_dialog()
 	int overwrite_res = 1;
 	do {
 		input_name = old_input_name;
-		int res = dialogs::show_file_chooser_dialog_save(gui_, input_name, _("Save the Scenario As"), ".cfg");
+		int res = dialogs::show_file_chooser_dialog_save(gui_.video(), input_name, _("Save the Scenario As"), ".cfg");
 		if (res == 0) {
 			if (filesystem::file_exists(input_name)) {
 				res = gui2::show_message(gui_.video(), "",
@@ -623,7 +668,7 @@ void context_manager::save_scenario_as_dialog()
 
 void context_manager::init_map_generators(const config& game_config)
 {
-	BOOST_FOREACH(const config &i, game_config.child_range("multiplayer")) {
+	for (const config &i : game_config.child_range("multiplayer")) {
 
 		if (!i["map_generation"].empty() || !i["scenario_generation"].empty()) {
 
@@ -649,7 +694,6 @@ void context_manager::generate_map_dialog()
 	gui2::teditor_generate_map dialog;
 	dialog.set_map_generators(map_generators_);
 	dialog.select_map_generator(last_map_generator_);
-	dialog.set_gui(&gui_);
 	dialog.show(gui_.video());
 	if (dialog.get_retval() == gui2::twindow::OK) {
 		std::string map_string;
@@ -665,6 +709,7 @@ void context_manager::generate_map_dialog()
 		} else {
 			editor_map new_map(game_config_, map_string);
 			editor_action_whole_map a(new_map);
+			get_map_context().set_needs_labels_reset();		// Ensure Player Start labels are updated together with newly generated map
 			perform_refresh(a);
 		}
 		last_map_generator_ = map_generator;
@@ -698,7 +743,7 @@ void context_manager::create_default_context()
 		map_context* mc = new map_context(editor_map(game_config_, 44, 33, default_terrain), gui_, true, default_schedule);
 		add_map_context(mc);
 	} else {
-		BOOST_FOREACH(const std::string& filename, saved_windows_) {
+		for (const std::string& filename : saved_windows_) {
 			map_context* mc = new map_context(game_config_, filename, gui_);
 			add_map_context(mc);
 		}
@@ -727,6 +772,8 @@ void context_manager::close_current_context()
 	}
 	map_context_refresher(*this, *current);
 	delete current;
+
+	set_window_title();
 }
 
 void context_manager::save_all_maps(bool auto_save_windows)
@@ -942,15 +989,20 @@ void context_manager::reload_map()
 	refresh_all();
 }
 
-void context_manager::switch_context(const int index)
+void context_manager::switch_context(const int index, const bool force)
 {
 	if (index < 0 || static_cast<size_t>(index) >= map_contexts_.size()) {
 		WRN_ED << "Invalid index in switch map context: " << index << std::endl;
 		return;
 	}
+	if (index == current_context_index_ && !force) {
+		return;
+	}
 	map_context_refresher mcr(*this, *map_contexts_[index]);
 	current_labels = &get_map_context().get_labels();
 	current_context_index_ = index;
+
+	set_window_title();
 }
 
 void context_manager::replace_map_context(map_context* new_mc)
@@ -958,7 +1010,20 @@ void context_manager::replace_map_context(map_context* new_mc)
 	boost::scoped_ptr<map_context> del(map_contexts_[current_context_index_]);
 	map_context_refresher mcr(*this, *new_mc);
 	map_contexts_[current_context_index_] = new_mc;
+
+	set_window_title();
 }
 
+void context_manager::set_window_title()
+{
+	std::string map_name = filesystem::base_name(get_map_context().get_filename());
+
+	if(map_name.empty()){
+		map_name = get_map_context().is_pure_map() ? _("New Map") : _("New Scenario");
+	}
+
+	const std::string& wm_title_string = map_name + " - " + game_config::get_default_title_string();
+	CVideo::get_singleton().set_window_title(wm_title_string);
+}
 
 } //Namespace editor

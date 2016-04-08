@@ -1,11 +1,10 @@
 #include "configure_engine.hpp"
-#include "formula_string_utils.hpp"
+#include "formula/string_utils.hpp"
 #include "game_config_manager.hpp"
 #include "mp_game_settings.hpp"
 #include "settings.hpp"
 #include "tod_manager.hpp"
 
-#include <boost/foreach.hpp>
 #include <cassert>
 #include <sstream>
 #include <iostream>
@@ -27,18 +26,18 @@ configure_engine::configure_engine(saved_game& state) :
 	}
 
 	set_use_map_settings(use_map_settings_default());
+	if(state_.classification().get_tagname() == "scenario") {
+		for (const config& scenario :
+			game_config_manager::get()->game_config().child_range(state_.classification().get_tagname())) {
 
-	BOOST_FOREACH(const config& scenario,
-		game_config_manager::get()->game_config().child_range(state_.classification().get_tagname())) {
+			if (scenario["allow_new_game"].to_bool(true) || game_config::debug) {
 
-		if (!scenario["campaign_id"].empty() &&
-			(scenario["allow_new_game"].to_bool(true) || game_config::debug)) {
+				const std::string& title = (!scenario["new_game_title"].empty()) ?
+					scenario["new_game_title"] : scenario["name"];
 
-			const std::string& title = (!scenario["new_game_title"].empty()) ?
-				scenario["new_game_title"] : scenario["name"];
-
-			entry_points_.push_back(&scenario);
-			entry_point_titles_.push_back(title);
+				entry_points_.push_back(&scenario);
+				entry_point_titles_.push_back(title);
+			}
 		}
 	}
 }
@@ -216,7 +215,7 @@ void configure_engine::write_parameters()
 	scenario["experience_modifier"] = params.xp_modifier;
 	scenario["turns"] = params.num_turns;
 
-	BOOST_FOREACH(config& side, scenario.child_range("side"))
+	for (config& side : scenario.child_range("side"))
 	{
 		side["fog"] = params.fog_game;
 		side["shroud"] = params.shroud_game;

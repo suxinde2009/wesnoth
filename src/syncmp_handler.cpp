@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2014 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2014 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -15,8 +15,6 @@
 
 #include <cassert>
 #include <algorithm>
-
-#include <boost/foreach.hpp>
 
 syncmp_handler::syncmp_handler()
 {
@@ -51,7 +49,7 @@ void syncmp_registry::add_handler(syncmp_handler* handler)
 
 void syncmp_registry::pull_remote_choice()
 {
-	BOOST_FOREACH(syncmp_handler* phandler, handlers())
+	for(syncmp_handler* phandler : handlers())
 	{
 		phandler->pull_remote_choice();
 	}
@@ -59,7 +57,7 @@ void syncmp_registry::pull_remote_choice()
 
 void syncmp_registry::send_user_choice()
 {
-	BOOST_FOREACH(syncmp_handler* phandler, handlers())
+	for(syncmp_handler* phandler : handlers())
 	{
 		phandler->send_user_choice();
 	}

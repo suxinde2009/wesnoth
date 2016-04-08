@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2007 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2007 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org
 
    This program is free software; you can redistribute it and/or modify
@@ -21,17 +21,15 @@
 #include "ai/configuration.hpp"
 #include "dialogs.hpp"
 #include "display_chat_manager.hpp"
-#include "game_display.hpp"
 #include "game_preferences.hpp"
 #include "gettext.hpp"
 #include "log.hpp"
-#include "map.hpp"
+#include "map/map.hpp"
 #include "mp_ui_alerts.hpp"
 #include "scripting/plugins/context.hpp"
 #include "wml_separators.hpp"
 
-#include <boost/bind.hpp>
-#include <boost/foreach.hpp>
+#include "utils/functional.hpp"
 
 static lg::log_domain log_mp_connect("mp/connect");
 #define DBG_MP LOG_STREAM(debug, log_mp_connect)
@@ -43,7 +41,7 @@ std::vector<std::string> controller_options_names(
 	const std::vector<ng::controller_option>& controller_options)
 {
 	std::vector<std::string> names;
-	BOOST_FOREACH(const ng::controller_option& option, controller_options) {
+	for (const ng::controller_option& option : controller_options) {
 		names.push_back(option.second);
 	}
 
@@ -76,22 +74,22 @@ connect::side::side(connect& parent, ng::side_engine_ptr engine) :
 	color_lock_(engine_->cfg()["color_lock"].to_bool(
 		parent_->force_lock_settings())),
 	changed_(false),
-	label_player_number_(parent.video(), str_cast(engine_->index() + 1),
+	label_player_number_(parent.video(), std::to_string(engine_->index() + 1),
 		font::SIZE_LARGE, font::LOBBY_COLOR),
 	label_original_controller_(parent.video(), engine_->reserved_for(),
 		font::SIZE_SMALL),
-	label_gold_(parent.video(), str_cast(engine_->gold()), font::SIZE_SMALL, font::LOBBY_COLOR),
+	label_gold_(parent.video(), std::to_string(engine_->gold()), font::SIZE_SMALL, font::LOBBY_COLOR),
 	label_income_(parent.video(), get_income_string(engine_->income()), font::SIZE_SMALL,
 		font::LOBBY_COLOR),
-	combo_controller_(new gui::combo_drag(parent.disp(),
+	combo_controller_(new gui::combo_drag(parent.video(),
 		std::vector<std::string>(), parent.combo_control_group_)),
-	combo_ai_algorithm_(parent.disp(), std::vector<std::string>()),
-	combo_faction_(parent.disp(), std::vector<std::string>()),
+	combo_ai_algorithm_(parent.video(), std::vector<std::string>()),
+	combo_faction_(parent.video(), std::vector<std::string>()),
 	label_leader_name_(parent.video(), engine_->cfg()["name"], font::SIZE_SMALL),
-	combo_leader_(parent.disp(), std::vector<std::string>()),
-	combo_gender_(parent.disp(), std::vector<std::string>()),
-	combo_team_(parent.disp(), engine_->player_teams()),
-	combo_color_(parent.disp(), engine->get_colors()),
+	combo_leader_(parent.video(), std::vector<std::string>()),
+	combo_gender_(parent.video(), std::vector<std::string>()),
+	combo_team_(parent.video(), engine_->player_teams()),
+	combo_color_(parent.video(), engine->get_colors()),
 	slider_gold_(parent.video()),
 	slider_income_(parent.video())
 {
@@ -221,7 +219,7 @@ void connect::side::process_event()
 	if (slider_gold_.value() != engine_->gold() && slider_gold_.enabled()) {
 		engine_->set_gold(slider_gold_.value());
 		changed_ = true;
-		label_gold_.set_text(str_cast(engine_->gold()));
+		label_gold_.set_text(std::to_string(engine_->gold()));
 	}
 	if (slider_income_.value() != engine_->income() && slider_income_.enabled()) {
 		engine_->set_income(slider_income_.value());
@@ -251,7 +249,7 @@ void connect::side::update_ui()
 	combo_team_.set_selected(engine_->team());
 	combo_color_.set_selected(engine_->color());
 	slider_gold_.set_value(engine_->gold());
-	label_gold_.set_text(str_cast(engine_->gold()));
+	label_gold_.set_text(std::to_string(engine_->gold()));
 	slider_income_.set_value(engine_->income());
 	std::stringstream buf;
 	if (engine_->income() < 0) {
@@ -299,7 +297,7 @@ void connect::side::add_widgets_to_scrollpane(gui::scrollpane& pane, int pos)
 void connect::side::update_faction_combo()
 {
 	std::vector<std::string> factions;
-	BOOST_FOREACH(const config* faction, engine_->flg().choosable_factions()) {
+	for (const config* faction : engine_->flg().choosable_factions()) {
 		const std::string& name = (*faction)["name"];
 		const std::string& icon = (*faction)["image"];
 		if (!icon.empty()) {
@@ -332,7 +330,7 @@ void connect::side::update_controller_ui()
 	int sel = 0;
 	int i = 0;
 	std::vector<std::string> ais;
-	BOOST_FOREACH(const ai::description* desc,  parent_->ai_algorithms_){
+	for (const ai::description* desc :  parent_->ai_algorithms_) {
 		ais.push_back(desc->text);
 		if (desc->id == engine_->ai_algorithm()) {
 			sel = i;
@@ -365,10 +363,10 @@ void connect::side::update_controller_ui()
 	}
 }
 
-connect::connect(game_display& disp, const std::string& game_name,
+connect::connect(CVideo& v, const std::string& game_name,
 	const config& game_config, chat& c, config& gamelist,
 	ng::connect_engine& engine) :
-	mp::ui(disp, _("Game Lobby: ") + game_name, game_config, c, gamelist),
+	mp::ui(v, _("Game Lobby: ") + game_name, game_config, c, gamelist),
 	ai_algorithms_(),
 	sides_(),
 	engine_(engine),
@@ -408,7 +406,7 @@ connect::connect(game_display& disp, const std::string& game_name,
 	ai_algorithms_ = ai::configuration::get_available_ais();
 
 	// Sides.
-	BOOST_FOREACH(ng::side_engine_ptr s, engine_.side_engines()) {
+	for (ng::side_engine_ptr s : engine_.side_engines()) {
 		sides_.push_back(side(*this, s));
 	}
 	if (sides_.empty() && !game_config::debug) {
@@ -418,7 +416,7 @@ connect::connect(game_display& disp, const std::string& game_name,
 
 	// Add side widgets to scroll pane.
 	int side_pos_y_offset = 0;
-	BOOST_FOREACH(side& s, sides_) {
+	for (side& s : sides_) {
 		if (!s.engine()->allow_player() && !game_config::debug) {
 			continue;
 		}
@@ -436,9 +434,9 @@ connect::connect(game_display& disp, const std::string& game_name,
 	plugins_context_.reset(new plugins_context("Multiplayer Connect"));
 
 	//These structure initializers create a lobby::process_data_event
-	plugins_context_->set_callback("launch", 	boost::bind(&connect::plugin_event_helper, this, process_event_data (true, false)));
-	plugins_context_->set_callback("quit", 		boost::bind(&connect::plugin_event_helper, this, process_event_data (false, true)));
-	plugins_context_->set_callback("chat",		boost::bind(&connect::send_chat_message, this, boost::bind(get_str, _1, "message"), false),	true);
+	plugins_context_->set_callback("launch", 	std::bind(&connect::plugin_event_helper, this, process_event_data (true, false)));
+	plugins_context_->set_callback("quit", 		std::bind(&connect::plugin_event_helper, this, process_event_data (false, true)));
+	plugins_context_->set_callback("chat",		std::bind(&connect::send_chat_message, this, std::bind(get_str, _1, "message"), false),	true);
 }
 
 connect::~connect()
@@ -464,7 +462,7 @@ void connect::process_event_impl(const process_event_data & data)
 {
 	bool changed = false;
 
-	BOOST_FOREACH(side& s, sides_) {
+	for (side& s : sides_) {
 		s.process_event();
 		if (s.changed()) {
 			changed = true;
@@ -574,7 +572,7 @@ void connect::process_network_data(const config& data,
 		set_result(QUIT);
 	}
 
-	BOOST_FOREACH(side& s, sides_) {
+	for (side& s : sides_) {
 		s.update_ui();
 	}
 
@@ -607,7 +605,7 @@ void connect::update_playerlist_state(bool silent)
 	} else {
 		// Updates the player list
 		std::vector<std::string> playerlist;
-		BOOST_FOREACH(const std::string& user, engine_.connected_users()) {
+		for (const std::string& user : engine_.connected_users()) {
 			playerlist.push_back(user);
 		}
 		set_user_list(playerlist, silent);

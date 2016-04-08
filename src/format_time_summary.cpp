@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2003 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2003 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -22,16 +22,16 @@
 namespace util {
 
 std::string format_time_summary(time_t t) {
-	time_t curtime = time(NULL);
+	time_t curtime = time(nullptr);
 	const struct tm* timeptr = localtime(&curtime);
-	if(timeptr == NULL) {
+	if(timeptr == nullptr) {
 		return "";
 	}
 
 	const struct tm current_time = *timeptr;
 
 	timeptr = localtime(&t);
-	if(timeptr == NULL) {
+	if(timeptr == nullptr) {
 		return "";
 	}
 

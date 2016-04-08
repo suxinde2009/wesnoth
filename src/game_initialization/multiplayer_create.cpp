@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2007 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2007 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org
 
    This program is free software; you can redistribute it and/or modify
@@ -21,17 +21,17 @@
 
 #include "gettext.hpp"
 #include "game_config_manager.hpp"
-#include "game_display.hpp"
+#include "video.hpp"
 #include "game_preferences.hpp"
 #include "config_assign.hpp"
 #include "construct_dialog.hpp"
 #include "settings.hpp"
-#include "map.hpp"
-#include "map_exception.hpp"
+#include "map/map.hpp"
+#include "map/exception.hpp"
 #include "generators/map_create.hpp"
 #include "gui/dialogs/message.hpp"
 #include "gui/dialogs/campaign_difficulty.hpp"
-#include "gui/dialogs/mp_create_game_set_password.hpp"
+#include "gui/dialogs/multiplayer/mp_create_game_set_password.hpp"
 #include "gui/dialogs/transient_message.hpp"
 #include "gui/widgets/window.hpp"
 #include "minimap.hpp"
@@ -42,11 +42,12 @@
 #include "log.hpp"
 #include "wml_exception.hpp"
 #include "wml_separators.hpp"
-#include "formula_string_utils.hpp"
+#include "formula/string_utils.hpp"
 #include "widgets/multimenu.hpp"
+#include "sdl/utils.hpp"
+#include "sdl/rect.hpp"
 
-#include <boost/bind.hpp>
-#include <boost/foreach.hpp>
+#include "utils/functional.hpp"
 
 static lg::log_domain log_config("config");
 #define ERR_CF LOG_STREAM(err, log_config)
@@ -81,39 +82,39 @@ static config find_helper(const ng::create_engine * eng_ptr, const config & cfg)
 	return config_of("index", eng.find_level_by_id(str))("type", eng.find_level_type_by_id(str));
 }
 
-create::create(game_display& disp, const config& cfg, saved_game& state,
+create::create(CVideo& video, const config& cfg, saved_game& state,
 	chat& c, config& gamelist) :
-	ui(disp, _("Create Game"), cfg, c, gamelist),
-	tooltip_manager_(disp.video()),
+	ui(video, _("Create Game"), cfg, c, gamelist),
+	tooltip_manager_(video),
 	era_selection_(-1),
 	mod_selection_(-1),
 	level_selection_(-1),
-	eras_menu_(disp.video(), std::vector<std::string>()),
-	levels_menu_(disp.video(), std::vector<std::string>()),
-	mods_menu_(disp.video(), std::vector<std::string>()),
-	filter_name_label_(disp.video(), _("Filter:"), font::SIZE_SMALL, font::LOBBY_COLOR),
-	filter_num_players_label_(disp.video(), _("Number of players: any"), font::SIZE_SMALL, font::LOBBY_COLOR),
-	map_generator_label_(disp.video(), _("Random map options:"), font::SIZE_SMALL, font::LOBBY_COLOR),
-	era_label_(disp.video(), _("Era:"), font::SIZE_SMALL, font::LOBBY_COLOR),
-	no_era_label_(disp.video(), _("No eras available\nfor this game."),
+	eras_menu_(video, std::vector<std::string>()),
+	levels_menu_(video, std::vector<std::string>()),
+	mods_menu_(video, std::vector<std::string>()),
+	filter_name_label_(video, _("Filter:"), font::SIZE_SMALL, font::LOBBY_COLOR),
+	filter_num_players_label_(video, _("Number of players: any"), font::SIZE_SMALL, font::LOBBY_COLOR),
+	map_generator_label_(video, _("Random map options:"), font::SIZE_SMALL, font::LOBBY_COLOR),
+	era_label_(video, _("Era:"), font::SIZE_SMALL, font::LOBBY_COLOR),
+	no_era_label_(video, _("No eras available\nfor this game."),
 		font::SIZE_SMALL, font::LOBBY_COLOR),
-	mod_label_(disp.video(), _("Modifications:"), font::SIZE_SMALL, font::LOBBY_COLOR),
-	map_size_label_(disp.video(), "", font::SIZE_SMALL, font::LOBBY_COLOR),
-	num_players_label_(disp.video(), "", font::SIZE_SMALL, font::LOBBY_COLOR),
-	level_type_label_(disp.video(), "Game type:", font::SIZE_SMALL, font::LOBBY_COLOR),
-	launch_game_(disp.video(), _("Next")),
-	cancel_game_(disp.video(), _("Cancel")),
-	regenerate_map_(disp.video(), _("Regenerate")),
-	generator_settings_(disp.video(), _("Settings...")),
-	load_game_(disp.video(), _("Load Game...")),
-	level_type_combo_(disp, std::vector<std::string>()),
-	filter_num_players_slider_(disp.video()),
-	description_(disp.video(), 100, "", false),
-	filter_name_(disp.video(), 100, "", true, 256, font::SIZE_SMALL),
-	image_restorer_(NULL),
+	mod_label_(video, _("Modifications:"), font::SIZE_SMALL, font::LOBBY_COLOR),
+	map_size_label_(video, "", font::SIZE_SMALL, font::LOBBY_COLOR),
+	num_players_label_(video, "", font::SIZE_SMALL, font::LOBBY_COLOR),
+	level_type_label_(video, "Game type:", font::SIZE_SMALL, font::LOBBY_COLOR),
+	launch_game_(video, _("Next")),
+	cancel_game_(video, _("Cancel")),
+	regenerate_map_(video, _("Regenerate")),
+	generator_settings_(video, _("Settings...")),
+	load_game_(video, _("Load Game...")),
+	level_type_combo_(video, std::vector<std::string>()),
+	filter_num_players_slider_(video),
+	description_(video, 100, "", false),
+	filter_name_(video, 100, "", true, 256, font::SIZE_SMALL),
+	image_restorer_(nullptr),
 	image_rect_(null_rect),
 	available_level_types_(),
-	engine_(disp, state)
+	engine_(video, state)
 {
 	filter_num_players_slider_.set_min(1);
 	filter_num_players_slider_.set_max(9);
@@ -138,7 +139,7 @@ create::create(game_display& disp, const config& cfg, saved_game& state,
 
 	std::vector<std::string> combo_level_names;
 
-	BOOST_FOREACH(level_type_info type_info, all_level_types) {
+	for (level_type_info type_info : all_level_types) {
 		if (!engine_.get_levels_by_type_unfiltered(type_info.first).empty()) {
 			available_level_types_.push_back(type_info.first);
 			combo_level_names.push_back(type_info.second);
@@ -146,7 +147,7 @@ create::create(game_display& disp, const config& cfg, saved_game& state,
 	}
 
 	if (available_level_types_.empty()) {
-		gui2::show_transient_message(disp.video(), "", _("No games found."));
+		gui2::show_transient_message(video, "", _("No games found."));
 		throw game::error(_("No games found."));
 	}
 
@@ -157,7 +158,7 @@ create::create(game_display& disp, const config& cfg, saved_game& state,
 
 	// Set level selection according to the preferences, if possible.
 	size_t type_index = 0;
-	BOOST_FOREACH(ng::level::TYPE type, available_level_types_) {
+	for (ng::level::TYPE type : available_level_types_) {
 		if (preferences::level_type() == type.cast<int>()) {
 			break;
 		}
@@ -178,7 +179,7 @@ create::create(game_display& disp, const config& cfg, saved_game& state,
 	const std::vector<std::string>& era_names =
 		engine_.extras_menu_item_names(ng::create_engine::ERA);
 	if(era_names.empty()) {
-		gui2::show_transient_message(disp.video(), "", _("No eras found."));
+		gui2::show_transient_message(video, "", _("No eras found."));
 		throw config::error(_("No eras found"));
 	}
 	eras_menu_.set_items(era_names);
@@ -204,16 +205,16 @@ create::create(game_display& disp, const config& cfg, saved_game& state,
 	plugins_context_.reset(new plugins_context("Multiplayer Create"));
 
 	//These structure initializers create a lobby::process_data_event
-	plugins_context_->set_callback("create", 	boost::bind(&create::plugin_event_helper, this, process_event_data (true, false, false)));
-	plugins_context_->set_callback("load", 		boost::bind(&create::plugin_event_helper, this, process_event_data (false, true, false)));
-	plugins_context_->set_callback("quit", 		boost::bind(&create::plugin_event_helper, this, process_event_data (false, false, true)));
-	plugins_context_->set_callback("chat",		boost::bind(&create::send_chat_message, this, boost::bind(get_str, _1, "message"), false),	true);
-	plugins_context_->set_callback("select_level",	boost::bind(&gui::menu::move_selection, &levels_menu_, boost::bind(get_size_t, _1, "index", 0u)), true);
-	plugins_context_->set_callback("select_type",	boost::bind(&create::select_level_type_helper, this, boost::bind(get_str, _1, "type")), true);
+	plugins_context_->set_callback("create", 	std::bind(&create::plugin_event_helper, this, process_event_data (true, false, false)));
+	plugins_context_->set_callback("load", 		std::bind(&create::plugin_event_helper, this, process_event_data (false, true, false)));
+	plugins_context_->set_callback("quit", 		std::bind(&create::plugin_event_helper, this, process_event_data (false, false, true)));
+	plugins_context_->set_callback("chat",		std::bind(&create::send_chat_message, this, std::bind(get_str, _1, "message"), false),	true);
+	plugins_context_->set_callback("select_level",	std::bind(&gui::menu::move_selection, &levels_menu_, std::bind(get_size_t, _1, "index", 0u)), true);
+	plugins_context_->set_callback("select_type",	std::bind(&create::select_level_type_helper, this, std::bind(get_str, _1, "type")), true);
 
-	plugins_context_->set_accessor("game_config",	boost::bind(&create::game_config, this));
-	plugins_context_->set_accessor("get_selected",  boost::bind(&get_selected_helper, &engine_));
-	plugins_context_->set_accessor("find_level",  	boost::bind(&find_helper, &engine_, _1));
+	plugins_context_->set_accessor("game_config",	std::bind(&create::game_config, this));
+	plugins_context_->set_accessor("get_selected",  std::bind(&get_selected_helper, &engine_));
+	plugins_context_->set_accessor("find_level",  	std::bind(&find_helper, &engine_, _1));
 }
 
 void create::select_level_type_helper(const std::string & str)
@@ -308,7 +309,7 @@ void create::process_event_impl(const process_event_data & data)
 			set_result(CREATE);
 			return;
 		} else {
-			gui2::show_transient_message(disp_.video(), "",
+			gui2::show_transient_message(video(), "",
 				_("The level is invalid."));
 		}
 	}
@@ -320,7 +321,7 @@ void create::process_event_impl(const process_event_data & data)
 	if (data.load) {
 		try
 		{
-			savegame::loadgame load(disp_,
+			savegame::loadgame load(video(),
 				game_config_manager::get()->game_config(), engine_.get_state());
 
 			if (data.filename) {
@@ -332,6 +333,9 @@ void create::process_event_impl(const process_event_data & data)
 					return ;
 				}
 			}
+
+			if (load.cancel_orders())
+				engine_.get_state().cancel_orders();
 
 			engine_.prepare_for_saved_game();
 			set_result(LOAD_GAME);
@@ -380,7 +384,7 @@ void create::process_event_impl(const process_event_data & data)
 	}
 
 	if (engine_.generator_assigned() && generator_settings_.pressed()) {
-		engine_.generator_user_config(disp_);
+		engine_.generator_user_config(video());
 
 		level_changed = true;
 	}
@@ -393,7 +397,7 @@ void create::process_event_impl(const process_event_data & data)
 		engine_.init_generated_level_data();
 
 		if (!engine_.current_level().data()["error_message"].empty())
-			gui2::show_message(disp().video(), "map generation error",
+			gui2::show_message(video(), "map generation error",
 				engine_.current_level().data()["error_message"]);
 
 		level_changed = true;
@@ -531,7 +535,7 @@ void create::synchronize_selections()
 			levels_menu_.set_items(engine_.levels_menu_item_names());
 			levels_menu_.move_selection(index);
 			type_index = 0;
-			BOOST_FOREACH(ng::level::TYPE type, available_level_types_) {
+			for (ng::level::TYPE type : available_level_types_) {
 				if (level_type_at_index == type) {
 					level_type_combo_.set_selected(type_index);
 					break;
@@ -553,11 +557,11 @@ void create::draw_level_image()
 		engine_.current_level().create_image_surface(image_rect_));
 
 	if (!image.null()) {
-		SDL_Color back_color = {0,0,0,255};
+		SDL_Color back_color = {0,0,0,SDL_ALPHA_OPAQUE};
 		draw_centered_on_background(image, image_rect_, back_color,
 			video().getSurface());
 	} else {
-		surface display(disp_.get_screen_surface());
+		surface& display(video().getSurface());
 		sdl::fill_rect(display, &image_rect_,
 			SDL_MapRGB(display->format, 0, 0, 0));
 		update_rect(image_rect_);
@@ -613,7 +617,7 @@ void create::hide_children(bool hide)
 	filter_name_.hide(hide);
 
 	if (hide) {
-		image_restorer_.assign(NULL);
+		image_restorer_.assign(nullptr);
 	} else {
 		image_restorer_.assign(new surface_restorer(&video(), image_rect_));
 

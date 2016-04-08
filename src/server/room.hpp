@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2009 - 2015 by Tomasz Sniatowski <kailoran@gmail.com>
+   Copyright (C) 2009 - 2016 by Tomasz Sniatowski <kailoran@gmail.com>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -15,7 +15,7 @@
 #ifndef SERVER_ROOM_HPP_INCLUDED
 #define SERVER_ROOM_HPP_INCLUDED
 
-#include "../network.hpp"
+#include "network.hpp"
 #include "player.hpp"
 #include "simple_wml.hpp"
 
@@ -157,10 +157,10 @@ public:
 	 * @param docptr  the wml document to store the message in, if nonnull
 	 */
 	void send_server_message(const char* message, network::connection sock,
-		simple_wml::document* docptr = NULL) const;
+		simple_wml::document* docptr = nullptr) const;
 
 	void send_server_message(const std::string& message, network::connection sock,
-		simple_wml::document* docptr = NULL) const
+		simple_wml::document* docptr = nullptr) const
 	{
 		send_server_message(message.c_str(), sock, docptr);
 	}

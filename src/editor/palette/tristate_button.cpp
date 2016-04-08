@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2013 - 2015 by Fabian Mueller <fabianmueller5@gmx.de>
+   Copyright (C) 2013 - 2016 by Fabian Mueller <fabianmueller5@gmx.de>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -42,11 +42,11 @@ tristate_button::tristate_button(CVideo& video,
 		std::string button_image_name,
 		const bool auto_join) :
 				widget(video, auto_join),
-				baseImage_(NULL), touchedBaseImage_(NULL), activeBaseImage_(NULL),
-				itemImage_(NULL),
-				pressedDownImage_(NULL), pressedUpImage_(NULL), pressedBothImage_(NULL),
-				pressedBothActiveImage_(NULL), pressedDownActiveImage_(NULL), pressedUpActiveImage_(NULL),
-				touchedDownImage_(NULL), touchedUpImage_(NULL), touchedBothImage_(NULL),
+				baseImage_(nullptr), touchedBaseImage_(nullptr), activeBaseImage_(nullptr),
+				itemImage_(nullptr),
+				pressedDownImage_(nullptr), pressedUpImage_(nullptr), pressedBothImage_(nullptr),
+				pressedBothActiveImage_(nullptr), pressedDownActiveImage_(nullptr), pressedUpActiveImage_(nullptr),
+				touchedDownImage_(nullptr), touchedUpImage_(nullptr), touchedBothImage_(nullptr),
 				textRect_(),
 				state_(NORMAL), pressed_(false),
 				base_height_(0), base_width_(0),
@@ -164,9 +164,9 @@ void tristate_button::enable(bool new_val) {
 
 void tristate_button::draw_contents() {
 
-	surface image(NULL);
+	surface image(nullptr);
 
-	surface overlay(NULL);
+	surface overlay(nullptr);
 	surface base = baseImage_;
 
 	int offset = 0;
@@ -244,11 +244,11 @@ void tristate_button::draw_contents() {
 
 	//TODO avoid magic numbers
 	SDL_Rect r = sdl::create_rect(1, 1, 0, 0);
-	blit_surface(nitem, NULL, nbase, &r);
+	blit_surface(nitem, nullptr, nbase, &r);
 
 	if (!overlay.null()) {
 		surface noverlay = make_neutral_surface(overlay);
-		blit_surface(noverlay, NULL, nbase, NULL);
+		blit_surface(noverlay, nullptr, nbase, nullptr);
 	}
 
 //  TODO for later reference
@@ -406,6 +406,8 @@ void tristate_button::mouse_up(SDL_MouseButtonEvent const &event) {
 }
 
 void tristate_button::handle_event(const SDL_Event& event) {
+
+	gui::widget::handle_event(event);
 
 	if (hidden() || !enabled())
 		return;

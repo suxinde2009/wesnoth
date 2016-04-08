@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2008 - 2015 by Tomasz Sniatowski <kailoran@gmail.com>
+   Copyright (C) 2008 - 2016 by Tomasz Sniatowski <kailoran@gmail.com>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -16,7 +16,7 @@
 #define EDITOR_EDITOR_DISPLAY_HPP_INCLUDED
 
 #include "map/editor_map.hpp"
-#include "../display.hpp"
+#include "display.hpp"
 
 namespace editor {
 

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2011 - 2015 by Sytyi Nick <nsytyi@gmail.com>
+ Copyright (C) 2011 - 2016 by Sytyi Nick <nsytyi@gmail.com>
  Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
  This program is free software; you can redistribute it and/or modify
@@ -512,7 +512,7 @@ bool class_source_parser::check_allow_link(const std::string &s){
 		if (!current_.empty()){
 			std::string link = sub[1];
 			current_.back().add_link(link);
-			if (static_cast<const class_tag>(root_).find_tag(link,root_) == NULL){
+			if (static_cast<const class_tag>(root_).find_tag(link,root_) == nullptr){
 				errors_.add_link_error(input_,line_,link);
 			}
 		}

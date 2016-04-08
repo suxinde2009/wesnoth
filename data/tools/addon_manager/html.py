@@ -56,7 +56,7 @@ Select the add-on you want to install from the list and click "OK". The download
         "asc.gif", "bg.gif", "desc.gif"]:
         Popen(["cp", "-u", am_dir + name, path])
 
-    campaigns = data.get_or_create_sub("campaigns")
+    campaigns = data.get_all(tag = "campaigns")[0]
     w("<table class=\"tablesorter\" id=\"campaigns\">")
     w("<thead>")
     w("<tr>")
@@ -67,9 +67,9 @@ Select the add-on you want to install from the list and click "OK". The download
     w("<tbody>")
     root_dir = am_dir + "../../../"
     images_to_tc = []
-    for campaign in campaigns.get_all("campaign"):
+    for campaign in campaigns.get_all(tag = "campaign"):
         v = campaign.get_text_val
-        translations = campaign.get_all("translation")
+        translations = campaign.get_all(tag = "translation")
         languages = [x.get_text_val("language") for x in translations]
         w("<tr>")
         icon = v("icon", "")
@@ -175,7 +175,7 @@ Unit packs, terrain packs, music packs, etc. Usually a (perhaps optional) depend
 </div>
 <div id="footer">
 <p><a href="http://www.wesnoth.org/wiki/Site_Map">Site map</a></p>
-<p><a href="http://www.wesnoth.org/wiki/Wesnoth:Copyrights">Copyright</a> &copy; 2003&#8211;2015 The Battle for Wesnoth</p>
+<p><a href="http://www.wesnoth.org/wiki/Wesnoth:Copyrights">Copyright</a> &copy; 2003&#8211;2016 The Battle for Wesnoth</p>
 <p>Supported by <a href="http://www.jexiste.fr/">Jexiste</a></p>
 </div>
 </body></html>""")

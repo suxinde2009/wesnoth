@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2014 - 2015 by Chris Beck <render787@gmail.com>
+   Copyright (C) 2014 - 2016 by Chris Beck <render787@gmail.com>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -37,7 +37,7 @@
 
 #include "version.hpp"                  // for do_version_check, etc
 
-#include <boost/bind.hpp>
+#include "utils/functional.hpp"
 #include <boost/scoped_ptr.hpp>
 
 #include <cstring>
@@ -119,6 +119,28 @@ int lua_kernel_base::intf_show_dialog(lua_State *L)
 	return lua_gui2::show_dialog(L, *video_);
 }
 
+int lua_kernel_base::intf_show_message_dialog(lua_State *L)
+{
+	if (!video_) {
+		ERR_LUA << "Cannot show dialog, no video object is available to this lua kernel.";
+		lua_error(L);
+		return 0;
+	}
+
+	return lua_gui2::show_message_dialog(L, *video_);
+}
+
+int lua_kernel_base::intf_show_popup_dialog(lua_State *L)
+{
+	if (!video_) {
+		ERR_LUA << "Cannot show dialog, no video object is available to this lua kernel.";
+		lua_error(L);
+		return 0;
+	}
+
+	return lua_gui2::show_popup_dialog(L, *video_);
+}
+
 // The show lua console callback is similarly a method of lua kernel
 int lua_kernel_base::intf_show_lua_console(lua_State *L)
 {
@@ -128,7 +150,7 @@ int lua_kernel_base::intf_show_lua_console(lua_State *L)
 		return 0;
 	}
 
-	if (cmd_log_.external_log_ != NULL) {
+	if (cmd_log_.external_log_ != nullptr) {
 		std::string message = "There is already an external logger attached to this lua kernel, you cannot open the lua console right now.";
 		log_error(message.c_str());
 		cmd_log_ << message << "\n";
@@ -172,7 +194,7 @@ lua_kernel_base::lua_kernel_base(CVideo * video)
 		{ "debug",  luaopen_debug  },
 		{ "os",     luaopen_os     },
 		{ "bit32",  luaopen_bit32  }, // added in Lua 5.2
-		{ NULL, NULL }
+		{ nullptr, nullptr }
 	};
 	for (luaL_Reg const *lib = safe_libs; lib->func; ++lib)
 	{
@@ -241,39 +263,44 @@ lua_kernel_base::lua_kernel_base(CVideo * video)
 
 	static luaL_Reg const callbacks[] = {
 		{ "compare_versions",         &intf_compare_versions         		},
-		{ "have_file",                &lua_fileops::intf_have_file              },
+		{ "have_file",                &lua_fileops::intf_have_file          },
+		{ "read_file",                &lua_fileops::intf_read_file          },
 		{ "textdomain",               &lua_common::intf_textdomain   		},
 		{ "tovconfig",                &lua_common::intf_tovconfig		},
 		{ "get_dialog_value",         &lua_gui2::intf_get_dialog_value		},
 		{ "set_dialog_active",        &lua_gui2::intf_set_dialog_active		},
+		{ "set_dialog_visible",       &lua_gui2::intf_set_dialog_visible    },
 		{ "add_dialog_tree_node",     &lua_gui2::intf_add_dialog_tree_node	},
 		{ "set_dialog_callback",      &lua_gui2::intf_set_dialog_callback	},
 		{ "set_dialog_canvas",        &lua_gui2::intf_set_dialog_canvas		},
+		{ "set_dialog_focus",         &lua_gui2::intf_set_dialog_focus      },
 		{ "set_dialog_markup",        &lua_gui2::intf_set_dialog_markup		},
 		{ "set_dialog_value",         &lua_gui2::intf_set_dialog_value		},
 		{ "remove_dialog_item",       &lua_gui2::intf_remove_dialog_item    },
 		{ "dofile", 		      &dispatch<&lua_kernel_base::intf_dofile>           },
 		{ "require", 		      &dispatch<&lua_kernel_base::intf_require>          },
 		{ "show_dialog",	      &dispatch<&lua_kernel_base::intf_show_dialog>      },
+		{ "show_message_dialog",     &dispatch<&lua_kernel_base::intf_show_message_dialog> },
+		{ "show_popup_dialog",       &dispatch<&lua_kernel_base::intf_show_popup_dialog>   },
 		{ "show_lua_console",	      &dispatch<&lua_kernel_base::intf_show_lua_console> },
-		{ NULL, NULL }
+		{ nullptr, nullptr }
 	};
 
-
+/*
 	lua_cpp::Reg const cpp_callbacks[] = {
-/*		{ "dofile", 		boost::bind(&lua_kernel_base::intf_dofile, this, _1)},
-		{ "require", 		boost::bind(&lua_kernel_base::intf_require, this, _1)},
-		{ "show_dialog",	boost::bind(&lua_kernel_base::intf_show_dialog, this, _1)},
-		{ "show_lua_console",	boost::bind(&lua_kernel_base::intf_show_lua_console, this, _1)},
-*/		{ NULL, NULL }
+		{ "dofile", 		std::bind(&lua_kernel_base::intf_dofile, this, _1)},
+		{ "require", 		std::bind(&lua_kernel_base::intf_require, this, _1)},
+		{ "show_dialog",	std::bind(&lua_kernel_base::intf_show_dialog, this, _1)},
+		{ "show_lua_console",	std::bind(&lua_kernel_base::intf_show_lua_console, this, _1)},
 	};
+*/
 
 	lua_getglobal(L, "wesnoth");
 	if (!lua_istable(L,-1)) {
 		lua_newtable(L);
 	}
 	luaL_setfuncs(L, callbacks, 0);
-	lua_cpp::set_functions(L, cpp_callbacks, 0);
+	//lua_cpp::set_functions(L, cpp_callbacks, 0);
 	lua_setglobal(L, "wesnoth");
 
 	// Override the print function
@@ -308,7 +335,7 @@ lua_kernel_base::lua_kernel_base(CVideo * video)
 		{ "get_relative_dir",		&lua_map_location::intf_get_relative_dir		},
 		{ "parse_direction",		&lua_map_location::intf_parse_direction			},
 		{ "write_direction",		&lua_map_location::intf_write_direction			},
-		{ NULL, NULL }
+		{ nullptr, nullptr }
 	};
 
 	// Create the map_location table.
@@ -331,7 +358,7 @@ lua_kernel_base::lua_kernel_base(CVideo * video)
 		//run "ilua.set_strict()"
 		lua_pushstring(L, "set_strict");
 		lua_gettable(L, -2);
-		if (!protected_call(0,0, boost::bind(&lua_kernel_base::log_error, this, _1, _2))) {
+		if (!protected_call(0,0, std::bind(&lua_kernel_base::log_error, this, _1, _2))) {
 			cmd_log_ << "Failed to activate strict mode.\n";
 		} else {
 			cmd_log_ << "Activated strict mode.\n";
@@ -361,13 +388,13 @@ void lua_kernel_base::throw_exception(char const * msg, char const * context)
 
 bool lua_kernel_base::protected_call(int nArgs, int nRets)
 {
-	error_handler eh = boost::bind(&lua_kernel_base::log_error, this, _1, _2 );
+	error_handler eh = std::bind(&lua_kernel_base::log_error, this, _1, _2 );
 	return protected_call(nArgs, nRets, eh);
 }
 
 bool lua_kernel_base::load_string(char const * prog)
 {
-	error_handler eh = boost::bind(&lua_kernel_base::log_error, this, _1, _2 );
+	error_handler eh = std::bind(&lua_kernel_base::log_error, this, _1, _2 );
 	return load_string(prog, eh);
 }
 
@@ -450,10 +477,10 @@ bool lua_kernel_base::load_string(char const * prog, error_handler e_h)
 }
 
 // Call load_string and protected call. Make them throw exceptions.
-// 
+//
 void lua_kernel_base::throwing_run(const char * prog) {
 	cmd_log_ << "$ " << prog << "\n";
-	error_handler eh = boost::bind(&lua_kernel_base::throw_exception, this, _1, _2 );
+	error_handler eh = std::bind(&lua_kernel_base::throw_exception, this, _1, _2 );
 	load_string(prog, eh);
 	protected_call(0, 0, eh);
 }
@@ -474,7 +501,7 @@ void lua_kernel_base::interactive_run(char const * prog) {
 	experiment += prog;
 	experiment += ")";
 
-	error_handler eh = boost::bind(&lua_kernel_base::throw_exception, this, _1, _2 );
+	error_handler eh = std::bind(&lua_kernel_base::throw_exception, this, _1, _2 );
 
 	try {
 		// Try to load the experiment without syntax errors
@@ -497,7 +524,7 @@ int lua_kernel_base::intf_dofile(lua_State* L)
 	if (lua_fileops::load_file(L) != 1) return 0;
 	//^ should end with the file contents loaded on the stack. actually it will call lua_error otherwise, the return 0 is redundant.
 
-	error_handler eh = boost::bind(&lua_kernel_base::log_error, this, _1, _2 );
+	error_handler eh = std::bind(&lua_kernel_base::log_error, this, _1, _2 );
 	protected_call(0, LUA_MULTRET, eh);
 	return lua_gettop(L);
 }
@@ -532,7 +559,7 @@ int lua_kernel_base::intf_require(lua_State* L)
 	// stack is now [packagename] [wesnoth] [package] [chunk]
 	DBG_LUA << "require: loaded a file, now calling it\n";
 
-	if (!protected_call(L, 0, 1, boost::bind(&lua_kernel_base::log_error, this, _1, _2))) return 0;
+	if (!protected_call(L, 0, 1, std::bind(&lua_kernel_base::log_error, this, _1, _2))) return 0;
 	//^ historically if wesnoth.require fails it just yields nil and some logging messages, not a lua error
 	// stack is now [packagename] [wesnoth] [package] [results]
 
@@ -571,7 +598,7 @@ std::vector<std::string> lua_kernel_base::get_global_var_names()
 	int idx = lua_gettop(L);
 	lua_getglobal(L, "_G");
 	lua_pushnil(L);
-	
+
 	while (lua_next(L, idx+1) != 0) {
 		if (lua_isstring(L, -2)) {
 			ret.push_back(lua_tostring(L,-2));
@@ -607,10 +634,10 @@ std::vector<std::string> lua_kernel_base::get_attribute_names(const std::string 
 			return ret; //if we didn't get a table or userdata we can't proceed
 		}
 
-		var_path = var_path.substr(idx+1); // chop off the part of the path we just dereferenced		
+		var_path = var_path.substr(idx+1); // chop off the part of the path we just dereferenced
 		idx = var_path.find('.'); // find the next .
 	}
-	
+
 	std::string prefix = input.substr(0, last_dot);
 
 	lua_pushnil(L);

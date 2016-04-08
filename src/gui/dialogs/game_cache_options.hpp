@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2014 - 2015 by Ignacio Riquelme Morelle <shadowm2006@gmail.com>
+   Copyright (C) 2014 - 2016 by Ignacio Riquelme Morelle <shadowm2006@gmail.com>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -20,6 +20,7 @@
 namespace gui2
 {
 class tlabel;
+class tbutton;
 
 class tgame_cache_options : public tdialog
 {
@@ -39,6 +40,9 @@ public:
 
 private:
 	std::string cache_path_;
+
+	tbutton* clean_button_;
+	tbutton* purge_button_;
 	tlabel* size_label_;
 
 	void clean_cache_callback(CVideo& video);
@@ -57,7 +61,7 @@ private:
 	virtual const std::string& window_id() const;
 
 	/** Inherited from tdialog. */
-	void pre_show(CVideo& video, twindow& window);
+	void pre_show(twindow& window);
 
 	/** Inherited from tdialog. */
 	void post_show(twindow& window);

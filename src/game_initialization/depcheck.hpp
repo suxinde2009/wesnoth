@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2012 - 2015 by Boldizsár Lipka <lipkab@zoho.com>
+   Copyright (C) 2012 - 2016 by Boldizsár Lipka <lipkab@zoho.com>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -19,7 +19,7 @@
 #include <vector>
 #include "config.hpp"
 #include "gettext.hpp"
-#include "make_enum.hpp"
+#include "utils/make_enum.hpp"
 
 class CVideo;
 

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2013 - 2015 by Ignacio Riquelme Morelle <shadowm2006@gmail.com>
+   Copyright (C) 2013 - 2016 by Ignacio Riquelme Morelle <shadowm2006@gmail.com>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -71,7 +71,7 @@ bool open_object(const std::string& path_or_url)
 		ERR_DU << "open_object(): fork() failed" << std::endl;
 		return false;
 	} else if(child == 0) {
-		execlp(launcher, launcher, path_or_url.c_str(), reinterpret_cast<char*>(NULL));
+		execlp(launcher, launcher, path_or_url.c_str(), nullptr);
 		_exit(1); // This shouldn't happen.
 	} else if(waitpid(child, &child_status, 0) == -1) {
 		ERR_DU << "open_object(): waitpid() failed" << std::endl;
@@ -96,8 +96,8 @@ bool open_object(const std::string& path_or_url)
 	LOG_DU << "open_object(): on Win32, will use ShellExecute()\n";
 
 	std::wstring u16path = unicode_cast<std::wstring>(path_or_url);
-	
-	const ptrdiff_t res = reinterpret_cast<ptrdiff_t>(ShellExecute(NULL, L"open", u16path.c_str(), NULL, NULL, SW_SHOW));
+
+	const ptrdiff_t res = reinterpret_cast<ptrdiff_t>(ShellExecute(nullptr, L"open", u16path.c_str(), nullptr, nullptr, SW_SHOW));
 	if(res <= 32) {
 		ERR_DU << "open_object(): ShellExecute() failed (" << res << ")" << std::endl;
 		return false;

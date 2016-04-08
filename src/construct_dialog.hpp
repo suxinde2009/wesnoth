@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2006 - 2015 by Patrick Parker <patrick_x99@hotmail.com>
+   Copyright (C) 2006 - 2016 by Patrick Parker <patrick_x99@hotmail.com>
    wesnoth widget Copyright (C) 2003-5 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
@@ -151,9 +151,9 @@ private:
 class dialog_button : public button {
 public:
 	dialog_button(CVideo& video, const std::string& label, TYPE type=TYPE_PRESS,
-		int simple_result=CONTINUE_DIALOG, dialog_button_action *handler=NULL)
+		int simple_result=CONTINUE_DIALOG, dialog_button_action *handler=nullptr)
 		: button(video,label,type,"",DEFAULT_SPACE,false), simple_result_(simple_result),
-		parent_(NULL), handler_(handler)
+		parent_(nullptr), handler_(handler)
 	{}
 	void set_parent(class dialog *parent) {
 		parent_ = parent;
@@ -224,7 +224,7 @@ public:
 	//Constructor & destructor
 	//dialog - throws button::error() if standard buttons fail to initialize
 	//         throws utf8::invalid_utf8_exception() if message is invalid
-	dialog(display &disp,
+	dialog(CVideo& video,
 	       const std::string& title="",
 	       const std::string& message="",
 	       const DIALOG_TYPE type=MESSAGE,
@@ -237,8 +237,8 @@ public:
 	void set_image(dialog_image *const img) { delete image_; image_ = img; }
 	void set_image(surface surf, const std::string &caption="");
 	void set_menu(menu *const m) { if ( menu_ != empty_menu ) delete menu_;
-	                               menu_ =  m == NULL ? empty_menu : m; }
-	void set_menu(const std::vector<std::string> & menu_items, menu::sorter* sorter=NULL);
+	                               menu_ =  m == nullptr ? empty_menu : m; }
+	void set_menu(const std::vector<std::string> & menu_items, menu::sorter* sorter=nullptr);
 	void set_menu_items(const std::vector<std::string> &menu_items, bool keep_selection=false);
 
 	//add_pane - preview panes are not currently memory managed
@@ -277,13 +277,13 @@ public:
 	std::string textbox_text() const { return text_widget_->text();}
 	dialog_textbox& get_textbox() const { return *text_widget_; }
 	bool option_checked(unsigned int option_index=0);
-	display& get_display() { return disp_; }
+	CVideo& get_video() { return video_; }
 
 	/// Explicit freeing of class static resources.
 	/// Must not be called if any instances of this class exist.
 	/// Should be called if the display goes out of scope.
 	/// (Currently called by ~game_launcher.)
-	static void delete_empty_menu()  { delete empty_menu; empty_menu = NULL; }
+	static void delete_empty_menu()  { delete empty_menu; empty_menu = nullptr; }
 
 protected:
 	void set_result(const int result) { result_ = result; }
@@ -304,19 +304,19 @@ private:
 	//process - execute a single dialog processing loop and return the result
 	int process(dialog_process_info &info);
 
-	/// A pointer to this empty menu is used instead of NULL (for menu_).
+	/// A pointer to this empty menu is used instead of nullptr (for menu_).
 	static menu * empty_menu;
 	/// Provides create-on-use semantics for empty_menu.
-	static menu * get_empty_menu(display &disp);
+	static menu * get_empty_menu(CVideo& video);
 
 	//Members
-	display &disp_;
+	CVideo& video_;
 	dialog_image *image_;
 	std::string title_;
 	const style& style_;
 	label *title_widget_, *message_;
 	DIALOG_TYPE type_;
-	gui::menu *menu_; // Never NULL; it equals empty_menu if there is currently no menu.
+	gui::menu *menu_; // Never nullptr; it equals empty_menu if there is currently no menu.
 	std::vector<preview_pane*> preview_panes_;
 	std::vector< std::pair<dialog_button*,BUTTON_LOCATION> > button_pool_;
 	std::vector<dialog_button*> standard_buttons_;

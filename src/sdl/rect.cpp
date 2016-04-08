@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2014 - 2015 by Mark de Wever <koraq@xs4all.nl>
+   Copyright (C) 2014 - 2016 by Mark de Wever <koraq@xs4all.nl>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -90,14 +90,14 @@ void fill_rect_alpha(SDL_Rect &rect, Uint32 color, Uint8 alpha, surface target)
 	}
 
 	surface tmp(create_compatible_surface(target,rect.w,rect.h));
-	if(tmp == NULL) {
+	if(tmp == nullptr) {
 		return;
 	}
 
 	SDL_Rect r = {0,0,rect.w,rect.h};
 	sdl::fill_rect(tmp,&r,color);
 	SDL_SetAlpha(tmp,SDL_SRCALPHA,alpha);
-	sdl_blit(tmp,NULL,target,&rect);
+	sdl_blit(tmp,nullptr,target,&rect);
 }
 
 void draw_rectangle(int x, int y, int w, int h, Uint32 color, surface target)

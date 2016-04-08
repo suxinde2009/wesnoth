@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2003 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2003 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -30,24 +30,23 @@
 #include "generators/map_generator.hpp" // for mapgen_exception
 #include "gettext.hpp"                  // for _
 #include "gui/dialogs/language_selection.hpp"  // for tlanguage_selection
+#include "gui/dialogs/loadscreen.hpp"
 #include "gui/dialogs/message.hpp" //for show error message
-#include "gui/dialogs/mp_host_game_prompt.hpp" //for host game prompt
-#include "gui/dialogs/mp_method_selection.hpp"
+#include "gui/dialogs/multiplayer/mp_host_game_prompt.hpp" //for host game prompt
+#include "gui/dialogs/multiplayer/mp_method_selection.hpp"
 #include "gui/dialogs/transient_message.hpp"  // for show_transient_message
 #include "gui/dialogs/title_screen.hpp"  // for show_debug_clock_button
 #include "gui/widgets/settings.hpp"     // for new_widgets
 #include "gui/widgets/window.hpp"       // for twindow, etc
 #include "intro.hpp"
 #include "language.hpp"                 // for language_def, etc
-#include "loadscreen.hpp"               // for loadscreen, etc
 #include "log.hpp"                      // for LOG_STREAM, logger, general, etc
-#include "map_exception.hpp"
+#include "map/exception.hpp"
 #include "game_initialization/multiplayer.hpp"              // for start_client, etc
 #include "game_initialization/create_engine.hpp"
 #include "network.hpp"
 #include "game_initialization/playcampaign.hpp"             // for play_game, etc
 #include "preferences.hpp"              // for disable_preferences_save, etc
-#include "preferences_display.hpp"      // for detect_video_settings, etc
 #include "savegame.hpp"                 // for clean_saves, etc
 #include "scripting/application_lua_kernel.hpp"
 #include "sdl/utils.hpp"                // for surface
@@ -57,21 +56,21 @@
 #include "statistics.hpp"
 #include "tstring.hpp"                  // for operator==, operator!=
 #include "util.hpp"                     // for lexical_cast_default
+#include "video.hpp"                    // for CVideo
 #include "wml_exception.hpp"            // for twml_exception
 
 #include <algorithm>                    // for copy, max, min, stable_sort
-#include <boost/foreach.hpp>            // for auto_any_base, etc
 #include <boost/optional.hpp>           // for optional
 #include <boost/tuple/tuple.hpp>        // for tuple
-#include <cstdlib>                     // for NULL, system
+#include <cstdlib>                     // for system
 #include <iostream>                     // for operator<<, basic_ostream, etc
 #include <utility>                      // for pair
-#include "SDL.h"                        // for SDL_INIT_JOYSTICK, etc
-#include "SDL_events.h"                 // for SDL_ENABLE
-#include "SDL_joystick.h"               // for SDL_JoystickEventState, etc
-#include "SDL_timer.h"                  // for SDL_Delay
-#include "SDL_version.h"                // for SDL_VERSION_ATLEAST
-#include "SDL_video.h"                  // for SDL_WM_SetCaption, etc
+#include <SDL.h>                        // for SDL_INIT_JOYSTICK, etc
+#include <SDL_events.h>                 // for SDL_ENABLE
+#include <SDL_joystick.h>               // for SDL_JoystickEventState, etc
+#include <SDL_timer.h>                  // for SDL_Delay
+#include <SDL_version.h>                // for SDL_VERSION_ATLEAST
+#include <SDL_video.h>                  // for SDL_WM_SetCaption, etc
 
 #ifdef DEBUG_WINDOW_LAYOUT_GRAPHS
 #include "gui/widgets/debug.hpp"
@@ -92,9 +91,9 @@ static lg::log_domain log_config("config");
 #define WRN_CONFIG LOG_STREAM(warn, log_config)
 #define LOG_CONFIG LOG_STREAM(info, log_config)
 
-#define LOG_GENERAL LOG_STREAM(info, lg::general)
-#define WRN_GENERAL LOG_STREAM(warn, lg::general)
-#define DBG_GENERAL LOG_STREAM(debug, lg::general)
+#define LOG_GENERAL LOG_STREAM(info, lg::general())
+#define WRN_GENERAL LOG_STREAM(warn, lg::general())
+#define DBG_GENERAL LOG_STREAM(debug, lg::general())
 
 static lg::log_domain log_mp_create("mp/create");
 #define DBG_MP LOG_STREAM(debug, log_mp_create)
@@ -107,8 +106,7 @@ static lg::log_domain log_enginerefac("enginerefac");
 
 game_launcher::game_launcher(const commandline_options& cmdline_opts, const char *appname) :
 	cmdline_opts_(cmdline_opts),
-	disp_(NULL),
-	video_(),
+	video_(new CVideo()),
 	thread_manager(),
 	font_manager_(),
 	prefs_manager_(),
@@ -116,7 +114,6 @@ game_launcher::game_launcher(const commandline_options& cmdline_opts, const char
 	main_event_context_(),
 	hotkey_manager_(),
 	music_thinker_(),
-	resize_monitor_(),
 	test_scenario_("test"),
 	screenshot_map_(),
 	screenshot_filename_(),
@@ -188,7 +185,7 @@ game_launcher::game_launcher(const commandline_options& cmdline_opts, const char
 	if (cmdline_opts_.fps)
 		preferences::set_show_fps(true);
 	if (cmdline_opts_.fullscreen)
-		preferences::set_fullscreen(true);
+		video().set_fullscreen(true);
 	if (cmdline_opts_.load)
 		game::load_game_exception::game = *cmdline_opts_.load;
 	if (cmdline_opts_.max_fps) {
@@ -246,8 +243,8 @@ game_launcher::game_launcher(const commandline_options& cmdline_opts, const char
 		const int xres = cmdline_opts_.resolution->get<0>();
 		const int yres = cmdline_opts_.resolution->get<1>();
 		if(xres > 0 && yres > 0) {
-			const std::pair<int,int> resolution(xres,yres);
-			preferences::set_resolution(resolution);
+			preferences::_set_resolution(std::make_pair(xres, yres));
+			preferences::_set_maximized(false);
 		}
 	}
 	if (cmdline_opts_.screenshot) {
@@ -291,7 +288,7 @@ game_launcher::game_launcher(const commandline_options& cmdline_opts, const char
 
 	}
 	if (cmdline_opts_.windowed)
-		preferences::set_fullscreen(false);
+		video().set_fullscreen(false);
 	if (cmdline_opts_.with_replay)
 		game::load_game_exception::show_replay = true;
 
@@ -315,17 +312,6 @@ game_launcher::game_launcher(const commandline_options& cmdline_opts, const char
 	else if (no_music) { // else disable the music in nomusic mode
 		preferences::set_music(false);
 	}
-}
-
-game_display& game_launcher::disp()
-{
-	if(disp_.get() == NULL) {
-		if(get_video_surface() == NULL) {
-			throw CVideo::error();
-		}
-		disp_.assign(game_display::create_dummy_display(video_));
-	}
-	return *disp_.get();
 }
 
 bool game_launcher::init_joystick()
@@ -359,7 +345,7 @@ bool game_launcher::init_language()
 	language_def locale;
 	if(cmdline_opts_.language) {
 		std::vector<language_def> langs = get_languages();
-		BOOST_FOREACH(const language_def & def, langs) {
+		for(const language_def & def : langs) {
 			if(def.localename == *cmdline_opts_.language) {
 				locale = def;
 				break;
@@ -379,75 +365,29 @@ bool game_launcher::init_language()
 
 bool game_launcher::init_video()
 {
+	// Handle special commandline launch flags
 	if(cmdline_opts_.nogui || cmdline_opts_.headless_unit_test) {
 		if( !(cmdline_opts_.multiplayer || cmdline_opts_.screenshot || cmdline_opts_.plugin_file || cmdline_opts_.headless_unit_test) ) {
 			std::cerr << "--nogui flag is only valid with --multiplayer or --screenshot or --plugin flags\n";
 			return false;
 		}
-		video_.make_fake();
+		video().make_fake();
 		game_config::no_delay = true;
 		return true;
 	}
 
-	std::string wm_title_string = _("The Battle for Wesnoth");
-	wm_title_string += " - " + game_config::revision;
-#if !SDL_VERSION_ATLEAST(2, 0, 0)
-	SDL_WM_SetCaption(wm_title_string.c_str(), NULL);
-#endif
+	// Initialize a new window
+	video().init_window();
+
+	// Set window title and icon
+	video().set_window_title(game_config::get_default_title_string());
 
 #if !(defined(__APPLE__))
 	surface icon(image::get_image("icons/icon-game.png", image::UNSCALED));
-	if(icon != NULL) {
-		///must be called after SDL_Init() and before setting video mode
-#if !SDL_VERSION_ATLEAST(2, 0, 0)
-		SDL_WM_SetIcon(icon,NULL);
-#endif
+	if(icon != nullptr) {
+
+		video().set_window_icon(icon);
 	}
-#endif
-
-	std::pair<int,int> resolution;
-	int bpp = 0;
-	int video_flags = 0;
-
-	bool found_matching = preferences::detect_video_settings(video_, resolution, bpp, video_flags);
-
-	if (cmdline_opts_.bpp) {
-		bpp = *cmdline_opts_.bpp;
-	} else if (cmdline_opts_.screenshot) {
-		bpp = 32;
-	}
-
-	if(!found_matching && (video_flags & FULL_SCREEN)) {
-		video_flags ^= FULL_SCREEN;
-		found_matching = preferences::detect_video_settings(video_, resolution, bpp, video_flags);
-		if (found_matching) {
-			std::cerr << "Failed to set " << resolution.first << 'x' << resolution.second << 'x' << bpp << " in fullscreen mode. Using windowed instead.\n";
-		}
-	}
-
-	if(!found_matching) {
-		std::cerr << "Video mode " << resolution.first << 'x'
-			<< resolution.second << 'x' << bpp
-			<< " is not supported.\n";
-
-		return false;
-	}
-
-	std::cerr << "Setting mode to " << resolution.first << "x" << resolution.second << "x" << bpp << "\n";
-	const int res = video_.setMode(resolution.first,resolution.second,bpp,video_flags);
-	video_.setBpp(bpp);
-	if(res == 0) {
-		std::cerr << "Required video mode, " << resolution.first << "x"
-		          << resolution.second << "x" << bpp << " is not supported\n";
-		return false;
-	}
-#if SDL_VERSION_ATLEAST(2, 0, 0)
-	CVideo::set_window_title(wm_title_string);
-#if !(defined(__APPLE__))
-	if(icon != NULL) {
-		CVideo::set_window_icon(icon);
-	}
-#endif
 #endif
 	return true;
 }
@@ -532,7 +472,7 @@ bool game_launcher::init_lua_script()
 
 			return true;
 		} catch (std::exception & e) {
-			gui2::show_error_message(disp().video(), std::string("When loading a plugin, error:\n") + e.what());
+			gui2::show_error_message(video(), std::string("When loading a plugin, error:\n") + e.what());
 			error = true;
 		}
 	}
@@ -559,17 +499,21 @@ bool game_launcher::play_test()
 	state_.classification().campaign_type = game_classification::CAMPAIGN_TYPE::TEST;
 	state_.classification().campaign_define = "TEST";
 
+	state_.mp_settings().mp_era = "era_default";
+	state_.mp_settings().show_connect = false;
+
 	state_.set_carryover_sides_start(
 		config_of("next_scenario", test_scenario_)
 	);
 
 
-	
+
 	game_config_manager::get()->
 		load_game_config_for_game(state_.classification());
 
 	try {
-		play_game(disp(),state_,game_config_manager::get()->game_config(), game_config_manager::get()->terrain_types());
+		campaign_controller ccontroller(video(), state_, game_config_manager::get()->game_config(), game_config_manager::get()->terrain_types());
+		ccontroller.play_game();
 	} catch (game::load_game_exception &) {
 		return true;
 	}
@@ -601,7 +545,8 @@ int game_launcher::unit_test()
 		load_game_config_for_game(state_.classification());
 
 	try {
-		LEVEL_RESULT res = play_game(disp(),state_,game_config_manager::get()->game_config(), game_config_manager::get()->terrain_types(), IO_SERVER, false, false, false, true);
+		campaign_controller ccontroller(video(), state_, game_config_manager::get()->game_config(), game_config_manager::get()->terrain_types(), true);
+		LEVEL_RESULT res = ccontroller.play_game();
 		if (!(res == LEVEL_RESULT::VICTORY) || lg::broke_strict()) {
 			return 1;
 		}
@@ -609,7 +554,7 @@ int game_launcher::unit_test()
 		std::cerr << "Load_game_exception encountered while loading the unit test!" << std::endl;
 		return 1; //failed to load the unit test scenario
 	} catch(twml_exception& e) {
-		std::cerr << "Caught WML Exception:" << e.dev_message << std::endl; //e.show(disp());
+		std::cerr << "Caught WML Exception:" << e.dev_message << std::endl;
 		return 1;
 	}
 
@@ -619,7 +564,7 @@ int game_launcher::unit_test()
 		return 0; //we passed, huzzah!
 
 	savegame::replay_savegame save(state_, compression::NONE);
-	save.save_game_automatic(disp().video(), false, "unit_test_replay"); //false means don't check for overwrite
+	save.save_game_automatic(video(), false, "unit_test_replay"); //false means don't check for overwrite
 
 	clear_loaded_game();
 
@@ -636,8 +581,8 @@ int game_launcher::unit_test()
 	}
 
 	try {
-		//LEVEL_RESULT res = play_game(disp(), state_, game_config_manager::get()->game_config(), IO_SERVER, false,false,false,true);
-		LEVEL_RESULT res = ::play_replay(disp(), state_, game_config_manager::get()->game_config(), game_config_manager::get()->terrain_types(), true);
+		campaign_controller ccontroller(video(), state_, game_config_manager::get()->game_config(), game_config_manager::get()->terrain_types(), true);
+		LEVEL_RESULT res = ccontroller.play_replay();
 		if (!(res == LEVEL_RESULT::VICTORY)) {
 			std::cerr << "Observed failure on replay" << std::endl;
 			return 4;
@@ -647,7 +592,7 @@ int game_launcher::unit_test()
 		std::cerr << "Load_game_exception encountered during play_replay!" << std::endl;
 		return 3; //failed to load replay
 	} catch(twml_exception& e) {
-		std::cerr << "WML Exception while playing replay: " << e.dev_message << std::endl; //e.show(disp());
+		std::cerr << "WML Exception while playing replay: " << e.dev_message << std::endl;
 		return 4; //failed with an error during the replay
 	}
 
@@ -664,7 +609,7 @@ bool game_launcher::play_screenshot_mode()
 
 	::init_textdomains(game_config_manager::get()->game_config());
 
-	editor::start(game_config_manager::get()->game_config(), video_,
+	editor::start(game_config_manager::get()->game_config(), video(),
 	    screenshot_map_, true, screenshot_filename_);
 	return false;
 }
@@ -712,7 +657,7 @@ bool game_launcher::load_game()
 
 	DBG_GENERAL << "Current campaign type: " << state_.classification().campaign_type << std::endl;
 
-	savegame::loadgame load(disp(), game_config_manager::get()->game_config(),
+	savegame::loadgame load(video(), game_config_manager::get()->game_config(),
 	    state_);
 
 	try {
@@ -732,28 +677,28 @@ bool game_launcher::load_game()
 
 	} catch(config::error& e) {
 		if(e.message.empty()) {
-			gui2::show_error_message(disp().video(), _("The file you have tried to load is corrupt"));
+			gui2::show_error_message(video(), _("The file you have tried to load is corrupt"));
 		}
 		else {
-			gui2::show_error_message(disp().video(), _("The file you have tried to load is corrupt: '") + e.message + '\'');
+			gui2::show_error_message(video(), _("The file you have tried to load is corrupt: '") + e.message + '\'');
 		}
 		return false;
 	} catch(twml_exception& e) {
-		e.show(disp());
+		e.show(video());
 		return false;
 	} catch(filesystem::io_exception& e) {
 		if(e.message.empty()) {
-			gui2::show_error_message(disp().video(), _("File I/O Error while reading the game"));
+			gui2::show_error_message(video(), _("File I/O Error while reading the game"));
 		} else {
-			gui2::show_error_message(disp().video(), _("File I/O Error while reading the game: '") + e.message + '\'');
+			gui2::show_error_message(video(), _("File I/O Error while reading the game: '") + e.message + '\'');
 		}
 		return false;
 	} catch(game::error& e) {
 		if(e.message.empty()) {
-			gui2::show_error_message(disp().video(), _("The file you have tried to load is corrupt"));
+			gui2::show_error_message(video(), _("The file you have tried to load is corrupt"));
 		}
 		else {
-			gui2::show_error_message(disp().video(), _("The file you have tried to load is corrupt: '") + e.message + '\'');
+			gui2::show_error_message(video(), _("The file you have tried to load is corrupt: '") + e.message + '\'');
 		}
 		return false;
 	}
@@ -772,7 +717,6 @@ bool game_launcher::load_game()
 
 	if(state_.classification().campaign_type == game_classification::CAMPAIGN_TYPE::MULTIPLAYER) {
 		state_.unify_controllers();
-		gui2::show_message(disp().video(), _("Warning") , _("This is a multiplayer scenario. Some parts of it may not work properly in single-player. It is recommended to load this scenario through the <b>Multiplayer</b> → <b>Load Game</b> dialog instead."), "", true, true);
 	}
 
 	if (load.cancel_orders()) {
@@ -797,7 +741,7 @@ void game_launcher::set_tutorial()
 
 void game_launcher::mark_completed_campaigns(std::vector<config> &campaigns)
 {
-	BOOST_FOREACH(config &campaign, campaigns) {
+	for (config &campaign : campaigns) {
 		campaign["completed"] = preferences::is_campaign_completed(campaign["id"]);
 	}
 }
@@ -809,7 +753,7 @@ bool game_launcher::new_campaign()
 	state_.mp_settings().show_connect = false;
 	play_replay_ = false;
 
-	return sp::enter_create_mode(disp(), game_config_manager::get()->game_config(),
+	return sp::enter_create_mode(video(), game_config_manager::get()->game_config(),
 		state_, jump_to_campaign_, true);
 }
 
@@ -911,7 +855,7 @@ bool game_launcher::play_multiplayer()
 
 			gui2::tmp_method_selection dlg;
 
-			dlg.show(disp().video());
+			dlg.show(video());
 
 			if(dlg.get_retval() == gui2::twindow::OK) {
 				res = dlg.get_choice();
@@ -921,7 +865,7 @@ bool game_launcher::play_multiplayer()
 			}
 
 			if (res == 2 && preferences::mp_server_warning_disabled() < 2) {
-				start_server = !gui2::tmp_host_game_prompt::execute(disp().video());
+				start_server = !gui2::tmp_host_game_prompt::execute(video());
 			}
 		} while (start_server);
 		if (res < 0) {
@@ -939,14 +883,11 @@ bool game_launcher::play_multiplayer()
 				start_wesnothd();
 			} catch(game::mp_server_error&)
 			{
-				std::string path = preferences::show_wesnothd_server_search(disp());
-
-				if (!path.empty())
-				{
-					preferences::set_mp_server_program_name(path);
+				preferences::show_wesnothd_server_search(video());
+				
+				try {
 					start_wesnothd();
-				}
-				else
+				} catch(game::mp_server_error&)
 				{
 					return false;
 				}
@@ -961,7 +902,7 @@ bool game_launcher::play_multiplayer()
 		cursor::set(cursor::NORMAL);
 
 		if(res == 3) {
-			mp::start_local_game(disp(),
+			mp::start_local_game(video(),
 			    game_config_manager::get()->game_config(), state_);
 		} else if((res >= 0 && res <= 2) || res == 4) {
 			std::string host;
@@ -973,22 +914,22 @@ bool game_launcher::play_multiplayer()
 				host = multiplayer_server_;
 				multiplayer_server_ = "";
 			}
-			mp::start_client(disp(), game_config_manager::get()->game_config(),
+			mp::start_client(video(), game_config_manager::get()->game_config(),
 				state_, host);
 		}
 
 	} catch(game::mp_server_error& e) {
-		gui2::show_error_message(disp().video(), _("Error while starting server: ") + e.message);
+		gui2::show_error_message(video(), _("Error while starting server: ") + e.message);
 	} catch(game::load_game_failed& e) {
-		gui2::show_error_message(disp().video(), _("The game could not be loaded: ") + e.message);
+		gui2::show_error_message(video(), _("The game could not be loaded: ") + e.message);
 	} catch(game::game_error& e) {
-		gui2::show_error_message(disp().video(), _("Error while playing the game: ") + e.message);
+		gui2::show_error_message(video(), _("Error while playing the game: ") + e.message);
 	} catch (mapgen_exception& e) {
-		gui2::show_error_message(disp().video(), std::string(_("Map generator error: ") + e.message));
+		gui2::show_error_message(video(), std::string(_("Map generator error: ") + e.message));
 	} catch(network::error& e) {
 		if(e.message != "") {
 			ERR_NET << "caught network::error: " << e.message << std::endl;
-			gui2::show_transient_message(disp().video()
+			gui2::show_transient_message(video()
 					, ""
 					, translation::gettext(e.message.c_str()));
 		} else {
@@ -997,19 +938,19 @@ bool game_launcher::play_multiplayer()
 	} catch(config::error& e) {
 		if(e.message != "") {
 			ERR_CONFIG << "caught config::error: " << e.message << std::endl;
-			gui2::show_transient_message(disp().video(), "", e.message);
+			gui2::show_transient_message(video(), "", e.message);
 		} else {
 			ERR_CONFIG << "caught config::error" << std::endl;
 		}
 	} catch(incorrect_map_format_error& e) {
-		gui2::show_error_message(disp().video(), std::string(_("The game map could not be loaded: ")) + e.message);
+		gui2::show_error_message(video(), std::string(_("The game map could not be loaded: ")) + e.message);
 	} catch (game::load_game_exception &) {
 		//this will make it so next time through the title screen loop, this game is loaded
 	} catch(twml_exception& e) {
-		e.show(disp());
+		e.show(video());
 	} catch (game::error & e) {
 		std::cerr << "caught game::error...\n";
-		gui2::show_error_message(disp().video(), _("Error: ") + e.message);
+		gui2::show_error_message(video(), _("Error: ") + e.message);
 	}
 
 	return false;
@@ -1033,7 +974,7 @@ bool game_launcher::play_multiplayer_commandline()
 	events::discard_input(); // prevent the "keylogger" effect
 	cursor::set(cursor::NORMAL);
 
-	mp::start_local_game_commandline(disp(),
+	mp::start_local_game_commandline(video(),
 	    game_config_manager::get()->game_config(), state_, cmdline_opts_);
 
 	return false;
@@ -1042,17 +983,11 @@ bool game_launcher::play_multiplayer_commandline()
 bool game_launcher::change_language()
 {
 	gui2::tlanguage_selection dlg;
-	dlg.show(disp().video());
+	dlg.show(video());
 	if (dlg.get_retval() != gui2::twindow::OK) return false;
 
 	if (!(cmdline_opts_.nogui || cmdline_opts_.headless_unit_test)) {
-		std::string wm_title_string = _("The Battle for Wesnoth");
-		wm_title_string += " - " + game_config::revision;
-#if SDL_VERSION_ATLEAST(2, 0, 0)
-		CVideo::set_window_title(wm_title_string);
-#else
-		SDL_WM_SetCaption(wm_title_string.c_str(), NULL);
-#endif
+		video().set_window_title(game_config::get_default_title_string());
 	}
 
 	return true;
@@ -1060,11 +995,8 @@ bool game_launcher::change_language()
 
 void game_launcher::show_preferences()
 {
-	const preferences::display_manager disp_manager(&disp());
-	preferences::show_preferences_dialog(disp(),
+	preferences::show_preferences_dialog(video(),
 	    game_config_manager::get()->game_config());
-
-	disp().redraw_everything();
 }
 
 void game_launcher::launch_game(RELOAD_GAME_DATA reload)
@@ -1075,27 +1007,29 @@ void game_launcher::launch_game(RELOAD_GAME_DATA reload)
 		return;
 	}
 
-	loadscreen::global_loadscreen_manager loadscreen_manager(disp().video());
-	loadscreen::start_stage("load data");
-	if(reload == RELOAD_DATA) {
-		try {
-			game_config_manager::get()->
-				load_game_config_for_game(state_.classification());
-		} catch(config::error&) {
-			return;
+	gui2::tloadscreen::display(video(), [this, reload]() {
+
+		gui2::tloadscreen::progress("load data");
+		if(reload == RELOAD_DATA) {
+			try {
+				game_config_manager::get()->
+					load_game_config_for_game(state_.classification());
+			} catch(config::error&) {
+				return;
+			}
 		}
-	}
+	});
 
 	try {
-		const LEVEL_RESULT result = play_game(disp(),state_,
-		    game_config_manager::get()->game_config(), game_config_manager::get()->terrain_types());
+		campaign_controller ccontroller(video(), state_, game_config_manager::get()->game_config(), game_config_manager::get()->terrain_types());
+		LEVEL_RESULT result = ccontroller.play_game();
 		// don't show The End for multiplayer scenario
 		// change this if MP campaigns are implemented
 		if(result == LEVEL_RESULT::VICTORY && !state_.classification().is_normal_mp_game()) {
 			preferences::add_completed_campaign(state_.classification().campaign, state_.classification().difficulty);
-			the_end(disp(), state_.classification().end_text, state_.classification().end_text_duration);
+			the_end(video(), state_.classification().end_text, state_.classification().end_text_duration);
 			if(state_.classification().end_credits) {
-				about::show_about(disp(),state_.classification().campaign);
+				about::show_about(video(),state_.classification().campaign);
 			}
 		}
 
@@ -1103,21 +1037,21 @@ void game_launcher::launch_game(RELOAD_GAME_DATA reload)
 	} catch (game::load_game_exception &) {
 		//this will make it so next time through the title screen loop, this game is loaded
 	} catch(twml_exception& e) {
-		e.show(disp());
+		e.show(video());
 	}
 }
 
 void game_launcher::play_replay()
 {
 	try {
-		::play_replay(disp(),state_,game_config_manager::get()->game_config(),
-		    game_config_manager::get()->terrain_types());
+		campaign_controller ccontroller(video(), state_, game_config_manager::get()->game_config(), game_config_manager::get()->terrain_types());
+		ccontroller.play_replay();
 
 		clear_loaded_game();
 	} catch (game::load_game_exception &) {
 		//this will make it so next time through the title screen loop, this game is loaded
 	} catch(twml_exception& e) {
-		e.show(disp());
+		e.show(video());
 	}
 }
 
@@ -1129,7 +1063,7 @@ editor::EXIT_STATUS game_launcher::start_editor(const std::string& filename)
 		::init_textdomains(game_config_manager::get()->game_config());
 
 		editor::EXIT_STATUS res = editor::start(
-		    game_config_manager::get()->game_config(), video_, filename);
+		    game_config_manager::get()->game_config(), video(), filename);
 
 		if(res != editor::EXIT_RELOAD_DATA)
 			return res;

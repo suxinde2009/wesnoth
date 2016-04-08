@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2014 - 2015 by Chris Beck <render787@gmail.com>
+   Copyright (C) 2014 - 2016 by Chris Beck <render787@gmail.com>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -15,13 +15,10 @@
 #include "lua_map_generator.hpp"
 
 #include "config.hpp"
-#include "display.hpp"
 #include "game_errors.hpp"
 #include "scripting/mapgen_lua_kernel.hpp"
 
 #include <string>
-
-#include <boost/foreach.hpp>
 
 lua_map_generator::lua_map_generator(const config & cfg)
 	: id_(cfg["id"])
@@ -33,7 +30,7 @@ lua_map_generator::lua_map_generator(const config & cfg)
 	, generator_data_(cfg)
 {
 	const char* required[] = {"id", "config_name", "create_map"};
-	BOOST_FOREACH(std::string req, required) {
+	for (std::string req : required) {
 		if (!cfg.has_attribute(req)) {
 			std::string msg = "Error when constructing a lua map generator -- missing a required attribute '";
 			msg += req + "'\n";
@@ -43,9 +40,9 @@ lua_map_generator::lua_map_generator(const config & cfg)
 	}
 }
 
-void lua_map_generator::user_config(display & disp)
+void lua_map_generator::user_config(CVideo & v)
 {
-	lk_.set_video(&disp.video());
+	lk_.set_video(&v);
 	try {
 		lk_.user_config(user_config_.c_str(), generator_data_);
 	} catch (game::lua_error & e) {

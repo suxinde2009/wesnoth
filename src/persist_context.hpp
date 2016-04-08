@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2010 - 2015 by Jody Northup
+   Copyright (C) 2010 - 2016 by Jody Northup
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -126,7 +126,7 @@ protected:
 			else if (cfg.has_child(next.root_))
 				return get_node(cfg.child(next.root_), next);
 			else
-				return NULL;
+				return nullptr;
 		}
 		else
 			return &cfg;
@@ -138,7 +138,7 @@ protected:
 			if (cfg.has_child(next.root_))
 				return get_node(cfg.child(next.root_), next);
 			else
-				return NULL;
+				return nullptr;
 		}
 		else
 			return &cfg;

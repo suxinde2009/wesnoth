@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2013 - 2015 by Andrius Silinskas <silinskas.andrius@gmail.com>
+   Copyright (C) 2013 - 2016 by Andrius Silinskas <silinskas.andrius@gmail.com>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -24,6 +24,7 @@
 #include <set>
 
 namespace rand_rng { class mt_rng; }
+struct mp_campaign_info;
 
 namespace ng {
 
@@ -49,9 +50,7 @@ public:
 	/// @param players the player which are already connected to the current game.
 	///                This is always empty unless we advance form a previous scenario.
 	connect_engine(saved_game& state,
-		const bool local_players_only,
-		const bool first_scenario,
-		const std::set<std::string>& players = std::set<std::string>());
+		const bool first_scenario, mp_campaign_info* campaign_info);
 	~connect_engine();
 
 	config* current_config();
@@ -96,8 +95,7 @@ public:
 		else
 			throw "No scenariodata found";
 	}
-	const std::set<std::string>& connected_users() const
-		{ return connected_users_; }
+	const std::set<std::string>& connected_users() const;
 	const std::vector<std::string>& user_team_names()
 		{ return user_team_names_; }
 	std::vector<side_engine_ptr>& side_engines() { return side_engines_; }
@@ -124,7 +122,7 @@ private:
 	const mp_game_settings& params_;
 
 	const ng::controller default_controller_;
-	const bool local_players_only_;
+	mp_campaign_info* campaign_info_;
 	const bool first_scenario_;
 
 	bool force_lock_settings_;
@@ -134,7 +132,8 @@ private:
 	std::vector<std::string> team_names_;
 	std::vector<std::string> user_team_names_;
 	std::vector<std::string> player_teams_;
-	std::set<std::string> connected_users_;
+
+	std::set<std::string>& connected_users_rw();
 };
 
 class side_engine
@@ -247,9 +246,9 @@ private:
 	int gold_;
 	int income_;
 	// set during create_engines constructor never set after that.
-	// the name of the player who is preferred for this side, 
+	// the name of the player who is preferred for this side,
 	// if controller_ == reserved only this player can take this side.
-	// can also be a number of a side if this side shoudl be controlled 
+	// can also be a number of a side if this side shoudl be controlled
 	// by the player who controlls  that side
 	std::string reserved_for_;
 	std::string player_id_;

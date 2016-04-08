@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2014 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2014 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -213,7 +213,7 @@ public:
 	// completely useless, maybe we should be able to add data to it.
 	void push_back(int i)
 	{
-		data_.push_back(NULL); // (This two-step approach is for exception safety.)
+		data_.push_back(nullptr); // (This two-step approach is for exception safety.)
 		data_.back() = new int(i);
 	}
 

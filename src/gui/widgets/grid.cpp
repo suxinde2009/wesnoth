@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2008 - 2015 by Mark de Wever <koraq@xs4all.nl>
+   Copyright (C) 2008 - 2016 by Mark de Wever <koraq@xs4all.nl>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -17,10 +17,9 @@
 #include "gui/widgets/grid_private.hpp"
 
 #include "gui/auxiliary/iterator/walker_grid.hpp"
-#include "gui/auxiliary/log.hpp"
-#include "gui/auxiliary/layout_exception.hpp"
+#include "gui/core/log.hpp"
+#include "gui/core/layout_exception.hpp"
 #include "gui/widgets/control.hpp"
-#include "utils/foreach.tpp"
 
 #include <numeric>
 
@@ -50,7 +49,7 @@ tgrid::~tgrid()
 {
 	// Delete the children in this destructor since resizing a vector copies the
 	// children and thus frees the child prematurely.
-	FOREACH(AUTO & child, children_)
+	for(auto & child : children_)
 	{
 		delete child.widget();
 	}
@@ -104,7 +103,7 @@ twidget* tgrid::swap_child(const std::string& id,
 {
 	assert(widget);
 
-	FOREACH(AUTO & child, children_)
+	for(auto & child : children_)
 	{
 		if(child.id() != id) {
 
@@ -129,12 +128,13 @@ twidget* tgrid::swap_child(const std::string& id,
 		old->set_parent(new_parent);
 
 		widget->set_parent(this);
+		widget->set_visible(old->get_visible());
 		child.set_widget(widget);
 
 		return old;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 void tgrid::remove_child(const unsigned row, const unsigned col)
@@ -146,17 +146,17 @@ void tgrid::remove_child(const unsigned row, const unsigned col)
 	if(cell.widget()) {
 		delete cell.widget();
 	}
-	cell.set_widget(NULL);
+	cell.set_widget(nullptr);
 }
 
 void tgrid::remove_child(const std::string& id, const bool find_all)
 {
-	FOREACH(AUTO & child, children_)
+	for(auto & child : children_)
 	{
 
 		if(child.id() == id) {
 			delete child.widget();
-			child.set_widget(NULL);
+			child.set_widget(nullptr);
 
 			if(!find_all) {
 				break;
@@ -167,7 +167,7 @@ void tgrid::remove_child(const std::string& id, const bool find_all)
 
 void tgrid::set_active(const bool active)
 {
-	FOREACH(AUTO & child, children_)
+	for(auto & child : children_)
 	{
 
 		twidget* widget = child.widget();
@@ -194,7 +194,7 @@ void tgrid::layout_initialise(const bool full_initialisation)
 	twidget::layout_initialise(full_initialisation);
 
 	// Clear child caches.
-	FOREACH(AUTO & child, children_)
+	for(auto & child : children_)
 	{
 
 		child.layout_initialise(full_initialisation);
@@ -421,7 +421,7 @@ tpoint tgrid::calculate_best_size() const
 
 bool tgrid::can_wrap() const
 {
-	FOREACH(const AUTO & child, children_)
+	for(const auto & child : children_)
 	{
 		if(child.can_wrap()) {
 			return true;
@@ -468,13 +468,12 @@ void tgrid::place(const tpoint& origin, const tpoint& size)
 		out << " Failed to place a grid, we have " << size << " space but we need " << best_size << " space.";
 		out << " This happened at a grid with the id '" << id() << "'";
 		twidget* pw = parent();
-		while(pw != NULL) {
+		while(pw != nullptr) {
 			out << " in a '" << typeid(*pw).name() << "' with the id '" << pw->id() << "'";
 			pw = pw->parent();
 		}
 		ERR_GUI_L << LOG_HEADER << out.str() << ".\n";
-		// This shouldn't be possible...
-		assert(false);
+
 		return;
 	}
 
@@ -492,7 +491,7 @@ void tgrid::place(const tpoint& origin, const tpoint& size)
 
 		if(w_size == 0) {
 			// If all sizes are 0 reset them to 1
-			FOREACH(AUTO & val, col_grow_factor_)
+			for(auto & val : col_grow_factor_)
 			{
 				val = 1;
 			}
@@ -519,7 +518,7 @@ void tgrid::place(const tpoint& origin, const tpoint& size)
 
 		if(h_size == 0) {
 			// If all sizes are 0 reset them to 1
-			FOREACH(AUTO & val, row_grow_factor_)
+			for(auto & val : row_grow_factor_)
 			{
 				val = 1;
 			}
@@ -547,7 +546,7 @@ void tgrid::set_origin(const tpoint& origin)
 	// Inherited.
 	twidget::set_origin(origin);
 
-	FOREACH(AUTO & child, children_)
+	for(auto & child : children_)
 	{
 
 		twidget* widget = child.widget();
@@ -563,7 +562,7 @@ void tgrid::set_visible_rectangle(const SDL_Rect& rectangle)
 	// Inherited.
 	twidget::set_visible_rectangle(rectangle);
 
-	FOREACH(AUTO & child, children_)
+	for(auto & child : children_)
 	{
 
 		twidget* widget = child.widget();
@@ -575,7 +574,7 @@ void tgrid::set_visible_rectangle(const SDL_Rect& rectangle)
 
 void tgrid::layout_children()
 {
-	FOREACH(AUTO & child, children_)
+	for(auto & child : children_)
 	{
 		assert(child.widget());
 		child.widget()->layout_children();
@@ -587,7 +586,7 @@ void tgrid::child_populate_dirty_list(twindow& caller,
 {
 	assert(!call_stack.empty() && call_stack.back() == this);
 
-	FOREACH(AUTO & child, children_)
+	for(auto & child : children_)
 	{
 
 		assert(child.widget());
@@ -627,7 +626,7 @@ bool tgrid::has_widget(const twidget& widget) const
 		return true;
 	}
 
-	FOREACH(const AUTO & child, children_)
+	for(const auto & child : children_)
 	{
 		if(child.widget()->has_widget(widget)) {
 			return true;
@@ -642,7 +641,7 @@ bool tgrid::disable_click_dismiss() const
 		return false;
 	}
 
-	FOREACH(const AUTO & child, children_)
+	for(const auto & child : children_)
 	{
 		const twidget* widget = child.widget();
 		assert(widget);
@@ -906,7 +905,7 @@ void tgrid::layout(const tpoint& origin)
 	}
 }
 
-void tgrid::impl_draw_children(surface& frame_buffer)
+void tgrid::impl_draw_children(surface& frame_buffer, int x_offset, int y_offset)
 {
 	/*
 	 * The call to SDL_PumpEvents seems a bit like black magic.
@@ -917,50 +916,11 @@ void tgrid::impl_draw_children(surface& frame_buffer)
 	 * Without the call when resizing larger a black area of remains, this is
 	 * the area not used for resizing the screen, this call `fixes' that.
 	 */
-	SDL_PumpEvents();
 
 	assert(get_visible() == twidget::tvisible::visible);
 	set_is_dirty(false);
 
-	FOREACH(AUTO & child, children_)
-	{
-
-		twidget* widget = child.widget();
-		assert(widget);
-
-		if(widget->get_visible() != twidget::tvisible::visible) {
-			continue;
-		}
-
-		if(widget->get_drawing_action() == twidget::tredraw_action::none) {
-			continue;
-		}
-
-		widget->draw_background(frame_buffer);
-		widget->draw_children(frame_buffer);
-		widget->draw_foreground(frame_buffer);
-		widget->set_is_dirty(false);
-	}
-}
-
-void
-tgrid::impl_draw_children(surface& frame_buffer, int x_offset, int y_offset)
-{
-	/*
-	 * The call to SDL_PumpEvents seems a bit like black magic.
-	 * With the call the resizing doesn't seem to lose resize events.
-	 * But when added the queue still only contains one resize event and the
-	 * internal SDL queue doesn't seem to overflow (rarely more than 50 pending
-	 * events).
-	 * Without the call when resizing larger a black area of remains, this is
-	 * the area not used for resizing the screen, this call `fixes' that.
-	 */
-	SDL_PumpEvents();
-
-	assert(get_visible() == twidget::tvisible::visible);
-	set_is_dirty(false);
-
-	FOREACH(AUTO & child, children_)
+	for(auto & child : children_)
 	{
 
 		twidget* widget = child.widget();

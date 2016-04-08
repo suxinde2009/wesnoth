@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2003 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2003 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -23,6 +23,9 @@
 #include "sdl/rect.hpp"
 #include "sound.hpp"
 #include "video.hpp"
+
+
+#include <boost/math/special_functions/sign.hpp>
 
 
 namespace {
@@ -89,7 +92,7 @@ void slider::set_value(int value)
 		value = min_;
 
 	if (increment_ > 1) {
-		int hi = increment_ / 2;
+		int hi = boost::math::sign(value) * increment_ / 2;
 		value = ((value + hi) / increment_) * increment_;
 	}
 
@@ -152,7 +155,7 @@ void slider::draw_contents()
 			break;
 	}
 
-	assert(image != NULL);
+	assert(image != nullptr);
 
 	SDL_Color line_color = line_color_;
 	if (!enabled()) {
@@ -164,7 +167,7 @@ void slider::draw_contents()
 	if (image->w >= loc.w)
 		return;
 
-	surface screen = video().getSurface();
+	surface& screen = video().getSurface();
 
 	SDL_Rect line_rect = sdl::create_rect(loc.x + image->w / 2
 			, loc.y + loc.h / 2
@@ -215,28 +218,6 @@ void slider::mouse_down(const SDL_MouseButtonEvent& event)
 	if (!sdl::point_in_rect(event.x, event.y, location()))
 		return;
 
-#if !SDL_VERSION_ATLEAST(2,0,0)
-	if (event.button == SDL_BUTTON_WHEELUP || event.button == SDL_BUTTON_WHEELRIGHT) {
-		value_change_ = false;
-		set_focus(true);
-		set_value(value_ + increment_);
-		if(value_change_) {
-			sound::play_UI_sound(game_config::sounds::slider_adjust);
-		} else {
-			value_change_ = prev_change;
-		}
-	}
-	if (event.button == SDL_BUTTON_WHEELDOWN || event.button == SDL_BUTTON_WHEELLEFT) {
-		value_change_ = false;
-		set_focus(true);
-		set_value(value_ - increment_);
-		if(value_change_) {
-			sound::play_UI_sound(game_config::sounds::slider_adjust);
-		} else {
-			value_change_ = prev_change;
-		}
-	}
-#endif
 
 	if (event.button != SDL_BUTTON_LEFT)
 		return;
@@ -256,7 +237,6 @@ void slider::mouse_down(const SDL_MouseButtonEvent& event)
 	}
 }
 
-#if SDL_VERSION_ATLEAST(2,0,0)
 void slider::mouse_wheel(const SDL_MouseWheelEvent& event) {
 	bool prev_change = value_change_;
 	int x, y;
@@ -286,14 +266,13 @@ void slider::mouse_wheel(const SDL_MouseWheelEvent& event) {
 		}
 	}
 }
-#endif
 
 bool slider::requires_event_focus(const SDL_Event* event) const
 {
 	if(!focus_ || !enabled() || hidden()) {
 		return false;
 	}
-	if(event == NULL) {
+	if(event == nullptr) {
 		//when event is not specified, signal that focus may be desired later
 		return true;
 	}
@@ -314,6 +293,8 @@ bool slider::requires_event_focus(const SDL_Event* event) const
 
 void slider::handle_event(const SDL_Event& event)
 {
+	gui::widget::handle_event(event);
+
 	if (!enabled() || hidden())
 		return;
 
@@ -347,12 +328,10 @@ void slider::handle_event(const SDL_Event& event)
 			}
 		}
 		break;
-#if SDL_VERSION_ATLEAST(2,0,0)
 	case SDL_MOUSEWHEEL:
 		if (!mouse_locked())
 			mouse_wheel(event.wheel);
 		break;
-#endif
 	default:
 		return;
 	}

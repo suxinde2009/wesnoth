@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2009 - 2015 by Ignacio R. Morelle <shadowm2006@gmail.com>
+   Copyright (C) 2009 - 2016 by Ignacio R. Morelle <shadowm2006@gmail.com>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -16,13 +16,19 @@
 #define GUI_DIALOGS_UNIT_CREATE_HPP_INCLUDED
 
 #include "gui/dialogs/dialog.hpp"
+#include "gui/widgets/group.hpp"
 #include "race.hpp"
 
 #include <string>
 #include <vector>
 
+class display;
+class unit_type;
+
 namespace gui2
 {
+
+class ttext_;
 
 class tunit_create : public tdialog
 {
@@ -48,21 +54,34 @@ public:
 	}
 
 private:
+	std::vector<const unit_type*> units_;
+
 	unit_race::GENDER gender_;
 
 	std::string choice_;
-	std::vector<std::string> type_ids_;
+
+	std::vector<std::string> last_words_;
 
 	/** Inherited from tdialog, implemented by REGISTER_DIALOG. */
 	virtual const std::string& window_id() const;
 
 	/** Inherited from tdialog. */
-	void pre_show(CVideo& video, twindow& window);
+	void pre_show(twindow& window);
+
+	bool compare_type(unsigned i1, unsigned i2) const;
+	bool compare_race(unsigned i1, unsigned i2) const;
+	bool compare_type_rev(unsigned i1, unsigned i2) const;
+	bool compare_race_rev(unsigned i1, unsigned i2) const;
 
 	/** Inherited from tdialog. */
 	void post_show(twindow& window);
 
+	/** Callbacks */
+	void list_item_clicked(twindow& window);
+	void filter_text_changed(ttext_* textbox, const std::string& text);
 	void gender_toggle_callback(twindow& window);
+
+	tgroup<unit_race::GENDER> gender_toggle;
 };
 }
 

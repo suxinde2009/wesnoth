@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2003 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2003 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -21,7 +21,7 @@
 #include "color_range.hpp"
 
 #include "game_config.hpp"
-#include "map.hpp"
+#include "map/map.hpp"
 #include "serialization/string_utils.hpp"
 #include "util.hpp"
 
@@ -178,7 +178,7 @@ std::string rgb2highlight_pango(Uint32 rgb)
 int color_range::index() const
 {
 	for(int i = 1; i <= gamemap::MAX_PLAYERS; ++i) {
-		if(*this==(game_config::color_info(lexical_cast<std::string>(i)))) {
+		if(*this==(game_config::color_info(std::to_string(i)))) {
 			return i;
 		}
 	}

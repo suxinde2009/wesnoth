@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2003 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2003 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -21,8 +21,8 @@ class config;
 class unit_race;
 
 #include "util.hpp"
-#include "map_location.hpp"
-#include "terrain_translation.hpp"
+#include "map/location.hpp"
+#include "terrain/translation.hpp"
 #include "serialization/string_utils.hpp"
 
 #include <boost/random.hpp>
@@ -43,7 +43,7 @@ public:
 								 bool roads_between_castles, std::map<map_location,std::string>* labels,
 								 const config& cfg);
 private:
-	
+
 	typedef std::vector<std::vector<int> > height_map;
 	typedef t_translation::t_map terrain_map;
 
@@ -60,8 +60,8 @@ private:
 	bool generate_lake(t_translation::t_map& terrain, int x, int y, int lake_fall_off, std::set<map_location>& locs_touched);
 	map_location random_point_at_side(size_t width, size_t height);
 	std::string generate_name(const unit_race& name_generator, const std::string& id,
-		std::string* base_name=NULL,
-		utils::string_map* additional_symbols=NULL);
+		std::string* base_name=nullptr,
+		utils::string_map* additional_symbols=nullptr);
 
 	boost::random::mt19937 rng_;
 

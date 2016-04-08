@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2010 - 2015 by Mark de Wever <koraq@xs4all.nl>
+   Copyright (C) 2010 - 2016 by Mark de Wever <koraq@xs4all.nl>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -17,7 +17,7 @@
 
 #include "actions/attack.hpp"
 #include "gui/dialogs/dialog.hpp"
-#include "unit_map.hpp"
+#include "units/map.hpp"
 
 namespace gui2
 {
@@ -42,10 +42,14 @@ private:
 	virtual const std::string& window_id() const;
 
 	/** Inherited from tdialog. */
-	void pre_show(CVideo& video, twindow& window);
+	void pre_show(twindow& window);
 
 	/** Inherited from tdialog. */
 	void post_show(twindow& window);
+
+	void profile_button_callback(twindow& window, const std::string& type);
+
+	void damage_calc_callback(twindow& window);
 
 	/** The index of the selected weapon. */
 	int selected_weapon_;

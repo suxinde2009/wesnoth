@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2003 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2003 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -26,21 +26,21 @@
 #include "config_assign.hpp"
 #include "dialogs.hpp"
 #include "display_chat_manager.hpp"
+#include "floating_label.hpp"
 #include "game_display.hpp"
 #include "game_preferences.hpp"
 #include "game_data.hpp"
 #include "log.hpp"
-#include "map_label.hpp"
-#include "map_location.hpp"
+#include "map/label.hpp"
+#include "map/location.hpp"
 #include "play_controller.hpp"
 #include "synced_context.hpp"
 #include "resources.hpp"
 #include "statistics.hpp"
-#include "unit.hpp"
+#include "units/unit.hpp"
 #include "whiteboard/manager.hpp"
 #include "replay_recorder_base.hpp"
 
-#include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
 #include <set>
 #include <map>
@@ -70,7 +70,7 @@ static void verify(const unit_map& units, const config& cfg) {
 			   << nunits << " according to data source. " << units.size() << " locally\n";
 
 		std::set<map_location> locs;
-		BOOST_FOREACH(const config &u, cfg.child_range("unit"))
+		for (const config &u : cfg.child_range("unit"))
 		{
 			const map_location loc(u);
 			locs.insert(loc);
@@ -91,7 +91,7 @@ static void verify(const unit_map& units, const config& cfg) {
 		errbuf.clear();
 	}
 
-	BOOST_FOREACH(const config &un, cfg.child_range("unit"))
+	for (const config &un : cfg.child_range("unit"))
 	{
 		const map_location loc(un);
 		const unit_map::const_iterator u = units.find(loc);
@@ -138,7 +138,7 @@ static time_t get_time(const config &speak)
 	else
 	{
 		//fallback in case sender uses wesnoth that doesn't send timestamps
-		time = ::time(NULL);
+		time = ::time(nullptr);
 	}
 	return time;
 }
@@ -153,7 +153,7 @@ chat_msg::chat_msg(const config &cfg)
 	{
 		nick_ = cfg["id"].str();
 	} else {
-		nick_ = str_cast("*")+cfg["id"].str()+"*";
+		nick_ = "*"+cfg["id"].str()+"*";
 	}
 	int side = cfg["side"].to_int(0);
 	LOG_REPLAY << "side in message: " << side << std::endl;
@@ -183,6 +183,11 @@ replay::replay(replay_recorder_base& base)
 	: base_(&base)
 	, message_locations()
 {}
+
+void replay::delete_upcoming_commands()
+{
+	base_->delete_upcoming_commands();
+}
 /*
 	TODO: there should be different types of OOS messages:
 		1)the normal OOS message
@@ -317,16 +322,29 @@ void replay::add_log_data(const std::string &category, const std::string &key, c
 	cat.add_child(key,c);
 }
 
-void replay::add_chat_message_location()
+bool replay::add_chat_message_location()
 {
-	message_locations.push_back(base_->get_pos() - 1);
+	return add_chat_message_location(base_->get_pos() - 1);
+}
+
+bool replay::add_chat_message_location(int pos)
+{
+	assert(base_->get_command_at(pos).has_child("speak"));
+	if(std::find(message_locations.begin(), message_locations.end(), pos) == message_locations.end()) {
+		message_locations.push_back(pos);
+		return true;
+	}
+	else {
+		return false;
+	}
 }
 
 void replay::speak(const config& cfg)
 {
-	config& cmd = add_nonundoable_command();
+	config& cmd = base_->insert_command(base_->size());
+	cmd["undo"] = false;
 	cmd.add_child("speak",cfg);
-	add_chat_message_location();
+	add_chat_message_location(base_->size() - 1);
 }
 
 void replay::add_chat_log_entry(const config &cfg, std::back_insert_iterator<std::vector<chat_msg> > &i) const
@@ -354,6 +372,7 @@ static std::vector< chat_msg > message_log;
 
 const std::vector<chat_msg>& replay::build_chat_log()
 {
+	message_log.clear();
 	std::vector<int>::iterator loc_it;
 	int last_location = 0;
 	std::back_insert_iterator<std::vector < chat_msg > > chat_log_appender( back_inserter(message_log));
@@ -366,7 +385,6 @@ const std::vector<chat_msg>& replay::build_chat_log()
 		add_chat_log_entry(speak, chat_log_appender);
 
 	}
-	message_locations.clear();
 	return message_log;
 }
 
@@ -392,7 +410,7 @@ config replay::get_data_range(int cmd_start, int cmd_end, DATA_TYPE data_type)
 void replay::redo(const config& cfg)
 {
 	assert(base_->get_pos() == ncommands());
-	BOOST_FOREACH(const config &cmd, cfg.child_range("command"))
+	for (const config &cmd : cfg.child_range("command"))
 	{
 		base_->add_child() = cmd;
 	}
@@ -475,7 +493,7 @@ void replay::undo_cut(config& dst)
 		//"async"=yes means rename_unit
 		//"dependent"=true means user input
 		const config &c = command(cmd_index);
-		
+
 		if(c["undo"].to_bool(true) && !c["async"].to_bool(false) && !c["dependent"].to_bool(false))
 		{
 			if(c["sent"].to_bool(false))
@@ -492,7 +510,7 @@ void replay::undo_cut(config& dst)
 
 	if (cmd_index < 0)
 	{
-		ERR_REPLAY << "trying to undo a command but no command was found.\n";		
+		ERR_REPLAY << "trying to undo a command but no command was found.\n";
 		return;
 	}
 	//Fix the [command]s after the undone action. This includes dependent commands for that user actions and async user action.
@@ -549,7 +567,8 @@ int replay::ncommands() const
 
 config& replay::add_command()
 {
-	//if we werent at teh end of teh replay we sould skip one or mutiple commands.
+	// If we weren't at the end of the replay we should skip one or more
+	// commands.
 	assert(at_end());
 	config& retv = base_->add_child();
 	set_to_end();
@@ -579,7 +598,7 @@ void replay::revert_action()
 config* replay::get_next_action()
 {
 	if (at_end())
-		return NULL;
+		return nullptr;
 
 	LOG_REPLAY << "up to replay action " << base_->get_pos() + 1 << '/' << ncommands() << '\n';
 
@@ -600,13 +619,6 @@ void replay::set_to_end()
 	base_->set_to_end();
 }
 
-void replay::clear()
-{
-	message_locations.clear();
-	message_log.clear();
-	//FIXME
-}
-
 bool replay::empty()
 {
 	return ncommands() == 0;
@@ -614,7 +626,7 @@ bool replay::empty()
 
 void replay::add_config(const config& cfg, MARK_SENT mark)
 {
-	BOOST_FOREACH(const config &cmd, cfg.child_range("command"))
+	for (const config &cmd : cfg.child_range("command"))
 	{
 		config &cfg = base_->insert_command(base_->size());
 		cfg = cmd;
@@ -675,7 +687,7 @@ REPLAY_RETURN do_replay_handle(bool one_move)
 
 		DBG_REPLAY << "in do replay with is_synced=" << is_synced << "\n";
 
-		if (cfg != NULL)
+		if (cfg != nullptr)
 		{
 			DBG_REPLAY << "Replay data:\n" << *cfg << "\n";
 		}
@@ -702,13 +714,15 @@ REPLAY_RETURN do_replay_handle(bool one_move)
 			const std::string &message = child["message"];
 			//if (!preferences::parse_should_show_lobby_join(speaker_name, message)) return;
 			bool is_whisper = (speaker_name.find("whisper: ") == 0);
-			resources::recorder->add_chat_message_location();
-			if (!resources::controller->is_skipping_replay() || is_whisper) {
-				int side = child["side"];
-				resources::screen->get_chat_manager().add_chat_message(get_time(child), speaker_name, side, message,
+			if(resources::recorder->add_chat_message_location()) {
+				DBG_REPLAY << "tried to add a chat message twice.\n";
+				if (!resources::controller->is_skipping_replay() || is_whisper) {
+					int side = child["side"];
+					resources::screen->get_chat_manager().add_chat_message(get_time(child), speaker_name, side, message,
 						(team_name.empty() ? events::chat_handler::MESSAGE_PUBLIC
 						: events::chat_handler::MESSAGE_PRIVATE),
 						preferences::message_bell());
+				}
 			}
 		}
 		else if (const config &child = cfg->child("label"))
@@ -757,6 +771,9 @@ REPLAY_RETURN do_replay_handle(bool one_move)
 			else
 			{
 				resources::controller->do_init_side();
+				if (one_move) {
+					return REPLAY_FOUND_INIT_TURN;
+				}
 			}
 		}
 
@@ -826,12 +843,12 @@ REPLAY_RETURN do_replay_handle(bool one_move)
 			else
 			{
 				LOG_REPLAY << "found commandname " << commandname << "in replay";
-				
+
 				if((*cfg)["from_side"].to_int(0) != resources::controller->current_side()) {
 					ERR_REPLAY << "recieved a synced [command] from side " << (*cfg)["from_side"].to_int(0) << ". Expacted was a [command] from side " << resources::controller->current_side() << "\n";
 				}
 				else if((*cfg)["side_invalid"].to_bool(false)) {
-					ERR_REPLAY << "recieved a synced [command] from side " << (*cfg)["from_side"].to_int(0) << ". Sended from wrong client.\n";
+					ERR_REPLAY << "recieved a synced [command] from side " << (*cfg)["from_side"].to_int(0) << ". Sent from wrong client.\n";
 				}
 				/*
 					we need to use the undo stack during replays in order to make delayed shroud updated work.
@@ -890,258 +907,4 @@ void replay_network_sender::commit_and_sync()
 
 		upto_ = obj_.ncommands();
 	}
-}
-
-
-static std::map<int, config> get_user_choice_internal(const std::string &name, const mp_sync::user_choice &uch, const std::set<int>& sides)
-{
-	const int max_side  = static_cast<int>(resources::teams->size());
-
-	BOOST_FOREACH(int side, sides)
-	{
-		//the caller has to ensure this.
-		assert(1 <= side && side <= max_side);
-		assert(!(*resources::teams)[side-1].is_empty());
-	}
-
-
-	//this should never change during the execution of this function.
-	const int current_side = resources::controller->current_side();
-	const bool is_mp_game = network::nconnections() != 0;
-	// whether sides contains a side that is not the currently active side.
-	const bool contains_other_side = !sides.empty() && (sides.size() != 1 || sides.find(current_side) == sides.end());
-	if(contains_other_side)
-	{
-		synced_context::set_is_simultaneously();
-	}
-	std::map<int,config> retv;
-	/*
-		when we got all our answers we stop.
-	*/
-	while(retv.size() != sides.size())
-	{
-		/*
-			there might be speak or similar commands in the replay before the user input.
-		*/
-		do_replay_handle();
-
-		/*
-			these value might change due to player left/reassign during pull_remote_user_input
-		*/
-		//equals to any side in sides that is local, 0 if no such side exists.
-		int local_side = 0;
-		//if for any side from which we need an answer
-		BOOST_FOREACH(int side, sides)
-		{
-			//and we havent already received our answer from that side
-			if(retv.find(side) == retv.end())
-			{
-				//and it is local
-				if((*resources::teams)[side-1].is_local() && !(*resources::teams)[side-1].is_idle())
-				{
-					//then we have to make a local choice.
-					local_side = side;
-					break;
-				}
-			}
-		}
-
-		bool has_local_side = local_side != 0;
-		bool is_replay_end = resources::recorder->at_end();
-
-		if (is_replay_end && has_local_side)
-		{
-			leave_synced_context sync;
-			/* At least one of the decisions is ours, and it will be inserted
-			   into the replay. */
-			DBG_REPLAY << "MP synchronization: local choice\n";
-			config cfg = uch.query_user(local_side);
-
-			resources::recorder->user_input(name, cfg, local_side);
-			retv[local_side]= cfg;
-
-			//send data to others.
-			//but if there wasn't any data sended during this turn, we don't want to bein wth that now.
-			if(synced_context::is_simultaneously() || current_side != local_side)
-			{
-				synced_context::send_user_choice();
-			}
-			continue;
-
-		}
-		else if(is_replay_end && !has_local_side)
-		{
-			//we are in a mp game, and the data has not been recieved yet.
-			DBG_REPLAY << "MP synchronization: waiting for remote choice\n";
-
-			assert(is_mp_game);
-			synced_context::pull_remote_user_input();
-
-			SDL_Delay(10);
-			continue;
-		}
-		else if(!is_replay_end)
-		{
-			DBG_REPLAY << "MP synchronization: extracting choice from replay with has_local_side=" << has_local_side << "\n";
-
-			const config *action = resources::recorder->get_next_action();
-			assert(action); //action cannot be null because resources::recorder->at_end() returned false.
-			if( !action->has_child(name) || !(*action)["dependent"].to_bool())
-			{
-				replay::process_error("[" + name + "] expected but none found\n. found instead:\n" + action->debug());
-				//We save this action for later
-				resources::recorder->revert_action();
-				//and let the user try to get the intended result.
-				BOOST_FOREACH(int side, sides)
-				{
-					if(retv.find(side) == retv.end())
-					{
-						retv[side] = uch.query_user(side);
-					}
-				}
-				return retv;
-			}
-			int from_side = (*action)["from_side"].to_int(0);
-			if ((*action)["side_invalid"].to_bool(false) == true)
-			{
-				//since this 'cheat' can have a quite heavy effect especialy in umc content we give an oos error .
-				replay::process_error("MP synchronization: side_invalid in replay data, this could mean someone wants to cheat.\n");
-			}
-			if (sides.find(from_side) == sides.end())
-			{
-				replay::process_error("MP synchronization: we got an answer from side " + boost::lexical_cast<std::string>(from_side) + "for [" + name + "] which is not was we expected\n");
-				continue;
-			}
-			if(retv.find(from_side) != retv.end())
-			{
-				replay::process_error("MP synchronization: we got already our answer from side " + boost::lexical_cast<std::string>(from_side) + "for [" + name + "] now we have it twice.\n");
-			}
-			retv[from_side] = action->child(name);
-			continue;
-		}
-	}//while
-	return retv;
-}
-
-std::map<int,config> mp_sync::get_user_choice_multiple_sides(const std::string &name, const mp_sync::user_choice &uch,
-	std::set<int> sides)
-{
-	//pass sides by copy because we need a copy.
-	const bool is_synced = synced_context::is_synced();
-	const int max_side  = static_cast<int>(resources::teams->size());
-	//we currently don't check for too early because luas sync choice doesn't necessarily show screen dialogs.
-	//It (currently) in the responsibility of the user of sync choice to not use dialogs during prestart events..
-	if(!is_synced)
-	{
-		//we got called from inside luas wesnoth.synchronize_choice or from a select event.
-		replay::process_error("MP synchronization only works in a synced context (for example Select or preload events are no synced context).\n");
-		return std::map<int,config>();
-	}
-
-	/*
-		for empty sides we want to use random choice instead.
-	*/
-	std::set<int> empty_sides;
-	BOOST_FOREACH(int side, sides)
-	{
-		assert(1 <= side && side <= max_side);
-		if( (*resources::teams)[side-1].is_empty())
-		{
-			empty_sides.insert(side);
-		}
-	}
-
-	BOOST_FOREACH(int side, empty_sides)
-	{
-		sides.erase(side);
-	}
-
-	std::map<int,config> retv =  get_user_choice_internal(name, uch, sides);
-
-	BOOST_FOREACH(int side, empty_sides)
-	{
-		retv[side] = uch.random_choice(side);
-	}
-	return retv;
-
-}
-
-/*
-	fixes some rare cases and calls get_user_choice_internal if we are in a synced context.
-*/
-config mp_sync::get_user_choice(const std::string &name, const mp_sync::user_choice &uch,
-	int side)
-{
-	const bool is_too_early = resources::gamedata->phase() != game_data::START && resources::gamedata->phase() != game_data::PLAY;
-	const bool is_synced = synced_context::is_synced();
-	const bool is_mp_game = network::nconnections() != 0;//Only used in debugging output below
-	const int max_side  = static_cast<int>(resources::teams->size());
-	bool is_side_null_controlled;
-
-	if(!is_synced)
-	{
-		//we got called from inside luas wesnoth.synchronize_choice or from a select event (or maybe a preload event?).
-		//This doesn't cause problems and someone could use it for example to use a [message][option] inside a wesnoth.synchronize_choice which could be useful,
-		//so just give a warning.
-		LOG_REPLAY << "MP synchronization called during an unsynced context.\n";
-		return uch.query_user(side);
-	}
-	if(is_too_early && uch.is_visible())
-	{
-		//We are in a prestart event or even earlier.
-		//Although we are able to sync them, we cannot use query_user,
-		//because we cannot (or shouldn't) put things on the screen inside a prestart event, this is true for SP and MP games.
-		//Quotation form event wiki: "For things displayed on-screen such as character dialog, use start instead"
-		return uch.random_choice(side);
-	}
-	//in start events it's unclear to decide on which side the function should be executed (default= side1 still).
-	//But for advancements we can just decide on the side that owns the unit and that's in the responsibility of advance_unit_at.
-	//For [message][option] and luas sync_choice the scenario designer is responsible for that.
-	//For [get_global_variable] side is never null.
-
-	/*
-		side = 0 should default to the currently active side per definition.
-	*/
-	if ( side < 1  ||  max_side < side )
-	{
-		if(side != 0)
-		{
-			ERR_REPLAY << "Invalid parameter for side in get_user_choice." << std::endl;
-		}
-		side = resources::controller->current_side();
-		LOG_REPLAY << " side changed to " << side << "\n";
-	}
-	is_side_null_controlled = (*resources::teams)[side-1].is_empty();
-
-	LOG_REPLAY << "get_user_choice_called with"
-			<< " name=" << name
-			<< " is_synced=" << is_synced
-			<< " is_mp_game=" << is_mp_game
-			<< " is_side_null_controlled=" << is_side_null_controlled << "\n";
-
-	if (is_side_null_controlled)
-	{
-		DBG_REPLAY << "MP synchronization: side 1 being null-controlled in get_user_choice.\n";
-		//most likely we are in a start event with an empty side 1
-		//but calling [set_global_variable] to an empty side might also cause this.
-		//i think in that case we should better use uch.random_choice(),
-		//which could return something like config_of("invalid", true);
-		side = 1;
-		while ( side <= max_side  &&  (*resources::teams)[side-1].is_empty() )
-			side++;
-		assert(side <= max_side);
-	}
-
-
-	assert(1 <= side && side <= max_side);
-
-	std::set<int> sides;
-	sides.insert(side);
-	std::map<int, config> retv = get_user_choice_internal(name, uch, sides);
-	if(retv.find(side) == retv.end())
-	{
-		//An error occured, get_user_choice_internal should have given an oos error message
-		return config();
-	}
-	return retv[side];
 }

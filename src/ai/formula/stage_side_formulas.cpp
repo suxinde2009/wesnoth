@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2009 - 2015 by Yurii Chernyi <terraninfo@terraninfo.net>
+   Copyright (C) 2009 - 2016 by Yurii Chernyi <terraninfo@terraninfo.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -18,12 +18,12 @@
  */
 
 
-#include "stage_side_formulas.hpp"
-#include "ai.hpp"
+#include "ai/formula/stage_side_formulas.hpp"
+#include "ai/formula/ai.hpp"
 
-#include "../../formula.hpp"
-#include "../../formula_function.hpp"
-#include "../../log.hpp"
+#include "formula/formula.hpp"
+#include "formula/function.hpp"
+#include "log.hpp"
 #include <boost/lexical_cast.hpp>
 
 static lg::log_domain log_ai("ai/stage/side_formulas");

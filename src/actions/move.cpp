@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2003 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2003 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -22,31 +22,30 @@
 #include "undo.hpp"
 #include "vision.hpp"
 
-#include "../config_assign.hpp"
-#include "../game_display.hpp"
+#include "config_assign.hpp"
+#include "game_display.hpp"
 #include "game_events/manager.hpp"
 #include "game_events/pump.hpp"
-#include "../game_preferences.hpp"
-#include "../gettext.hpp"
+#include "game_preferences.hpp"
+#include "gettext.hpp"
 #include "hotkey/hotkey_item.hpp"
 #include "hotkey/hotkey_command.hpp"
-#include "../log.hpp"
-#include "../map.hpp"
-#include "../mouse_handler_base.hpp"
-#include "../pathfind/pathfind.hpp"
-#include "../replay.hpp"
-#include "../replay_helper.hpp"
-#include "../synced_context.hpp"
-#include "../play_controller.hpp"
-#include "../resources.hpp"
-#include "../unit_display.hpp"
-#include "../formula_string_utils.hpp"
-#include "../team.hpp"
-#include "../unit.hpp"
-#include "../unit_animation_component.hpp"
-#include "../whiteboard/manager.hpp"
+#include "log.hpp"
+#include "map/map.hpp"
+#include "mouse_handler_base.hpp"
+#include "pathfind/pathfind.hpp"
+#include "replay.hpp"
+#include "replay_helper.hpp"
+#include "synced_context.hpp"
+#include "play_controller.hpp"
+#include "resources.hpp"
+#include "units/udisplay.hpp"
+#include "formula/string_utils.hpp"
+#include "team.hpp"
+#include "units/unit.hpp"
+#include "units/animation_component.hpp"
+#include "whiteboard/manager.hpp"
 
-#include <boost/foreach.hpp>
 #include <deque>
 #include <map>
 #include <set>
@@ -138,10 +137,10 @@ void move_unit_spectator::set_unit(const unit_map::const_iterator &u)
 }
 
 
-bool get_village(const map_location& loc, int side, int *action_timebonus, bool fire_event)
+bool get_village(const map_location& loc, int side, bool *action_timebonus, bool fire_event)
 {
 	std::vector<team> &teams = *resources::teams;
-	team *t = unsigned(side - 1) < teams.size() ? &teams[side - 1] : NULL;
+	team *t = unsigned(side - 1) < teams.size() ? &teams[side - 1] : nullptr;
 	if (t && t->owns_village(loc)) {
 		return false;
 	}
@@ -170,14 +169,14 @@ bool get_village(const map_location& loc, int side, int *action_timebonus, bool 
 
 	if(grants_timebonus) {
 		t->set_action_bonus_count(1 + t->action_bonus_count());
-		*action_timebonus = 1;
+		*action_timebonus = true;
 	}
 
 	if(not_defeated) {
-		if (resources::screen != NULL) {
+		if (resources::screen != nullptr) {
 			resources::screen->invalidate(loc);
 		}
-		return t->get_village(loc, old_owner_side, fire_event ? resources::gamedata : NULL);
+		return t->get_village(loc, old_owner_side, fire_event ? resources::gamedata : nullptr);
 	}
 
 	return false;
@@ -236,7 +235,7 @@ namespace { // Private helpers for move_unit()
 		                    const route_iterator & current,
 	                        const route_iterator & other);
 		/// AI moves are supposed to not change the "goto" order.
-		bool is_ai_move() const	{ return spectator_ != NULL; }
+		bool is_ai_move() const	{ return spectator_ != nullptr; }
 		/// Checks how far it appears we can move this turn.
 		route_iterator plot_turn(const route_iterator & start,
 		                         const route_iterator & stop);
@@ -534,7 +533,7 @@ namespace { // Private helpers for move_unit()
 	                                   bool new_animation)
 	{
 		// Clear the fog.
-		if ( clearer_.clear_unit(hex, *move_it_, *current_team_, NULL,
+		if ( clearer_.clear_unit(hex, *move_it_, *current_team_, nullptr,
 		                         &enemy_count_, &friend_count_, spectator_,
 		                         !new_animation) )
 		{
@@ -585,7 +584,7 @@ namespace { // Private helpers for move_unit()
 			reveal_ambusher(blocked_loc_, false);
 
 		// Reveal ambushers.
-		BOOST_FOREACH(const map_location & reveal, ambushers_) {
+		for(const map_location & reveal : ambushers_) {
 			reveal_ambusher(reveal, true);
 		}
 
@@ -651,7 +650,7 @@ namespace { // Private helpers for move_unit()
 		}
 
 		// Update the shroud clearer.
-		clearer_.cache_units(current_uses_fog_ ? current_team_ : NULL);
+		clearer_.cache_units(current_uses_fog_ ? current_team_ : nullptr);
 
 
 		// Abort for null routes.
@@ -840,7 +839,7 @@ namespace { // Private helpers for move_unit()
 	 */
 	std::string unit_mover::read_ambush_string(const unit & ambusher)
 	{
-		BOOST_FOREACH( const unit_ability &hide, ambusher.get_abilities("hides") )
+		for(const unit_ability &hide : ambusher.get_abilities("hides"))
 		{
 			const std::string & ambush_string = (*hide.first)["alert"].str();
 			if ( !ambush_string.empty() )
@@ -923,8 +922,8 @@ namespace { // Private helpers for move_unit()
 	 */
 	void unit_mover::try_actual_movement(bool show)
 	{
-		static const std::string enter_hex_str("enter_hex");
-		static const std::string exit_hex_str("exit_hex");
+		static const std::string enter_hex_str("enter hex");
+		static const std::string exit_hex_str("exit hex");
 
 
 		bool obstructed_stop = false;
@@ -1019,8 +1018,8 @@ namespace { // Private helpers for move_unit()
 	{
 		const map_location & final_loc = final_hex();
 
-		int orig_village_owner = -1;
-		int action_time_bonus = 0;
+		int orig_village_owner = 0;
+		bool action_time_bonus = false;
 
 		// Reveal ambushers?
 		if ( ambushed_ || blocked() )
@@ -1041,8 +1040,8 @@ namespace { // Private helpers for move_unit()
 			// Village capturing.
 			if ( resources::gameboard->map().is_village(final_loc) ) {
 				// Is this a capture?
-				orig_village_owner = resources::gameboard->village_owner(final_loc);
-				if ( orig_village_owner != current_side_-1 ) {
+				orig_village_owner = resources::gameboard->village_owner(final_loc) + 1;
+				if ( orig_village_owner != current_side_) {
 					// Captured. Zap movement and take over the village.
 					move_it_->set_movement(0, true);
 					event_mutated_ |= get_village(final_loc, current_side_, &action_time_bonus);
@@ -1115,8 +1114,8 @@ namespace { // Private helpers for move_unit()
 			// Create the message to display (depends on whether friends,
 			// enemies, or both were sighted, and on how many of each).
 			utils::string_map symbols;
-			symbols["enemies"] = lexical_cast<std::string>(enemy_count_);
-			symbols["friends"] = lexical_cast<std::string>(friend_count_);
+			symbols["enemies"] = std::to_string(enemy_count_);
+			symbols["friends"] = std::to_string(friend_count_);
 			std::string message;
 			SDL_Color msg_color;
 			if ( friend_count_ != 0  &&  enemy_count_ != 0 ) {
@@ -1274,14 +1273,14 @@ size_t move_unit_from_replay(const std::vector<map_location> &steps,
                  bool continued_move,bool skip_ally_sighted, bool show_move)
 {
 	// Evaluate this move.
-	unit_mover mover(steps, NULL, continued_move,skip_ally_sighted);
+	unit_mover mover(steps, nullptr, continued_move,skip_ally_sighted);
 	if ( !mover.check_expected_movement() )
 	{
 		replay::process_error("found corrupt movement in replay.");
 		return 0;
 	}
 
-	return move_unit_internal(undo_stack, show_move, NULL, mover);
+	return move_unit_internal(undo_stack, show_move, nullptr, mover);
 }
 
 

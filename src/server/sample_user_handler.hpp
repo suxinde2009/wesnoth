@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2008 - 2015 by Thomas Baumhauer <thomas.baumhauer@NOSPAMgmail.com>
+   Copyright (C) 2008 - 2016 by Thomas Baumhauer <thomas.baumhauer@NOSPAMgmail.com>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -53,8 +53,8 @@ class suh : public user_handler {
 					password(),
 					realname(),
 					mail(),
-					lastlogin(time(NULL)),
-					registrationdate(time(NULL)),
+					lastlogin(time(nullptr)),
+					registrationdate(time(nullptr)),
 					is_moderator(false) {}
 			std::string password;
 			std::string realname;

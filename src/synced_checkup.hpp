@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2014 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2014 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -15,7 +15,7 @@
 #ifndef SYNCED_CHECKUP_H_INCLUDED
 #define SYNCED_CHECKUP_H_INCLUDED
 
-#include "config.hpp"
+class config;
 struct map_location;
 /**
 	A class to check whether the results that were calculated in the replay match the results calculated during the original game.

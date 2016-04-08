@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2014 - 2015 by Chris Beck <render787@gmail.com>
+   Copyright (C) 2014 - 2016 by Chris Beck <render787@gmail.com>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -18,7 +18,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
-#include "utils/boost_function_guarded.hpp"
+#include "utils/functional.hpp"
 #include <boost/cstdint.hpp>
 
 struct lua_State;
@@ -52,7 +52,7 @@ public:
 	virtual void log_error(char const* msg, char const* context = "Lua error");
 	virtual void throw_exception(char const* msg, char const* context = "Lua error"); //throws game::lua_error
 
-	typedef boost::function<void(char const*, char const*)> error_handler;
+	typedef std::function<void(char const*, char const*)> error_handler;
 
 	void set_video(CVideo * ptr) { video_ = ptr; }
 
@@ -63,6 +63,7 @@ public:
 	}
 
 	virtual boost::uint32_t get_random_seed();
+	lua_State * get_state() { return mState; }
 protected:
 	lua_State *mState;
 
@@ -74,7 +75,7 @@ protected:
 
 		command_log()
 			: log_()
-			, external_log_(NULL)
+			, external_log_(nullptr)
 		{}
 
 		inline command_log & operator<< (const std::string & str) {
@@ -86,7 +87,7 @@ protected:
 		}
 
 		inline command_log & operator<< (char const* str) {
-			if (str != NULL) {
+			if (str != nullptr) {
 				log_ << str;
 				if (external_log_) {
 					(*external_log_) << str;
@@ -103,6 +104,12 @@ protected:
 
 	// Show a dialog to the currently connected video object (if available)
 	int intf_show_dialog(lua_State * L);
+
+	// Show a message dialog, possibly with options
+	int intf_show_message_dialog(lua_State * L);
+
+	// Show a transient popup message
+	int intf_show_popup_dialog(lua_State * L);
 
 	// Show the interactive lua console (for debugging purposes)
 	int intf_show_lua_console(lua_State * L);

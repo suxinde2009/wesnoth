@@ -1,6 +1,6 @@
 /*
    Copyright (C) 2003 by David White <dave@whitevine.net>
-   Copyright (C) 2005 - 2015 by Philippe Plantier <ayin@anathas.org>
+   Copyright (C) 2005 - 2016 by Philippe Plantier <ayin@anathas.org>
 
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
@@ -47,12 +47,6 @@ private:
 	friend class std::pair;
 #endif
 
-#ifndef HAVE_CXX11
-	struct safe_bool_impl { void nonnull() {} };
-	/// Used as the return type of the conversion operator for boolean contexts.
-	typedef void (safe_bool_impl::*safe_bool)();
-#endif
-
 	vconfig();
 	vconfig(const config & cfg, const boost::shared_ptr<const config> & cache);
 public:
@@ -66,13 +60,8 @@ public:
 	static vconfig empty_vconfig(); // Valid to dereference. Contains nothing
 	static vconfig unconstructed_vconfig(); // Must not be dereferenced
 
-#ifdef HAVE_CXX11
 	/// A vconfig evaluates to true iff it can be dereferenced.
 	explicit operator bool() const	{ return !null(); }
-#else
-	/// A vconfig evaluates to true iff it can be dereferenced.
-	operator safe_bool() const	{ return !null() ? &safe_bool_impl::nonnull : NULL; }
-#endif
 
 	bool null() const { assert(cfg_); return cfg_ == &default_empty_config; }
 	void make_safe() const; //!< instruct the vconfig to make a private copy of its underlying data.
@@ -81,6 +70,7 @@ public:
 
 	typedef std::vector<vconfig> child_list;
 	child_list get_children(const std::string& key) const;
+	size_t count_children(const std::string& key) const;
 	vconfig child(const std::string& key) const;
 	bool has_child(const std::string& key) const;
 
@@ -153,6 +143,9 @@ public:
 	/** In-order iteration over all children. */
 	all_children_iterator ordered_begin() const;
 	all_children_iterator ordered_end() const;
+	std::pair<all_children_iterator,all_children_iterator> all_ordered() const {
+		return std::make_pair(ordered_begin(), ordered_end());
+	}
 
 private:
 	/// Returns true if *this has made a copy of its config.

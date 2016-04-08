@@ -1,6 +1,6 @@
 /*
    Copyright (C) 2003 by David White <dave@whitevine.net>
-   Copyright (C) 2005 - 2015 by Guillaume Melquiond <guillaume.melquiond@gmail.com>
+   Copyright (C) 2005 - 2016 by Guillaume Melquiond <guillaume.melquiond@gmail.com>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -239,6 +239,12 @@ std::string &strip(std::string &str);
 
 /** Remove whitespace from the back of the string 'str'. */
 std::string &strip_end(std::string &str);
+
+/** Surround the string 'str' with double quotes. */
+inline std::string quote(const std::string &str)
+{
+	return '"' + str + '"';
+}
 
 /** Convert no, false, off, 0, 0.0 to false, empty to def, and others to true */
 bool string_bool(const std::string& str,bool def=false);

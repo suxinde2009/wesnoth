@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2009 - 2015 by Mark de Wever <koraq@xs4all.nl>
+   Copyright (C) 2009 - 2016 by Mark de Wever <koraq@xs4all.nl>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -15,7 +15,7 @@
 #ifndef GUI_WIDGETS_CLICKABLE_HPP_INCLUDED
 #define GUI_WIDGETS_CLICKABLE_HPP_INCLUDED
 
-#include "gui/auxiliary/event/dispatcher.hpp"
+#include "gui/core/event/dispatcher.hpp"
 
 namespace gui2
 {

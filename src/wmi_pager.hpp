@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2014 - 2015 by Chris Beck <render787@gmail.com>
+   Copyright (C) 2014 - 2016 by Chris Beck <render787@gmail.com>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -42,7 +42,7 @@ private:
 	const game_events::wmi_container * wmi_container_; //!< Internal pointer to the collection of wml menu items
 
 public:
-	wmi_pager() : page_num_(0), wmi_container_(NULL) {}
+	wmi_pager() : page_num_(0), wmi_container_(nullptr) {}
 
 	void update_ref(game_events::wmi_container * ptr) { wmi_container_ = ptr; } //!< Updates the internal wmi_container pointer
 

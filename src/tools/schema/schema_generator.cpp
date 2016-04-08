@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2011 - 2015 by Sytyi Nick <nsytyi@gmail.com>
+  Copyright (C) 2011 - 2016 by Sytyi Nick <nsytyi@gmail.com>
   Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
   This program is free software; you can redistribute it and/or modify
@@ -163,7 +163,7 @@ int main(int argc, char *argv[]){
 		while (true) {
 			std::cin.get(c);
 			const char *r = strchr("yYnN",c);
-			if (r == NULL){
+			if (r == nullptr){
 				std::cout << "Please, choose your answer " << std::endl;
 				continue;
 			}

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2006 - 2015 by Joerg Hinrichs <joerg.hinrichs@alice-dsl.de>
+   Copyright (C) 2006 - 2016 by Joerg Hinrichs <joerg.hinrichs@alice-dsl.de>
    wesnoth playturn Copyright (C) 2003 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
@@ -48,4 +48,11 @@ void end_level_data::read(const config& cfg)
 	replay_save = cfg["replay_save"].to_bool(true);
 	proceed_to_next_level = cfg["proceed_to_next_level"].to_bool(true);
 	is_victory = cfg["is_victory"].to_bool(true);
+}
+
+config end_level_data::to_config() const
+{
+	config r;
+	write(r);
+	return r;
 }

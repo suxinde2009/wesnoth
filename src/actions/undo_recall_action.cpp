@@ -1,14 +1,14 @@
 #include "undo_recall_action.hpp"
 #include "create.hpp"
 
-#include "../construct_dialog.hpp"
-#include "../resources.hpp"
-#include "../team.hpp"
-#include "../replay.hpp"
-#include "../unit_map.hpp"
-#include "../statistics.hpp"
-#include "../log.hpp"
-#include "../game_display.hpp"
+#include "gui/dialogs/transient_message.hpp"
+#include "resources.hpp"
+#include "team.hpp"
+#include "replay.hpp"
+#include "units/map.hpp"
+#include "statistics.hpp"
+#include "log.hpp"
+#include "game_display.hpp"
 
 static lg::log_domain log_engine("engine");
 #define ERR_NG LOG_STREAM(err, log_engine)
@@ -18,7 +18,7 @@ namespace actions
 {
 namespace undo
 {
-	
+
 /**
  * Writes this into the provided config.
  */
@@ -66,6 +66,8 @@ bool recall_action::undo(int side)
 	// to also do the overlapped hexes
 	gui.invalidate(recall_loc);
 	units.erase(recall_loc);
+	this->return_village();
+	execute_undo_umc_wml();
 	return true;
 }
 
@@ -105,7 +107,7 @@ bool recall_action::redo(int side)
 		}
 		sync.do_final_checkup();
 	} else {
-		gui::dialog(gui, "", msg, gui::OK_ONLY).show();
+		gui2::show_transient_message(gui.video(), "", msg);
 		return false;
 	}
 

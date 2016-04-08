@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2013 - 2015 by Maxim Biro <nurupo.contributions@gmail.com>
+   Copyright (C) 2013 - 2016 by Maxim Biro <nurupo.contributions@gmail.com>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -20,19 +20,21 @@
 #include "serialization/string_utils.hpp"
 #include "serialization/unicode.hpp"
 
-NOTIFYICONDATA* windows_tray_notification::nid = NULL;
+#include "video.hpp"		// CVideo class holds the twindow -> SDL_Window object which contains the handle of the main window
+
+NOTIFYICONDATA* windows_tray_notification::nid = nullptr;
 bool windows_tray_notification::message_reset = false;
 
 void windows_tray_notification::destroy_tray_icon()
 {
-	if (nid == NULL) {
+	if (nid == nullptr) {
 		return;
 	}
 
 	if (!message_reset){
 		Shell_NotifyIcon(NIM_DELETE, nid);
 		delete nid;
-		nid = NULL;
+		nid = nullptr;
 	} else {
 		message_reset = false;
 	}
@@ -40,14 +42,29 @@ void windows_tray_notification::destroy_tray_icon()
 
 void windows_tray_notification::handle_system_event(const SDL_Event& event)
 {
-	if (event.syswm.msg->msg != WM_TRAYNOTIFY) {
+	if (event.syswm.msg->msg.win.msg != WM_TRAYNOTIFY) {
 		return;
 	}
 
-	if (event.syswm.msg->lParam == NIN_BALLOONUSERCLICK) {
+	if (event.syswm.msg->msg.win.lParam == NIN_BALLOONUSERCLICK) {
 		switch_to_wesnoth_window();
 		destroy_tray_icon();
-	} else if (event.syswm.msg->lParam == NIN_BALLOONTIMEOUT) {
+	} else if (event.syswm.msg->msg.win.lParam == NIN_BALLOONTIMEOUT) {
+		destroy_tray_icon();
+	}
+	// Scenario: More than one notification arrives before the time-out triggers the tray icon destruction.
+	// Problem: Events seem to be triggered differently in SDL 2.0. For the example of two notifications arriving at once:
+	//	1. Balloon created for first notification
+	//	2. Balloon created for second notification (message_reset set to true because of first notification already present)
+	//	3. Balloon time-out for first notification (destroy_tray_icon skips tray icon destruction because of message_reset flag)
+	//	4.	SDL 1.2: Balloon time-out for second notification (destroy_tray_icon destroys tray icon)
+	//		SDL 2.0: Balloon time-out for second notification event is never received (tray icon remains indefinitely)
+	// This results in the tray icon being 'stuck' until the user quits Wesnoth *and* hovers over the tray icon (and is only then killed off by the OS).
+	// As a less-than-ideal-but-better-than-nothing-solution, call destroy_tray_icon when the user hovers mouse cursor over the tray icon. At least then the tray is 'reset'.
+	// I could not find the matching definition for 0x0200 in the headers, but this message value is received when the mouse cursor is over the tray icon.
+	// Drawback: The tray icon can still get 'stuck' if the user does not move the mouse cursor over the tray icon.
+	//	Also, accidental destruction of the tray icon can occur if the user moves the mouse cursor over the tray icon before the balloon for a single notification has expired.
+	else if (event.syswm.msg->msg.win.lParam == 0x0200 && !message_reset) {
 		destroy_tray_icon();
 	}
 }
@@ -55,23 +72,23 @@ void windows_tray_notification::handle_system_event(const SDL_Event& event)
 bool windows_tray_notification::create_tray_icon()
 {
 	// getting handle to a 32x32 icon, contained in "WESNOTH_ICON" icon group of wesnoth.exe resources
-	const HMODULE wesnoth_exe = GetModuleHandle(NULL);
-	if (wesnoth_exe == NULL) {
+	const HMODULE wesnoth_exe = GetModuleHandle(nullptr);
+	if (wesnoth_exe == nullptr) {
 		return false;
 	}
 
 	const HRSRC group_icon_info = FindResource(wesnoth_exe, TEXT("WESNOTH_ICON"), RT_GROUP_ICON);
-	if (group_icon_info == NULL) {
+	if (group_icon_info == nullptr) {
 		return false;
 	}
 
 	HGLOBAL hGlobal = LoadResource(wesnoth_exe, group_icon_info);
-	if (hGlobal == NULL) {
+	if (hGlobal == nullptr) {
 		return false;
 	}
 
 	const PBYTE group_icon_res = static_cast<PBYTE>(LockResource(hGlobal));
-	if (group_icon_res == NULL) {
+	if (group_icon_res == nullptr) {
 		return false;
 	}
 
@@ -81,27 +98,27 @@ bool windows_tray_notification::create_tray_icon()
 	}
 
 	const HRSRC icon_info = FindResource(wesnoth_exe, MAKEINTRESOURCE(nID), MAKEINTRESOURCE(3));
-	if (icon_info == NULL) {
+	if (icon_info == nullptr) {
 		return false;
 	}
 
 	hGlobal = LoadResource(wesnoth_exe, icon_info);
-	if (hGlobal == NULL) {
+	if (hGlobal == nullptr) {
 		return false;
 	}
 
 	const PBYTE icon_res = static_cast<PBYTE>(LockResource(hGlobal));
-	if (icon_res == NULL) {
+	if (icon_res == nullptr) {
 		return false;
 	}
 
 	const HICON icon = CreateIconFromResource(icon_res, SizeofResource(wesnoth_exe, icon_info), TRUE, 0x00030000);
-	if (icon == NULL) {
+	if (icon == nullptr) {
 		return false;
 	}
 
 	const HWND window = get_window_handle();
-	if (window == NULL) {
+	if (window == nullptr) {
 		return false;
 	}
 
@@ -157,17 +174,19 @@ HWND windows_tray_notification::get_window_handle()
 {
 	SDL_SysWMinfo wmInfo;
 	SDL_VERSION(&wmInfo.version);
-	if (SDL_GetWMInfo(&wmInfo) != 1) {
-		return NULL;
+	sdl::twindow* window = CVideo::get_singleton().get_window();
+	// SDL 1.2 keeps track of window handles internally whereas SDL 2.0 allows the caller control over which window to use
+	if (!window || SDL_GetWindowWMInfo (static_cast<SDL_Window *> (*window), &wmInfo) != SDL_TRUE) {
+		return nullptr;
 	}
 
-	return wmInfo.window;
+	return wmInfo.info.win.window;
 }
 
 void windows_tray_notification::switch_to_wesnoth_window()
 {
 	const HWND window = get_window_handle();
-	if (window == NULL) {
+	if (window == nullptr) {
 		return;
 	}
 
@@ -193,11 +212,11 @@ bool windows_tray_notification::show(std::string title, std::string message)
 {
 	adjust_length(title, message);
 
-	const bool tray_icon_exist = nid != NULL;
+	const bool tray_icon_exist = nid != nullptr;
 	if (!tray_icon_exist) {
 		const bool tray_icon_created = create_tray_icon();
 		if (!tray_icon_created) {
-			const bool memory_allocated = nid != NULL;
+			const bool memory_allocated = nid != nullptr;
 			if (memory_allocated) {
 				destroy_tray_icon();
 			}

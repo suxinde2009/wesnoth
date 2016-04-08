@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2003 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2003 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -19,7 +19,7 @@
 
 #include "config.hpp"
 #include "generators/map_generator.hpp"
-#include "terrain_translation.hpp"
+#include "terrain/translation.hpp"
 
 #include <set>
 #include <boost/optional.hpp>
@@ -76,7 +76,7 @@ private:
 		size_t translate_x(size_t x) const;
 		size_t translate_y(size_t y) const;
 
-		
+
 		const cave_map_generator& params;
 		bool flipx_, flipy_;
 

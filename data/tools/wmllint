@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
 # wmllint -- check WML for conformance to the most recent dialect
@@ -181,14 +181,9 @@
 # code.
 #
 
-from __future__ import print_function, unicode_literals, division
-from future_builtins import filter, map, zip
-input = raw_input
-range = xrange
-
-import sys, os, re, getopt, string, copy, difflib, time, gzip, codecs
-from wesnoth.wmltools import *
-from wesnoth.wmliterator import *
+import sys, os, re, argparse, string, copy, difflib, time, gzip, codecs
+from wesnoth.wmltools3 import *
+from wesnoth.wmliterator3 import *
 
 # Changes meant to be done on maps and .cfg lines.
 mapchanges = (
@@ -629,7 +624,199 @@ linechanges = (
         ("fight_on_without_leader=yes","defeat_condition=no_units_left"),
         ("fight_on_without_leader=no","defeat_condition=no_leader_left"),
         ("remove_from_carryover_on_leaders_loss=yes","remove_from_carryover_on_defeat=yes"),
-        ("remove_from_carryover_on_leaders_loss=no","remove_from_carryover_on_defeat=no")
+        ("remove_from_carryover_on_leaders_loss=no","remove_from_carryover_on_defeat=no"),
+
+        # Changed in 1.13.2.
+        ("[advance]","[advancement]"),
+        ("[/advance]","[/advancement]"),
+        ("{ABILITY_LEADERSHIP_LEVEL_1}", "{ABILITY_LEADERSHIP}"),
+        ("{ABILITY_LEADERSHIP_LEVEL_2}", "{ABILITY_LEADERSHIP}"),
+        ("{ABILITY_LEADERSHIP_LEVEL_3}", "{ABILITY_LEADERSHIP}"),
+        ("{ABILITY_LEADERSHIP_LEVEL_4}", "{ABILITY_LEADERSHIP}"),
+        ("{ABILITY_LEADERSHIP_LEVEL_5}", "{ABILITY_LEADERSHIP}"),
+        ("misc/icon-amla-tough.png","icons/amla-default.png"),
+
+        # Changed in 1.13.4: removal of small portraits with black background
+        ("portraits/drakes/transparent/blademaster.png", "portraits/drakes/blademaster.png"),
+        ("portraits/drakes/transparent/burner.png", "portraits/drakes/burner.png"),
+        ("portraits/drakes/transparent/clasher.png", "portraits/drakes/clasher.png"),
+        ("portraits/drakes/transparent/enforcer.png", "portraits/drakes/enforcer.png"),
+        ("portraits/drakes/transparent/fighter.png", "portraits/drakes/fighter.png"),
+        ("portraits/drakes/transparent/flameheart.png", "portraits/drakes/flameheart.png"),
+        ("portraits/drakes/transparent/glider.png", "portraits/drakes/glider.png"),
+        ("portraits/drakes/transparent/hurricane.png", "portraits/drakes/hurricane.png"),
+        ("portraits/drakes/transparent/inferno.png", "portraits/drakes/inferno.png"),
+        ("portraits/drakes/transparent/warden.png", "portraits/drakes/warden.png"),
+        ("portraits/dwarves/transparent/dragonguard.png", "portraits/dwarves/dragonguard.png"),
+        ("portraits/dwarves/transparent/explorer.png", "portraits/dwarves/explorer.png"),
+        ("portraits/dwarves/transparent/fighter-2.png", "portraits/dwarves/fighter-2.png"),
+        ("portraits/dwarves/transparent/fighter.png", "portraits/dwarves/fighter.png"),
+        ("portraits/dwarves/transparent/gryphon-rider.png", "portraits/dwarves/gryphon-rider.png"),
+        ("portraits/dwarves/transparent/guard.png", "portraits/dwarves/guard.png"),
+        ("portraits/dwarves/transparent/lord.png", "portraits/dwarves/lord.png"),
+        ("portraits/dwarves/transparent/runemaster.png", "portraits/dwarves/runemaster.png"),
+        ("portraits/dwarves/transparent/scout.png", "portraits/dwarves/scout.png"),
+        ("portraits/dwarves/transparent/sentinel.png", "portraits/dwarves/sentinel.png"),
+        ("portraits/dwarves/transparent/thunderer.png", "portraits/dwarves/thunderer.png"),
+        ("portraits/dwarves/transparent/ulfserker.png", "portraits/dwarves/ulfserker.png"),
+        ("portraits/elves/transparent/archer+female.png", "portraits/elves/archer+female.png"),
+        ("portraits/elves/transparent/archer.png", "portraits/elves/archer.png"),
+        ("portraits/elves/transparent/captain.png", "portraits/elves/captain.png"),
+        ("portraits/elves/transparent/druid.png", "portraits/elves/druid.png"),
+        ("portraits/elves/transparent/fighter.png", "portraits/elves/fighter.png"),
+        ("portraits/elves/transparent/hero.png", "portraits/elves/hero.png"),
+        ("portraits/elves/transparent/high-lord.png", "portraits/elves/high-lord.png"),
+        ("portraits/elves/transparent/lady.png", "portraits/elves/lady.png"),
+        ("portraits/elves/transparent/lord.png", "portraits/elves/lord.png"),
+        ("portraits/elves/transparent/marksman+female.png", "portraits/elves/marksman+female.png"),
+        ("portraits/elves/transparent/marksman.png", "portraits/elves/marksman.png"),
+        ("portraits/elves/transparent/ranger+female.png", "portraits/elves/ranger+female.png"),
+        ("portraits/elves/transparent/ranger.png", "portraits/elves/ranger.png"),
+        ("portraits/elves/transparent/scout.png", "portraits/elves/scout.png"),
+        ("portraits/elves/transparent/shaman.png", "portraits/elves/shaman.png"),
+        ("portraits/elves/transparent/shyde.png", "portraits/elves/shyde.png"),
+        ("portraits/elves/transparent/sorceress.png", "portraits/elves/sorceress.png"),
+        ("portraits/elves/transparent/sylph.png", "portraits/elves/sylph.png"),
+        ("portraits/goblins/transparent/direwolver.png", "portraits/goblins/direwolver.png"),
+        ("portraits/goblins/transparent/impaler.png", "portraits/goblins/impaler.png"),
+        ("portraits/goblins/transparent/pillager.png", "portraits/goblins/pillager.png"),
+        ("portraits/goblins/transparent/rouser-2.png", "portraits/goblins/rouser-2.png"),
+        ("portraits/goblins/transparent/rouser.png", "portraits/goblins/rouser.png"),
+        ("portraits/goblins/transparent/spearman-2.png", "portraits/goblins/spearman-2.png"),
+        ("portraits/goblins/transparent/spearman.png", "portraits/goblins/spearman.png"),
+        ("portraits/goblins/transparent/wolf-rider.png", "portraits/goblins/wolf-rider.png"),
+        ("portraits/humans/transparent/assassin+female.png", "portraits/humans/assassin+female.png"),
+        ("portraits/humans/transparent/assassin.png", "portraits/humans/assassin.png"),
+        ("portraits/humans/transparent/bandit.png", "portraits/humans/bandit.png"),
+        ("portraits/humans/transparent/bowman.png", "portraits/humans/bowman.png"),
+        ("portraits/humans/transparent/cavalier.png", "portraits/humans/cavalier.png"),
+        ("portraits/humans/transparent/cavalryman.png", "portraits/humans/cavalryman.png"),
+        ("portraits/humans/transparent/dark-adept+female.png", "portraits/humans/dark-adept+female.png"),
+        ("portraits/humans/transparent/dark-adept.png", "portraits/humans/dark-adept.png"),
+        ("portraits/humans/transparent/duelist.png", "portraits/humans/duelist.png"),
+        ("portraits/humans/transparent/fencer.png", "portraits/humans/fencer.png"),
+        ("portraits/humans/transparent/footpad+female.png", "portraits/humans/footpad+female.png"),
+        ("portraits/humans/transparent/footpad.png", "portraits/humans/footpad.png"),
+        ("portraits/humans/transparent/general.png", "portraits/humans/general.png"),
+        ("portraits/humans/transparent/grand-knight-2.png", "portraits/humans/grand-knight-2.png"),
+        ("portraits/humans/transparent/grand-knight.png", "portraits/humans/grand-knight.png"),
+        ("portraits/humans/transparent/halberdier.png", "portraits/humans/halberdier.png"),
+        ("portraits/humans/transparent/heavy-infantry.png", "portraits/humans/heavy-infantry.png"),
+        ("portraits/humans/transparent/horseman.png", "portraits/humans/horseman.png"),
+        ("portraits/humans/transparent/huntsman.png", "portraits/humans/huntsman.png"),
+        ("portraits/humans/transparent/iron-mauler.png", "portraits/humans/iron-mauler.png"),
+        ("portraits/humans/transparent/javelineer.png", "portraits/humans/javelineer.png"),
+        ("portraits/humans/transparent/knight.png", "portraits/humans/knight.png"),
+        ("portraits/humans/transparent/lancer.png", "portraits/humans/lancer.png"),
+        ("portraits/humans/transparent/lieutenant.png", "portraits/humans/lieutenant.png"),
+        ("portraits/humans/transparent/longbowman.png", "portraits/humans/longbowman.png"),
+        ("portraits/humans/transparent/mage-arch+female.png", "portraits/humans/mage-arch+female.png"),
+        ("portraits/humans/transparent/mage-arch.png", "portraits/humans/mage-arch.png"),
+        ("portraits/humans/transparent/mage+female.png", "portraits/humans/mage+female.png"),
+        ("portraits/humans/transparent/mage-light+female.png", "portraits/humans/mage-light+female.png"),
+        ("portraits/humans/transparent/mage-light.png", "portraits/humans/mage-light.png"),
+        ("portraits/humans/transparent/mage.png", "portraits/humans/mage.png"),
+        ("portraits/humans/transparent/mage-red+female.png", "portraits/humans/mage-red+female.png"),
+        ("portraits/humans/transparent/mage-red.png", "portraits/humans/mage-red.png"),
+        ("portraits/humans/transparent/mage-silver+female.png", "portraits/humans/mage-silver+female.png"),
+        ("portraits/humans/transparent/mage-silver.png", "portraits/humans/mage-silver.png"),
+        ("portraits/humans/transparent/mage-white+female.png", "portraits/humans/mage-white+female.png"),
+        ("portraits/humans/transparent/mage-white.png", "portraits/humans/mage-white.png"),
+        ("portraits/humans/transparent/marshal-2.png", "portraits/humans/marshal-2.png"),
+        ("portraits/humans/transparent/marshal.png", "portraits/humans/marshal.png"),
+        ("portraits/humans/transparent/master-at-arms.png", "portraits/humans/master-at-arms.png"),
+        ("portraits/humans/transparent/master-bowman.png", "portraits/humans/master-bowman.png"),
+        ("portraits/humans/transparent/necromancer+female.png", "portraits/humans/necromancer+female.png"),
+        ("portraits/humans/transparent/necromancer.png", "portraits/humans/necromancer.png"),
+        ("portraits/humans/transparent/outlaw+female.png", "portraits/humans/outlaw+female.png"),
+        ("portraits/humans/transparent/outlaw.png", "portraits/humans/outlaw.png"),
+        ("portraits/humans/transparent/paladin.png", "portraits/humans/paladin.png"),
+        ("portraits/humans/transparent/peasant.png", "portraits/humans/peasant.png"),
+        ("portraits/humans/transparent/pikeman.png", "portraits/humans/pikeman.png"),
+        ("portraits/humans/transparent/ranger.png", "portraits/humans/ranger.png"),
+        ("portraits/humans/transparent/royal-guard.png", "portraits/humans/royal-guard.png"),
+        ("portraits/humans/transparent/ruffian.png", "portraits/humans/ruffian.png"),
+        ("portraits/humans/transparent/sergeant.png", "portraits/humans/sergeant.png"),
+        ("portraits/humans/transparent/spearman-2.png", "portraits/humans/spearman-2.png"),
+        ("portraits/humans/transparent/spearman.png", "portraits/humans/spearman.png"),
+        ("portraits/humans/transparent/swordsman-2.png", "portraits/humans/swordsman-2.png"),
+        ("portraits/humans/transparent/swordsman-3.png", "portraits/humans/swordsman-3.png"),
+        ("portraits/humans/transparent/swordsman.png", "portraits/humans/swordsman.png"),
+        ("portraits/humans/transparent/thief+female.png", "portraits/humans/thief+female.png"),
+        ("portraits/humans/transparent/thief.png", "portraits/humans/thief.png"),
+        ("portraits/humans/transparent/thug.png", "portraits/humans/thug.png"),
+        ("portraits/humans/transparent/trapper.png", "portraits/humans/trapper.png"),
+        ("portraits/humans/transparent/woodsman.png", "portraits/humans/woodsman.png"),
+        ("portraits/khalifate/transparent/hakim.png", "portraits/khalifate/hakim.png"),
+        ("portraits/merfolk/transparent/enchantress.png", "portraits/merfolk/enchantress.png"),
+        ("portraits/merfolk/transparent/fighter.png", "portraits/merfolk/fighter.png"),
+        ("portraits/merfolk/transparent/hoplite.png", "portraits/merfolk/hoplite.png"),
+        ("portraits/merfolk/transparent/hunter.png", "portraits/merfolk/hunter.png"),
+        ("portraits/merfolk/transparent/initiate-2.png", "portraits/merfolk/initiate-2.png"),
+        ("portraits/merfolk/transparent/initiate.png", "portraits/merfolk/initiate.png"),
+        ("portraits/merfolk/transparent/netcaster.png", "portraits/merfolk/netcaster.png"),
+        ("portraits/merfolk/transparent/priestess.png", "portraits/merfolk/priestess.png"),
+        ("portraits/merfolk/transparent/spearman.png", "portraits/merfolk/spearman.png"),
+        ("portraits/merfolk/transparent/triton.png", "portraits/merfolk/triton.png"),
+        ("portraits/monsters/transparent/bat.png", "portraits/monsters/bat.png"),
+        ("portraits/monsters/transparent/deep-tentacle.png", "portraits/monsters/deep-tentacle.png"),
+        ("portraits/monsters/transparent/giant-mudcrawler.png", "portraits/monsters/giant-mudcrawler.png"),
+        ("portraits/monsters/transparent/gryphon.png", "portraits/monsters/gryphon.png"),
+        ("portraits/monsters/transparent/ogre.png", "portraits/monsters/ogre.png"),
+        ("portraits/monsters/transparent/scorpion.png", "portraits/monsters/scorpion.png"),
+        ("portraits/monsters/transparent/sea-serpent.png", "portraits/monsters/sea-serpent.png"),
+        ("portraits/monsters/transparent/yeti.png", "portraits/monsters/yeti.png"),
+        ("portraits/monsters/transparent/young-ogre.png", "portraits/monsters/young-ogre.png"),
+        ("portraits/nagas/transparent/fighter.png", "portraits/nagas/fighter.png"),
+        ("portraits/nagas/transparent/myrmidon.png", "portraits/nagas/myrmidon.png"),
+        ("portraits/orcs/transparent/archer.png", "portraits/orcs/archer.png"),
+        ("portraits/orcs/transparent/assassin.png", "portraits/orcs/assassin.png"),
+        ("portraits/orcs/transparent/crossbowman.png", "portraits/orcs/crossbowman.png"),
+        ("portraits/orcs/transparent/grunt-2.png", "portraits/orcs/grunt-2.png"),
+        ("portraits/orcs/transparent/grunt-3.png", "portraits/orcs/grunt-3.png"),
+        ("portraits/orcs/transparent/grunt-4.png", "portraits/orcs/grunt-4.png"),
+        ("portraits/orcs/transparent/grunt-5.png", "portraits/orcs/grunt-5.png"),
+        ("portraits/orcs/transparent/grunt-6.png", "portraits/orcs/grunt-6.png"),
+        ("portraits/orcs/transparent/grunt.png", "portraits/orcs/grunt.png"),
+        ("portraits/orcs/transparent/leader-2.png", "portraits/orcs/leader-2.png"),
+        ("portraits/orcs/transparent/leader.png", "portraits/orcs/leader.png"),
+        ("portraits/orcs/transparent/slayer.png", "portraits/orcs/slayer.png"),
+        ("portraits/orcs/transparent/slurbow.png", "portraits/orcs/slurbow.png"),
+        ("portraits/orcs/transparent/sovereign.png", "portraits/orcs/sovereign.png"),
+        ("portraits/orcs/transparent/warlord.png", "portraits/orcs/warlord.png"),
+        ("portraits/orcs/transparent/warrior.png", "portraits/orcs/warrior.png"),
+        ("portraits/saurians/transparent/augur.png", "portraits/saurians/augur.png"),
+        ("portraits/saurians/transparent/skirmisher.png", "portraits/saurians/skirmisher.png"),
+        ("portraits/trolls/transparent/troll-hero-alt.png", "portraits/trolls/troll-hero-alt.png"),
+        ("portraits/trolls/transparent/troll-hero.png", "portraits/trolls/troll-hero.png"),
+        ("portraits/trolls/transparent/troll.png", "portraits/trolls/troll.png"),
+        ("portraits/trolls/transparent/troll-rocklobber.png", "portraits/trolls/troll-rocklobber.png"),
+        ("portraits/trolls/transparent/troll-shaman.png", "portraits/trolls/troll-shaman.png"),
+        ("portraits/trolls/transparent/troll-warrior.png", "portraits/trolls/troll-warrior.png"),
+        ("portraits/trolls/transparent/whelp.png", "portraits/trolls/whelp.png"),
+        ("portraits/undead/transparent/ancient-lich.png", "portraits/undead/ancient-lich.png"),
+        ("portraits/undead/transparent/archer.png", "portraits/undead/archer.png"),
+        ("portraits/undead/transparent/banebow.png", "portraits/undead/banebow.png"),
+        ("portraits/undead/transparent/bone-shooter.png", "portraits/undead/bone-shooter.png"),
+        ("portraits/undead/transparent/brown-lich.png", "portraits/undead/brown-lich.png"),
+        ("portraits/undead/transparent/deathblade.png", "portraits/undead/deathblade.png"),
+        ("portraits/undead/transparent/death-knight.png", "portraits/undead/death-knight.png"),
+        ("portraits/undead/transparent/draug-2.png", "portraits/undead/draug-2.png"),
+        ("portraits/undead/transparent/draug.png", "portraits/undead/draug.png"),
+        ("portraits/undead/transparent/ghost.png", "portraits/undead/ghost.png"),
+        ("portraits/undead/transparent/ghoul.png", "portraits/undead/ghoul.png"),
+        ("portraits/undead/transparent/lich.png", "portraits/undead/lich.png"),
+        ("portraits/undead/transparent/nightgaunt.png", "portraits/undead/nightgaunt.png"),
+        ("portraits/undead/transparent/revenant.png", "portraits/undead/revenant.png"),
+        ("portraits/undead/transparent/shadow.png", "portraits/undead/shadow.png"),
+        ("portraits/undead/transparent/skeleton.png", "portraits/undead/skeleton.png"),
+        ("portraits/undead/transparent/soulless.png", "portraits/undead/soulless.png"),
+        ("portraits/undead/transparent/spectre.png", "portraits/undead/spectre.png"),
+        ("portraits/undead/transparent/walking-corpse.png", "portraits/undead/walking-corpse.png"),
+        ("portraits/undead/transparent/wraith.png", "portraits/undead/wraith.png"),
+        ("portraits/woses/transparent/ancient-wose.png", "portraits/woses/ancient-wose.png"),
+        ("portraits/woses/transparent/wose.png", "portraits/woses/wose.png")
+
         )
 
 def validate_on_pop(tagstack, closer, filename, lineno):
@@ -743,7 +930,7 @@ notepairs = [
     ("{ABILITY_CURES}", "{SPECIAL_NOTES_CURES}"),
     ("{ABILITY_REGENERATES}", "{SPECIAL_NOTES_REGENERATES}"),
     ("{ABILITY_STEADFAST}", "{SPECIAL_NOTES_STEADFAST}"),
-    ("{ABILITY_LEADERSHIP_LEVEL_", "{SPECIAL_NOTES_LEADERSHIP}"), # No } deliberately
+    ("{ABILITY_LEADERSHIP}", "{SPECIAL_NOTES_LEADERSHIP}"),
     ("{ABILITY_SKIRMISHER}", "{SPECIAL_NOTES_SKIRMISHER}"),
     ("{ABILITY_ILLUMINATES}", "{SPECIAL_NOTES_ILLUMINATES}"),
     ("{ABILITY_TELEPORT}", "{SPECIAL_NOTES_TELEPORT}"),
@@ -800,14 +987,14 @@ def is_translatable(key):
     translatables = (
         "abbrev", "cannot_use_message", "caption", "current_player",
         "currently_doing_description", "description", "description_inactive",
-        "editor_name", "end_text", "difficulty_descriptions",
-        "female_name_inactive", "female_names", "help_topic_text", "label",
-        "male_names", "message", "name", "name_inactive", "new_game_title",
-        "note", "option_description", "option_name", "order", "plural_name",
-        "prefix", "set_description", "source", "story", "summary",
-        "victory_string", "defeat_string", "gold_carryover_string",
-        "notes_string", "text", "title", "title2", "tooltip",
-        "translator_comment", "user_team_name"
+        "editor_name", "end_text", "difficulty_descriptions", "female_message",
+        "female_name_inactive", "female_names", "female_text", "help_topic_text",
+        "label", "male_message", "male_names", "male_text", "message", "name",
+        "name_inactive", "new_game_title", "note", "option_description",
+        "option_name", "order", "plural_name", "prefix", "set_description",
+        "source", "story", "summary", "victory_string", "defeat_string",
+        "gold_carryover_string", "notes_string", "text", "title", "title2",
+        "tooltip", "translator_comment", "user_team_name"
         )
     return key in translatables or key.startswith(("type_", "range_"))
 
@@ -1681,7 +1868,7 @@ def global_sanity_check(filename, lines):
                         present.append(value)
                     elif value and value[0] in ("$", "{"):
                         continue
-                    elif preamble_seen and subtag_depth > 0 and not ignore_id and not in_object and not in_cfg and not in_facet and not in_sound_source and not in_remove_sound_source and not in_stage and not in_goal and not in_set_menu_item and not in_clear_menu_item and not directly_in_event[-1] and not in_time_area:
+                    elif preamble_seen and subtag_depth > 0 and not ignore_id and not in_object and not in_cfg and not in_facet and not in_sound_source and not in_remove_sound_source and not in_stage and not in_goal and not in_set_menu_item and not in_clear_menu_item and not directly_in_event[-1] and not in_time_area and not in_trait:
                         ids = value.split(",")
                         for id_ in ids:
                             # removal of leading whitespace of items in comma-separated lists
@@ -2595,100 +2782,64 @@ def allcfgfiles(directory):
     datafiles.sort() # So diffs for same campaigns will cluster in reports
     return map(os.path.normpath, datafiles)
 
-def help():
-        print("""\
-Usage: wmllint [options] [dir]
-    Convert Battle of Wesnoth WML from older versions to newer ones.
-    Also validates WML to check for errors.
-
-    Takes any number of directories as arguments.  Each directory is converted.
-    If no directories are specified, acts on the current directory.
-
-Mode options:
-    Changes wmllint from default conversion mode.  Only one mode can be chosen.
-    -h, --help                 Emit this help message and quit.
-    -d, --dryrun               List changes (-v) but don't perform them.
-    -c, --clean                Clean up -bak files.
-    -D, --diff                 Display diffs between converted and unconverted
-                               files.
-    -r, --revert               Revert the conversion from the -bak files.
-
-Other options:
-    -v, --verbose              -v        lists changes.
-                               -v -v     names each file before it's processed.
-                               -v -v -v  shows verbose parse details.
-    -m, --missing              Don't warn about tags without side= keys now
-                               applying to all sides.
-    -s, --stripcr              Convert DOS-style CR/LF to Unix-style LF.
-    -K, --known                Suppress check for unknown unit types, recruits,
-                               races, scenarios, etc.
-    -S, --nospellcheck         Suppress spellchecking
-    -Z, --stringfreeze         Suppress repair attempts of newlines in messages
-
-For more about wmllint, including how to prevent unwanted conversions and false
-positive warnings with magic comments, read the introduction in the wmllint
-file itself.  See also: http://wiki.wesnoth.org/Maintenance_tools.""", file=sys.stderr)
-
 if __name__ == '__main__':
-    try:
-        (options, arguments) = getopt.getopt(sys.argv[1:], "cdDhmnrsvKSZ", [
-            "clean",
-            "diffs",
-            "dryrun",
-            "help",
-            "missing",
-            "revert",
-            "stripcr",
-            "verbose",
-            "known",
-            "nospellcheck",
-            "stringfreeze",
-            ])
-        # -f --future has been removed; there have been no experimental conversions since 1.4
-        # -p --progress has been removed; similar to existing -v -v
-    except getopt.GetoptError:
-        help()
-        print('\nAn option you have entered is invalid.  Review options and try again.', file=sys.stderr)
-        sys.exit(1)
-    clean = False
-    diffs = False
-    dryrun = False
-    missingside = True
-    revert = False
-    stringfreeze = False
-    stripcr = False
-    verbose = 0
-    dospellcheck = True
-    inconsistency = False
-    for (switch, val) in options:
-        if switch in ('-h', '--help'):
-            help()
-            sys.exit(0)
-        elif switch in ('-c', '--clean'):
-            clean = True
-        elif switch in ('-d', '--dryrun'):
-            dryrun = True
-        elif switch in ('-D', '--diffs'):
-            diffs = True
-        elif switch in ('-m', '--missing'):
-            missingside = False
-        elif switch in ('-r', '--revert'):
-            revert = True
-        elif switch in ('-s', '--stripcr'):
-            stripcr = True
-        elif switch in ('-Z', '--stringfreeze'):
-            stringfreeze = True
-        elif switch in ('-v', '--verbose'):
-            verbose += 1
-        elif switch in ('-S', '--nospellcheck'):
-            dospellcheck = False
-        elif switch in ('-K', '--known'):
-            inconsistency = True
+    parser = argparse.ArgumentParser(
+        description = '''Convert Battle of Wesnoth WML from older versions to newer ones.
+Also validates WML to check for errors.''',
+        epilog = '''For more about wmllint, including how to prevent unwanted conversions and false
+positive warnings with magic comments, read the introduction in the wmllint
+file itself.
+See also: http://wiki.wesnoth.org/Maintenance_tools.''',
+        formatter_class = argparse.RawTextHelpFormatter
+    )
+
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("-c", "--clean", action="store_true",
+                      help="Clean up -bak files.")
+    mode.add_argument("-D", "--diffs", action="store_true",
+                      help="Display diffs between converted and unconverted files.")
+    mode.add_argument("-d", "--dryrun", action="store_true",
+                      help="List changes (-v) but don't perform them.")
+    mode.add_argument("-r", "--revert", action="store_true",
+                      help="Revert the conversion from the -bak files.")
+    parser.add_argument("-m", "--missing", action="store_true",
+                        help="""Don't warn about tags without side= keys now applying
+to all sides.""")
+    parser.add_argument("-s", "--stripcr", action="store_true",
+                        help="Convert DOS-style CR/LF to Unix-style LF.")
+    parser.add_argument("-v", "--verbose", action="count", default=0,
+                        help="""-v        lists changes.
+-v -v     names each file before it's processed.
+-v -v -v  shows verbose parse details.""")
+    parser.add_argument("-K", "--known", action="store_true",
+                        help="""Suppress check for unknown unit types, recruits, races,
+scenarios, etc.""")
+    parser.add_argument("-S", "--nospellcheck", action="store_false",
+                        help="Suppress spellchecking")
+    parser.add_argument("-Z", "--stringfreeze", action="store_true",
+                        help="Suppress repair attempts of newlines in messages")
+    # -f --future has been removed; there have been no experimental conversions since 1.4
+    # -p --progress has been removed; similar to existing -v -v
+    parser.add_argument("directories", action="store", nargs="*",
+                        help="""Any number of directories. Each directory is converted.
+If no directories are specified, acts on the current
+directory.""")
+
+    namespace = parser.parse_args()
+    clean = namespace.clean
+    diffs = namespace.diffs
+    dryrun = namespace.dryrun
+    missingside = namespace.missing
+    revert = namespace.revert
+    stringfreeze = namespace.stringfreeze
+    stripcr = namespace.stripcr
+    verbose = namespace.verbose
+    dospellcheck = namespace.nospellcheck # WARNING! We store the opposite of the value needed!
+    inconsistency = namespace.known
+    arguments = namespace.directories # a remnant of getopt...
+
     if dryrun:
         verbose = max(1, verbose)
-    if clean and revert:
-        print("wmllint: can't do clean and revert together.", file=sys.stderr)
-        sys.exit(1)
 
     post15 = False
 
@@ -2921,7 +3072,7 @@ In your case, your system interprets your arguments as:
                     except:
                         print("wmllint: internal error on %s" % fn, file=sys.stderr)
                         (exc_type, exc_value, exc_traceback) = sys.exc_info()
-                        raise exc_type, exc_value, exc_traceback
+                        raise exc_type(exc_value).with_traceback(exc_traceback)
         if not clean and not diffs and not revert:
             # Consistency-check everything we got from the file scans
             if not inconsistency:

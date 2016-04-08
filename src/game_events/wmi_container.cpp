@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2003 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2003 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -17,19 +17,17 @@
  * Definitions for a container for wml_menu_item.
  */
 
-#include "../global.hpp"
+#include "global.hpp"
 #include "wmi_container.hpp"
 #include "handlers.hpp"
 #include "menu_item.hpp"
 #include "resources.hpp"
 #include "play_controller.hpp"
 
-#include "../config.hpp"
-#include "../game_data.hpp"
-#include "../log.hpp"
-#include "../map_location.hpp"
-
-#include <boost/foreach.hpp>
+#include "config.hpp"
+#include "game_data.hpp"
+#include "log.hpp"
+#include "map/location.hpp"
 
 static lg::log_domain log_engine("engine");
 #define WRN_NG LOG_STREAM(warn, log_engine)
@@ -84,8 +82,9 @@ bool wmi_container::fire_item(const std::string & id, const map_location & hex, 
 {
 	// Does this item exist?
 	const_iterator iter = find(id);
-	if ( iter == end() )
+	if ( iter == end() ) {
 		return false;
+	}
 	const wml_menu_item & wmi = **iter;
 
 	// Prepare for can show().
@@ -94,33 +93,34 @@ bool wmi_container::fire_item(const std::string & id, const map_location & hex, 
 	scoped_xy_unit highlighted_unit("unit", hex.x, hex.y, units);
 
 	// Can this item be shown?
-	if ( wmi.can_show(hex, gamedata, fc) )
+	if ( wmi.can_show(hex, gamedata, fc) ) {
 		wmi.fire_event(hex, gamedata);
-
+	}
 	return true;
 }
 
 /**
  * Returns the menu items that can be shown for the given location.
  * Should be used with a wmi_pager to limit the number of items displayed at once.
+ *
  * @param[out] items        Pointers to applicable menu items will be pushed onto @a items.
- * @param[out] descriptions Menu item text will be pushed onto @descriptions (in the same order as @a items).
+ * @param[out] descriptions Menu item text will be pushed onto @a descriptions (in the same order as @a items).
  */
 std::vector<std::pair<boost::shared_ptr<const wml_menu_item>, std::string> > wmi_container::get_items(const map_location& hex,
 	game_data & gamedata, filter_context & fc, unit_map & units, const_iterator start, const_iterator finish) const
 {
 	std::vector<std::pair<boost::shared_ptr<const wml_menu_item>, std::string> > ret;
-	if ( empty() )
+	if ( empty() ) {
 		// Nothing to do (skip setting game variables).
 		return ret;
-
+	}
 	// Prepare for can show().
 	gamedata.get_variable("x1") = hex.x + 1;
 	gamedata.get_variable("y1") = hex.y + 1;
 	scoped_xy_unit highlighted_unit("unit", hex.x, hex.y, units);
 
 	// Check each menu item.
-	BOOST_FOREACH( const item_ptr & item, std::make_pair (start, finish) )
+	for (const item_ptr & item : std::make_pair (start, finish))
 	{
 		// Can this item be shown?
 		if ( item->use_wml_menu() && (!item->is_synced() || resources::controller->can_use_synced_wml_menu()) && item->can_show(hex, gamedata, fc) )
@@ -135,7 +135,7 @@ std::vector<std::pair<boost::shared_ptr<const wml_menu_item>, std::string> > wmi
 /**
  * Initializes the implicit event handlers for inlined [command]s.
  */
-void wmi_container::init_handlers(const boost::shared_ptr<manager * const> & man) const
+void wmi_container::init_handlers() const
 {
 	// Applying default hotkeys here currently does not work because
 	// the hotkeys are reset by play_controler::init_managers() ->
@@ -149,46 +149,45 @@ void wmi_container::init_handlers(const boost::shared_ptr<manager * const> & man
 	unsigned wmi_count = 0;
 
 	// Loop through each menu item.
-	BOOST_FOREACH( const item_ptr & wmi, *this ) {
+	for (const item_ptr & wmi : *this) {
 		// If this menu item has a [command], add a handler for it.
-		wmi->init_handler(man);
+		wmi->init_handler();
 		// Count the menu items (for the diagnostic message).
 		++wmi_count;
 	}
 
 	// Diagnostic:
-	LOG_NG << wmi_count << " WML menu items found, loaded." << std::endl;
+	if ( wmi_count > 0 ) {
+		LOG_NG << wmi_count << " WML menu items found, loaded." << std::endl;
+	}
 }
 
 void wmi_container::to_config(config& cfg) const
 {
 	// Loop through our items.
-	BOOST_FOREACH( const item_ptr & item, *this )
+	for (const item_ptr & item : *this)
+	{
 		// Add this item as a child of cfg.
 		item->to_config(cfg.add_child("menu_item"));
+	}
 }
 
 /**
  * Updates or creates (as appropriate) the menu item with the given @a id.
  */
-void wmi_container::set_item(const std::string& id, const vconfig& menu_item, manager * man)
+void wmi_container::set_item(const std::string& id, const vconfig& menu_item)
 {
 	// Try to insert a dummy value. This combines looking for an existing
 	// entry with insertion.
 	map_t::iterator add_it = wml_menu_items_.insert(map_t::value_type(id, item_ptr())).first;
 
-	if ( add_it->second ) {
+	if ( add_it->second )
 		// Create a new menu item based on the old. This leaves the old item
 		// alone in case someone else is holding on to (and processing) it.
 		add_it->second.reset(new wml_menu_item(id, menu_item, *add_it->second));
-	} else {
+	else
 		// This is a new menu item.
 		add_it->second.reset(new wml_menu_item(id, menu_item));
-	}
-
-	if (man) {
-		add_it->second->init_handler(*man);
-	}
 }
 
 /**
@@ -197,7 +196,7 @@ void wmi_container::set_item(const std::string& id, const vconfig& menu_item, ma
 void wmi_container::set_menu_items(const config& cfg)
 {
 	wml_menu_items_.clear();
-	BOOST_FOREACH(const config &item, cfg.child_range("menu_item"))
+	for (const config &item : cfg.child_range("menu_item"))
 	{
 		if(!item.has_attribute("id")){ continue; }
 

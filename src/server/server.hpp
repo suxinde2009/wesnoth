@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2009 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2009 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org
 
    This program is free software; you can redistribute it and/or modify
@@ -19,13 +19,12 @@
 #include "user_handler.hpp"
 #include "input_stream.hpp"
 #include "metrics.hpp"
-#include "../network.hpp"
+#include "network.hpp"
 #include "ban.hpp"
 #include "player.hpp"
 #include "room_manager.hpp"
 #include "simple_wml.hpp"
 
-#include "utils/boost_function_guarded.hpp"
 #include <boost/scoped_ptr.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 class server
@@ -186,7 +185,7 @@ private:
 
 	void setup_handlers();
 
-	typedef boost::function5<void, server*, const std::string&, const std::string&, std::string&, std::ostringstream *> cmd_handler;
+	typedef std::function<void(server*, const std::string&, const std::string&, std::string&, std::ostringstream *)> cmd_handler;
 	std::map<std::string, cmd_handler> cmd_handlers_;
 
 	void shut_down_handler(const std::string &, const std::string &, std::string &, std::ostringstream *);

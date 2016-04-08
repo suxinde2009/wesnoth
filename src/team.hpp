@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2003 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2003 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -16,12 +16,12 @@
 
 #include "color_range.hpp"
 #include "game_config.hpp"
-#include "make_enum.hpp"
-#include "map_location.hpp"
+#include "utils/make_enum.hpp"
+#include "map/location.hpp"
 #include "recall_list_manager.hpp"
-#include "savegame_config.hpp"
-#include "unit_ptr.hpp"
+#include "units/ptr.hpp"
 #include "util.hpp"
+#include "config.hpp"
 
 #include <boost/shared_ptr.hpp>
 #include <boost/container/flat_set.hpp>
@@ -47,15 +47,13 @@ namespace wb {
  * This class stores all the data for a single 'side' (in game nomenclature).
  * E.g., there is only one leader unit per team.
  */
-class team : public savegame::savegame_config
+class team
 {
 public:
 
 	MAKE_ENUM(CONTROLLER,
 		(HUMAN,       "human")
 		(AI,          "ai")
-		(NETWORK,     "network")
-		(NETWORK_AI,  "network_ai")
 		(EMPTY,	      "null")
 	)
 
@@ -108,7 +106,6 @@ private:
 		team_info();
 		void read(const config &cfg);
 		void write(config& cfg) const;
-		std::string name;
 		int gold;
 		int start_gold;
 		int income;
@@ -119,6 +116,7 @@ private:
 		std::set<std::string> can_recruit;
 		std::string team_name;
 		t_string user_team_name;
+		t_string side_name;
 		std::string save_id;
 		// 'id' of the current player (not necessarily unique)
 		std::string current_player;
@@ -128,7 +126,7 @@ private:
 		std::string flag;
 		std::string flag_icon;
 
-		std::string description;
+		std::string id;
 
 		bool scroll_to_leader;
 
@@ -140,6 +138,7 @@ private:
 		mutable bool objectives_changed;
 
 		CONTROLLER controller;
+		bool is_local;
 		DEFEAT_CONDITION defeat_condition;
 
 		PROXY_CONTROLLER proxy_controller;	// when controller == HUMAN, the proxy controller determines what input method is actually used.
@@ -161,8 +160,10 @@ private:
 
 		int carryover_percentage;
 		bool carryover_add;
-		bool carryover_bonus;
+		// TODO: maybe make this integer percentage? I like the float version more but this might casue OOS error because of floating point rounding differences on different hardware.
+		double carryover_bonus;
 		int carryover_gold;
+		config variables;
 		void handle_legacy_share_vision(const config& cfg);
 	};
 
@@ -180,7 +181,7 @@ public:
 
 	void write(config& cfg) const;
 
-	bool get_village(const map_location&, const int owner_side, game_data * fire_event); //!< Acquires a village from owner_side. Pointer fire_event should be the game_data for the game if it is desired to fire an event -- a "capture" event with owner_side variable scoped in will be fired. For no event, pass it NULL. Default is the resources::gamedata pointer
+	bool get_village(const map_location&, const int owner_side, game_data * fire_event); //!< Acquires a village from owner_side. Pointer fire_event should be the game_data for the game if it is desired to fire an event -- a "capture" event with owner_side variable scoped in will be fired. For no event, pass it nullptr. Default is the resources::gamedata pointer
 	void lose_village(const map_location&);
 	void clear_villages() { villages_.clear(); }
 	const std::set<map_location>& villages() const { return villages_; }
@@ -229,13 +230,7 @@ public:
 	int minimum_recruit_price() const;
 	const std::string& last_recruit() const { return last_recruit_; }
 	void last_recruit(const std::string & u_type) { last_recruit_ = u_type; }
-	// TODO: This attribute is never used for user messages. (currently
-	// current_player is used there). It's only used for debug messages
-	// and it's accessible to wml via [store_side]. Do we really need it?
-	const std::string& name() const
-		{ return info_.name; }
 
-	void set_name(const std::string& name) { info_.name = name; }
 	const std::string& save_id() const { return info_.save_id; }
 	void set_save_id(const std::string& save_id) { info_.save_id = save_id; }
 	const std::string& current_player() const { return info_.current_player; }
@@ -261,23 +256,26 @@ public:
 	void set_color(const std::string& color) { info_.color = color; }
 	bool is_empty() const { return info_.controller == CONTROLLER::EMPTY; }
 
-	bool is_local() const { return is_local_human() || is_local_ai(); }
-	bool is_network() const { return is_network_human() || is_network_ai(); }
+	bool is_local() const { return !is_empty() && info_.is_local; }
+	bool is_network() const { return !is_empty() && !info_.is_local; }
 
-	bool is_human() const { return is_local_human() || is_network_human(); }
+	bool is_human() const { return info_.controller == CONTROLLER::HUMAN; }
+	bool is_ai() const { return info_.controller == CONTROLLER::AI; }
 
-	bool is_local_human() const { return info_.controller == CONTROLLER::HUMAN;  }
-	bool is_local_ai() const { return info_.controller == CONTROLLER::AI; }
-	bool is_network_human() const { return info_.controller == CONTROLLER::NETWORK; }
-	bool is_network_ai() const { return info_.controller == CONTROLLER::NETWORK_AI; }
+	bool is_local_human() const {  return is_human() && is_local(); }
+	bool is_local_ai() const { return is_ai() && is_local(); }
+	bool is_network_human() const { return is_human() && is_network(); }
+	bool is_network_ai() const { return is_ai() && is_network(); }
 
+	void set_local(bool local) { info_.is_local = local; }
 	void make_human() { info_.controller = CONTROLLER::HUMAN; }
 	void make_ai() { info_.controller = CONTROLLER::AI; }
 	void change_controller(const std::string& new_controller) {
-		info_.controller = lexical_cast_default<CONTROLLER> (new_controller, CONTROLLER::AI);
+		info_.controller = CONTROLLER::AI;
+		info_.controller.parse(new_controller);
 	}
-	void change_controller_by_wml(const std::string& new_controller);
 	void change_controller(CONTROLLER controller) { info_.controller = controller; }
+	void change_controller_by_wml(const std::string& new_controller);
 
 	PROXY_CONTROLLER proxy_controller() const { return info_.proxy_controller; }
 	bool is_proxy_human() const { return info_.proxy_controller == PROXY_CONTROLLER::PROXY_HUMAN; }
@@ -304,6 +302,7 @@ public:
 	void set_flag(const std::string& flag) { info_.flag = flag; }
 	void set_flag_icon(const std::string& flag_icon) { info_.flag_icon = flag_icon; }
 
+	const std::string& side_name() const { return info_.side_name.empty() ? info_.current_player : info_.side_name.str(); }
 	//Returns true if the hex is shrouded/fogged for this side, or
 	//any other ally with shared vision.
 	bool shrouded(const map_location& loc) const;
@@ -336,11 +335,12 @@ public:
 	DEFEAT_CONDITION defeat_condition() const { return info_.defeat_condition; }
 	void set_defeat_condition(DEFEAT_CONDITION value) { info_.defeat_condition = value; }
 	///sets the defeat condition if @param value is a valid defeat condition, otherwise nothing happes.
-	void set_defeat_condition_string(const std::string& value) { info_.defeat_condition = lexical_cast_default<team::DEFEAT_CONDITION>(value, info_.defeat_condition); }
+	void set_defeat_condition_string(const std::string& value) { info_.defeat_condition.parse(value); }
 	void have_leader(bool value=true) { info_.no_leader = !value; }
 	bool hidden() const { return info_.hidden; }
 	void set_hidden(bool value) { info_.hidden=value; }
-	bool persistent() const {return info_.persistent;}
+	bool persistent() const { return info_.persistent; }
+	void set_persistent(bool value) { info_.persistent = value; }
 	void set_lost(bool value=true) { info_.lost = value; }
 	bool lost() const { return info_.lost; }
 
@@ -348,10 +348,12 @@ public:
 	int carryover_percentage() const { return info_.carryover_percentage; }
 	void set_carryover_add(bool value) { info_.carryover_add = value; }
 	bool carryover_add() const { return info_.carryover_add; }
-	void set_carryover_bonus(bool value) { info_.carryover_bonus = value; }
-	bool carryover_bonus() const { return info_.carryover_bonus; }
+	void set_carryover_bonus(double value) { info_.carryover_bonus = value; }
+	double carryover_bonus() const { return info_.carryover_bonus; }
 	void set_carryover_gold(int value) { info_.carryover_gold = value; }
 	int carryover_gold() const { return info_.carryover_gold; }
+	config& variables() { return info_.variables; }
+	const config& variables() const { return info_.variables; }
 
 	bool no_turn_confirmation() const { return info_.no_turn_confirmation; }
 	void set_no_turn_confirmation(bool value) { info_.no_turn_confirmation = value; }
@@ -380,6 +382,13 @@ public:
 	bool share_maps() const { return info_.share_vision != SHARE_VISION::NONE ; }
 	bool share_view() const { return info_.share_vision == SHARE_VISION::ALL; }
 	SHARE_VISION share_vision() const { return info_.share_vision; }
+
+	void set_share_vision(const std::string& vision_status) {
+		info_.share_vision = SHARE_VISION::ALL;
+		info_.share_vision.parse(vision_status);
+	}
+
+	void set_share_vision(SHARE_VISION vision_status) { info_.share_vision = vision_status; }
 
 	void handle_legacy_share_vision(const config& cfg)
 	{

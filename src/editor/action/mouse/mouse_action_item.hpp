@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2008 - 2015 by Fabian Mueller <fabianmueller5@gmx.de>
+   Copyright (C) 2008 - 2016 by Fabian Mueller <fabianmueller5@gmx.de>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -61,7 +61,7 @@ public:
 	editor_action* drag_end_left(editor_display& disp, int x, int y);
 
 	editor_action* click_right(editor_display& /*disp*/, int /*x*/, int /*y*/) {
-		return NULL;
+		return nullptr;
 	}
 
 	virtual void set_mouse_overlay(editor_display& disp);

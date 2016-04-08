@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2014 - 2015 by Chris Beck <render787@gmail.com>
+   Copyright (C) 2014 - 2016 by Chris Beck <render787@gmail.com>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -30,8 +30,9 @@
 #include "scripting/lua_types.hpp"      // for gettextKey, tstringKey, etc
 #include "tstring.hpp"                  // for t_string
 #include "variable.hpp" // for vconfig
+#include "log.hpp"
+#include "gettext.hpp"
 
-#include <boost/foreach.hpp>
 #include <cstring>
 #include <iterator>                     // for distance, advance
 #include <new>                          // for operator new
@@ -42,7 +43,14 @@
 
 static const char * gettextKey = "gettext";
 static const char * vconfigKey = "vconfig";
+static const char * vconfigpairsKey = "vconfig pairs";
+static const char * vconfigipairsKey = "vconfig ipairs";
 const char * tstringKey = "translatable string";
+
+static lg::log_domain log_scripting_lua("scripting/lua");
+#define LOG_LUA LOG_STREAM(info, log_scripting_lua)
+#define WRN_LUA LOG_STREAM(warn, log_scripting_lua)
+#define ERR_LUA LOG_STREAM(err, log_scripting_lua)
 
 namespace lua_common {
 
@@ -130,6 +138,30 @@ static int impl_tstring_collect(lua_State *L)
 	return 0;
 }
 
+static int impl_tstring_lt(lua_State *L)
+{
+	t_string *t1 = static_cast<t_string *>(lua_touserdata(L, 1));
+	t_string *t2 = static_cast<t_string *>(lua_touserdata(L, 2));
+	lua_pushboolean(L, translation::compare(t1->get(), t2->get()) < 0);
+	return 1;
+}
+
+static int impl_tstring_le(lua_State *L)
+{
+	t_string *t1 = static_cast<t_string *>(lua_touserdata(L, 1));
+	t_string *t2 = static_cast<t_string *>(lua_touserdata(L, 2));
+	lua_pushboolean(L, translation::compare(t1->get(), t2->get()) < 1);
+	return 1;
+}
+
+static int impl_tstring_eq(lua_State *L)
+{
+	t_string *t1 = static_cast<t_string *>(lua_touserdata(L, 1));
+	t_string *t2 = static_cast<t_string *>(lua_touserdata(L, 2));
+	lua_pushboolean(L, translation::compare(t1->get(), t2->get()) == 0);
+	return 1;
+}
+
 /**
  * Converts a t_string object to a string (__tostring metamethod);
  * that is, performs a translation.
@@ -180,7 +212,7 @@ static int impl_vconfig_get(lua_State *L)
 	if (shallow_literal || strcmp(m, "__shallow_parsed") == 0)
 	{
 		lua_newtable(L);
-		BOOST_FOREACH(const config::attribute &a, v->get_config().attribute_range()) {
+		for (const config::attribute &a : v->get_config().attribute_range()) {
 			if (shallow_literal)
 				luaW_pushscalar(L, a.second);
 			else
@@ -227,8 +259,103 @@ static int impl_vconfig_size(lua_State *L)
 static int impl_vconfig_collect(lua_State *L)
 {
 	vconfig *v = static_cast<vconfig *>(lua_touserdata(L, 1));
-	v->vconfig::~vconfig();
+	v->~vconfig();
 	return 0;
+}
+
+/**
+ * Iterate through the attributes of a vconfig
+ */
+static int impl_vconfig_pairs_iter(lua_State *L)
+{
+	vconfig vcfg = luaW_checkvconfig(L, 1);
+	void* p = luaL_checkudata(L, lua_upvalueindex(1), vconfigpairsKey);
+	config::const_attr_itors& range = *static_cast<config::const_attr_itors*>(p);
+	if (range.first == range.second) {
+		return 0;
+	}
+	config::attribute value = *range.first++;
+	lua_pushlstring(L, value.first.c_str(), value.first.length());
+	luaW_pushscalar(L, vcfg[value.first]);
+	return 2;
+}
+
+/**
+ * Destroy a vconfig pairs iterator
+ */
+static int impl_vconfig_pairs_collect(lua_State *L)
+{
+	typedef config::const_attr_itors const_attr_itors;
+	void* p = lua_touserdata(L, 1);
+	const_attr_itors* cai = static_cast<const_attr_itors*>(p);
+	cai->~const_attr_itors();
+	return 0;
+}
+
+/**
+ * Construct an iterator to iterate through the attributes of a vconfig
+ */
+static int impl_vconfig_pairs(lua_State *L)
+{
+	static const size_t sz = sizeof(config::const_attr_itors);
+	vconfig vcfg = luaW_checkvconfig(L, 1);
+	new(lua_newuserdata(L, sz)) config::const_attr_itors(vcfg.get_config().attribute_range());
+	luaL_newmetatable(L, vconfigpairsKey);
+	lua_setmetatable(L, -2);
+	lua_pushcclosure(L, &impl_vconfig_pairs_iter, 1);
+	lua_pushvalue(L, 1);
+	return 2;
+}
+
+typedef std::pair<vconfig::all_children_iterator, vconfig::all_children_iterator> vconfig_child_range;
+
+/**
+ * Iterate through the subtags of a vconfig
+ */
+static int impl_vconfig_ipairs_iter(lua_State *L)
+{
+	luaW_checkvconfig(L, 1);
+	int i = luaL_checkinteger(L, 2);
+	void* p = luaL_checkudata(L, lua_upvalueindex(1), vconfigipairsKey);
+	vconfig_child_range& range = *static_cast<vconfig_child_range*>(p);
+	if (range.first == range.second) {
+		return 0;
+	}
+	std::pair<std::string, vconfig> value = *range.first++;
+	lua_pushinteger(L, i + 1);
+	lua_createtable(L, 2, 0);
+	lua_pushlstring(L, value.first.c_str(), value.first.length());
+	lua_rawseti(L, -2, 1);
+	luaW_pushvconfig(L, value.second);
+	lua_rawseti(L, -2, 2);
+	return 2;
+}
+
+/**
+ * Destroy a vconfig ipairs iterator
+ */
+static int impl_vconfig_ipairs_collect(lua_State *L)
+{
+	void* p = lua_touserdata(L, 1);
+	vconfig_child_range* vcr = static_cast<vconfig_child_range*>(p);
+	vcr->~vconfig_child_range();
+	return 0;
+}
+
+/**
+ * Construct an iterator to iterate through the subtags of a vconfig
+ */
+static int impl_vconfig_ipairs(lua_State *L)
+{
+	static const size_t sz = sizeof(vconfig_child_range);
+	vconfig cfg = luaW_checkvconfig(L, 1);
+	new(lua_newuserdata(L, sz)) vconfig_child_range(cfg.ordered_begin(), cfg.ordered_end());
+	luaL_newmetatable(L, vconfigipairsKey);
+	lua_setmetatable(L, -2);
+	lua_pushcclosure(L, &impl_vconfig_ipairs_iter, 1);
+	lua_pushvalue(L, 1);
+	lua_pushinteger(L, 0);
+	return 3;
 }
 
 /**
@@ -252,7 +379,7 @@ std::string register_gettext_metatable(lua_State *L)
 
 	static luaL_Reg const callbacks[] = {
 		{ "__call", 	    &impl_gettext},
-		{ NULL, NULL }
+		{ nullptr, nullptr }
 	};
 	luaL_setfuncs(L, callbacks, 0);
 
@@ -273,7 +400,10 @@ std::string register_tstring_metatable(lua_State *L)
 		{ "__concat", 	    &impl_tstring_concat},
 		{ "__gc",           &impl_tstring_collect},
 		{ "__tostring",	    &impl_tstring_tostring},
-		{ NULL, NULL }
+		{ "__lt",	        &impl_tstring_lt},
+		{ "__le",	        &impl_tstring_le},
+		{ "__eq",	        &impl_tstring_eq},
+		{ nullptr, nullptr }
 	};
 	luaL_setfuncs(L, callbacks, 0);
 
@@ -294,12 +424,29 @@ std::string register_vconfig_metatable(lua_State *L)
 		{ "__gc",           &impl_vconfig_collect},
 		{ "__index",        &impl_vconfig_get},
 		{ "__len",          &impl_vconfig_size},
-		{ NULL, NULL }
+		{ "__pairs",        &impl_vconfig_pairs},
+		{ "__ipairs",       &impl_vconfig_ipairs},
+		{ nullptr, nullptr }
 	};
 	luaL_setfuncs(L, callbacks, 0);
 
 	lua_pushstring(L, "wml object");
 	lua_setfield(L, -2, "__metatable");
+
+	// Metatables for the iterator userdata
+
+	// I don't bother setting __metatable because this
+	// userdata is only ever stored in the iterator's
+	// upvalues, so it's never visible to the user.
+	luaL_newmetatable(L, vconfigpairsKey);
+	lua_pushstring(L, "__gc");
+	lua_pushcfunction(L, &impl_vconfig_pairs_collect);
+	lua_rawset(L, -3);
+
+	luaL_newmetatable(L, vconfigipairsKey);
+	lua_pushstring(L, "__gc");
+	lua_pushcfunction(L, &impl_vconfig_ipairs_collect);
+	lua_rawset(L, -3);
 
 	return "Adding vconfig metatable...\n";
 }
@@ -345,6 +492,33 @@ namespace {
 void luaW_pushscalar(lua_State *L, config::attribute_value const &v)
 {
 	v.apply_visitor(luaW_pushscalar_visitor(L));
+}
+
+bool luaW_toscalar(lua_State *L, int index, config::attribute_value& v)
+{
+	switch (lua_type(L, index)) {
+		case LUA_TBOOLEAN:
+			v = luaW_toboolean(L, -1);
+			break;
+		case LUA_TNUMBER:
+			v = lua_tonumber(L, -1);
+			break;
+		case LUA_TSTRING:
+			v = lua_tostring(L, -1);
+			break;
+		case LUA_TUSERDATA:
+		{
+			if (t_string * tptr = static_cast<t_string *>(luaL_testudata(L, -1, tstringKey))) {
+				v = *tptr;
+				break;
+			} else {
+				return false;
+			}
+		}
+		default:
+			return false;
+	}
+	return true;
 }
 
 bool luaW_hasmetatable(lua_State *L
@@ -399,7 +573,7 @@ void luaW_filltable(lua_State *L, config const &cfg)
 		return;
 
 	int k = 1;
-	BOOST_FOREACH(const config::any_child &ch, cfg.all_children_range())
+	for (const config::any_child &ch : cfg.all_children_range())
 	{
 		lua_createtable(L, 2, 0);
 		lua_pushstring(L, ch.key.c_str());
@@ -409,11 +583,81 @@ void luaW_filltable(lua_State *L, config const &cfg)
 		lua_rawseti(L, -2, 2);
 		lua_rawseti(L, -2, k++);
 	}
-	BOOST_FOREACH(const config::attribute &attr, cfg.attribute_range())
+	for (const config::attribute &attr : cfg.attribute_range())
 	{
 		luaW_pushscalar(L, attr.second);
 		lua_setfield(L, -2, attr.first.c_str());
 	}
+}
+
+void luaW_pushlocation(lua_State *L, const map_location& ml)
+{
+	lua_createtable(L, 2, 0);
+	
+	lua_pushinteger(L, 1);
+	lua_pushinteger(L, ml.x + 1);
+	lua_rawset(L, -3);
+	
+	lua_pushinteger(L, 2);
+	lua_pushinteger(L, ml.y + 1);
+	lua_rawset(L, -3);
+}
+
+bool luaW_tolocation(lua_State *L, int index, map_location& loc) {
+	if (!lua_checkstack(L, LUA_MINSTACK)) {
+		return false;
+	}
+	if (lua_isnoneornil(L, index)) {
+		// Need this special check because luaW_tovconfig returns true in this case
+		return false;
+	}
+	
+	vconfig dummy_vcfg = vconfig::unconstructed_vconfig();
+	
+	index = lua_absindex(L, index);
+	
+	if (lua_istable(L, index) || luaW_tounit(L, index) || luaW_tovconfig(L, index, dummy_vcfg)) {
+		map_location result;
+		int x_was_num = 0, y_was_num = 0;
+		lua_getfield(L, index, "x");
+		result.x = lua_tonumberx(L, -1, &x_was_num) - 1;
+		lua_getfield(L, index, "y");
+		result.y = lua_tonumberx(L, -1, &y_was_num) - 1;
+		lua_pop(L, 2);
+		if (!x_was_num || !y_was_num) {
+			// If we get here and it was userdata, checking numeric indices won't help
+			// (It won't help if it was a config either, but there's no easy way to check that.)
+			if (lua_isuserdata(L, index)) {
+				return false;
+			}
+			lua_rawgeti(L, index, 1);
+			result.x = lua_tonumberx(L, -1, &x_was_num) - 1;
+			lua_rawgeti(L, index, 2);
+			result.y = lua_tonumberx(L, -1, &y_was_num) - 1;
+			lua_pop(L, 2);
+		}
+		if (x_was_num && y_was_num) {
+			loc = result;
+			return true;
+		}
+	} else if (lua_isnumber(L, index) && lua_isnumber(L, index + 1)) {
+		// If it's a number, then we consume two elements on the stack
+		// Since we have no way of notifying the caller that we have
+		// done this, we remove the first number from the stack.
+		loc.x = lua_tonumber(L, index) - 1;
+		lua_remove(L, index);
+		loc.y = lua_tonumber(L, index) - 1;
+		return true;
+	}
+	return false;
+}
+
+map_location luaW_checklocation(lua_State *L, int index)
+{
+	map_location result;
+	if (!luaW_tolocation(L, index, result))
+		luaL_typerror(L, index, "location");
+	return result;
 }
 
 void luaW_pushconfig(lua_State *L, config const &cfg)
@@ -434,9 +678,8 @@ bool luaW_toconfig(lua_State *L, int index, config &cfg)
 		return false;
 
 	// Get the absolute index of the table.
+	index = lua_absindex(L, index);
 	int initial_top = lua_gettop(L);
-	if (-initial_top <= index && index <= -1)
-		index = initial_top + index + 1;
 
 	switch (lua_type(L, index))
 	{
@@ -478,28 +721,22 @@ bool luaW_toconfig(lua_State *L, int index, config &cfg)
 		if (lua_isnumber(L, -2)) continue;
 		if (!lua_isstring(L, -2)) return_misformed();
 		config::attribute_value &v = cfg[lua_tostring(L, -2)];
-		switch (lua_type(L, -1)) {
-			case LUA_TBOOLEAN:
-				v = luaW_toboolean(L, -1);
-				break;
-			case LUA_TNUMBER:
-				v = lua_tonumber(L, -1);
-				break;
-			case LUA_TSTRING:
-				v = lua_tostring(L, -1);
-				break;
-			case LUA_TUSERDATA:
-			{
-				if (t_string * tptr = static_cast<t_string *>(luaL_testudata(L, -1, tstringKey))) {
-					v = *tptr;
-					break;
-				} else {
-					return_misformed();
-				}
+		if (lua_istable(L, -1)) {
+			int subindex = lua_absindex(L, -1);
+			std::ostringstream str;
+			for (int i = 1, i_end = lua_rawlen(L, subindex); i <= i_end; ++i, lua_pop(L, 1)) {
+				lua_rawgeti(L, -1, i);
+				config::attribute_value item;
+				if (!luaW_toscalar(L, -1, item)) return_misformed();
+				if (i > 1) str << ',';
+				str << item;
 			}
-			default:
-				return_misformed();
-		}
+			// If there are any string keys, it's misformed
+			for (lua_pushnil(L); lua_next(L, subindex); lua_pop(L, 1)) {
+				if (!lua_isnumber(L, -2)) return_misformed();
+			}
+			v = str.str();
+		} else if (!luaW_toscalar(L, -1, v)) return_misformed();
 	}
 
 	lua_settop(L, initial_top);
@@ -552,34 +789,97 @@ vconfig luaW_checkvconfig(lua_State *L, int index, bool allow_missing)
 	return result;
 }
 
-
-#ifdef __GNUC__
-__attribute__((sentinel))
-#endif
-bool luaW_getglobal(lua_State *L, ...)
+bool luaW_getglobal(lua_State *L, const std::vector<std::string>& path)
 {
 	lua_pushglobaltable(L);
-	va_list ap;
-	va_start(ap, L);
-	while (const char *s = va_arg(ap, const char *))
+	for (const std::string& s : path)
 	{
 		if (!lua_istable(L, -1)) goto discard;
-		lua_pushstring(L, s);
+		lua_pushlstring(L, s.c_str(), s.size());
 		lua_rawget(L, -2);
 		lua_remove(L, -2);
 	}
 
 	if (lua_isnil(L, -1)) {
 		discard:
-		va_end(ap);
 		lua_pop(L, 1);
 		return false;
 	}
-	va_end(ap);
 	return true;
 }
 
 bool luaW_toboolean(lua_State *L, int n)
 {
 	return lua_toboolean(L,n) != 0;
+}
+
+bool luaW_pushvariable(lua_State *L, variable_access_const& v)
+{
+	try
+	{
+		if(v.exists_as_attribute())
+		{
+			luaW_pushscalar(L, v.as_scalar());
+			return true;
+		}
+		else if(v.exists_as_container())
+		{
+			lua_newtable(L);
+			if (luaW_toboolean(L, 2))
+				luaW_filltable(L, v.as_container());
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	catch (const invalid_variablename_exception&)
+	{
+		WRN_LUA << v.get_error_message();
+		return false;
+	}
+}
+
+bool luaW_checkvariable(lua_State *L, variable_access_create& v, int n)
+{
+	int variabletype = lua_type(L, n);
+	try
+	{
+		switch (variabletype) {
+		case LUA_TBOOLEAN:
+			v.as_scalar() = luaW_toboolean(L, n);
+			return true;
+		case LUA_TNUMBER:
+			v.as_scalar() = lua_tonumber(L, n);
+			return true;
+		case LUA_TSTRING:
+			v.as_scalar() = lua_tostring(L, n);
+			return true;
+		case LUA_TUSERDATA:
+			if (t_string * t_str = static_cast<t_string*> (luaL_testudata(L, n, tstringKey))) {
+				v.as_scalar() = *t_str;
+				return true;
+			}
+			goto default_explicit;
+		case LUA_TTABLE:
+			{
+				config &cfg = v.as_container();
+				cfg.clear();
+				if (luaW_toconfig(L, n, cfg)) {
+					return true;
+				}
+				// no break
+			}
+		default:
+		default_explicit:
+			return luaL_typerror(L, n, "WML table or scalar") != 0;
+
+		}
+	}
+	catch (const invalid_variablename_exception&)
+	{
+		WRN_LUA << v.get_error_message() << " when attempting to write a '" << lua_typename(L, variabletype) << "'\n";
+		return false;
+	}
 }

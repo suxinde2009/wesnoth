@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010 - 2015 by Gabriel Morin <gabrielmorin (at) gmail (dot) com>
+ Copyright (C) 2010 - 2016 by Gabriel Morin <gabrielmorin (at) gmail (dot) com>
  Part of the Battle for Wesnoth Project http://www.wesnoth.org
 
  This program is free software; you can redistribute it and/or modify
@@ -28,10 +28,10 @@
 #include "menu_events.hpp"
 #include "play_controller.hpp"
 #include "resources.hpp"
-#include "unit.hpp"
-#include "unit_animation_component.hpp"
-#include "unit_map.hpp"
-#include "unit_types.hpp"
+#include "units/unit.hpp"
+#include "units/animation_component.hpp"
+#include "units/map.hpp"
+#include "units/types.hpp"
 
 namespace wb
 {
@@ -176,7 +176,7 @@ unit_ptr recruit::create_corresponding_unit()
 	unit_ptr result(new unit(*type, side_num, real_unit));
 	result->set_movement(0, true);
 	result->set_attacks(0);
-	return result; //ownership gets transferred to returned auto_ptr copy
+	return result; //ownership gets transferred to returned unique_ptr copy
 }
 
 action::error recruit::check_validity() const
@@ -186,6 +186,7 @@ action::error recruit::check_validity() const
 		return LOCATION_OCCUPIED;
 	}
 	//Check that unit to recruit is still in side's recruit list
+	//FIXME: look at leaders extra_recruit too.
 	const std::set<std::string>& recruits = (*resources::teams)[team_index()].recruits();
 	if(recruits.find(unit_name_) == recruits.end()) {
 		return UNIT_UNAVAILABLE;

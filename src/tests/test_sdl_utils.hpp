@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2012 - 2015 by Mark de Wever <koraq@xs4all.nl>
+   Copyright (C) 2012 - 2016 by Mark de Wever <koraq@xs4all.nl>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -17,9 +17,9 @@
 
 #include "sdl/utils.hpp"
 
-#include "utils/boost_function_guarded.hpp"
+#include "utils/functional.hpp"
 
-typedef boost::function<
+typedef std::function<
 		void(const surface&, const double, const Uint32)>
 		tblend_functor;
 

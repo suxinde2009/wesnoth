@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2012 - 2015 by Ignacio Riquelme Morelle <shadowm2006@gmail.com>
+   Copyright (C) 2012 - 2016 by Ignacio Riquelme Morelle <shadowm2006@gmail.com>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -16,6 +16,7 @@
 #define ADDON_STATE_HPP_INCLUDED
 
 #include "addon/info.hpp"
+#include <map>
 
 /** Defines various add-on installation statuses. */
 enum ADDON_STATUS {
@@ -47,6 +48,7 @@ struct addon_tracking_info
 		, can_publish(false)
 		, in_version_control(false)
 		, installed_version()
+		, remote_version()
 	{
 	}
 
@@ -54,6 +56,7 @@ struct addon_tracking_info
 	bool can_publish;
 	bool in_version_control;
 	version_info installed_version;
+	version_info remote_version;
 };
 
 typedef std::map<std::string, addon_tracking_info> addons_tracking_list;

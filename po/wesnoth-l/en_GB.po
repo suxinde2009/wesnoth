@@ -1,12 +1,13 @@
 # translation of en_GB.po to English (British)
 # Steven Panek <Majora700@gmail.com>, 2011.
+# Wedge009 <wedge009@wedge009.net>, 2015.
 msgid ""
 msgstr ""
 "Project-Id-Version: wescamp-i 18n\n"
 "Report-Msgid-Bugs-To: http://bugs.wesnoth.org/\n"
-"POT-Creation-Date: 2015-04-17 11:34-0300\n"
-"PO-Revision-Date: 2012-09-02 23:14-0500\n"
-"Last-Translator: Steven Panek (Espreon) <Majora700@gmail.com>\n"
+"POT-Creation-Date: 2016-01-16 20:58-0300\n"
+"PO-Revision-Date: 2015-12-11 21:54+1100\n"
+"Last-Translator: Wedge009 <wedge009@wedge009.net>\n"
 "Language-Team: English (British) <http://wiki.wesnoth.org/"
 "EnglishGBTranslation>\n"
 "Language: en_GB\n"
@@ -14,6 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 1.8.6\n"
 
 #. [campaign]: id=Liberty
 #. Yes, that is "marchlanders", not "marshlanders".
@@ -27,42 +29,42 @@ msgstr "Liberty"
 #. [campaign]: id=Liberty
 #. Yes, that is "marchlanders", not "marshlanders".
 #. "marchlander" is archaic English for an inhabitant of a border region.
-#: data/campaigns/Liberty/_main.cfg:17
-msgid "(Easy)"
-msgstr "(Easy)"
+#: data/campaigns/Liberty/_main.cfg:18
+msgid "Easy"
+msgstr "Easy"
 
 #. [campaign]: id=Liberty
 #. Yes, that is "marchlanders", not "marshlanders".
 #. "marchlander" is archaic English for an inhabitant of a border region.
-#: data/campaigns/Liberty/_main.cfg:17
+#: data/campaigns/Liberty/_main.cfg:18
 msgid "Peasant"
 msgstr "Peasant"
 
 #. [campaign]: id=Liberty
 #. Yes, that is "marchlanders", not "marshlanders".
 #. "marchlander" is archaic English for an inhabitant of a border region.
-#: data/campaigns/Liberty/_main.cfg:18
-msgid "(Normal)"
-msgstr "(Normal)"
+#: data/campaigns/Liberty/_main.cfg:19
+msgid "Normal"
+msgstr "Normal"
 
 #. [campaign]: id=Liberty
 #. Yes, that is "marchlanders", not "marshlanders".
 #. "marchlander" is archaic English for an inhabitant of a border region.
-#: data/campaigns/Liberty/_main.cfg:18
+#: data/campaigns/Liberty/_main.cfg:19
 msgid "Outlaw"
 msgstr "Outlaw"
 
 #. [campaign]: id=Liberty
 #. Yes, that is "marchlanders", not "marshlanders".
 #. "marchlander" is archaic English for an inhabitant of a border region.
-#: data/campaigns/Liberty/_main.cfg:19
-msgid "(Difficult)"
-msgstr "(Difficult)"
+#: data/campaigns/Liberty/_main.cfg:20
+msgid "Difficult"
+msgstr "Difficult"
 
 #. [campaign]: id=Liberty
 #. Yes, that is "marchlanders", not "marshlanders".
 #. "marchlander" is archaic English for an inhabitant of a border region.
-#: data/campaigns/Liberty/_main.cfg:19
+#: data/campaigns/Liberty/_main.cfg:20
 msgid "Fugitive"
 msgstr "Fugitive"
 
@@ -872,12 +874,12 @@ msgstr ""
 #: data/campaigns/Liberty/scenarios/03_A_Strategy_Of_Hope.cfg:275
 msgid ""
 "Baldras and Relana returned to their villages to find them destroyed, with "
-"those who fought left dead and the few survivors born away to unguessable "
+"those who fought left dead and the few survivors borne away to unknown "
 "fates. It was a bitter doom, and as Wesnoth descended into darkness they "
 "would live to see worse."
 msgstr ""
 "Baldras and Relana returned to their villages to find them destroyed, with "
-"those who fought left dead and the few survivors born away to unguessable "
+"those who fought left dead and the few survivors borne away to unknown "
 "fates. It was a bitter doom, and as Wesnoth descended into darkness they "
 "would live to see worse."
 
@@ -1104,7 +1106,7 @@ msgid ""
 "Southeast of here there is a town, and there you may find assistance of the "
 "type I cannot give."
 msgstr ""
-"Southeast of here there is a town, and there you may find assistance of the "
+"South-east of here there is a town, and there you may find assistance of the "
 "type I cannot give."
 
 #. [message]: speaker=Baldras
@@ -1113,8 +1115,8 @@ msgid ""
 "Wish us well. If we are to resist the Wesnoth army a second time, we’re "
 "going to need more than clubs and slings against steel."
 msgstr ""
-"Wish us well. If we are to resist the Wesnoth army a second time, we’re "
-"going to need more than clubs and slings against steel."
+"Wish us well. If we are to resist the Wesnoth army a second time, we will "
+"need more than clubs and slings against steel."
 
 #. [message]: speaker=Baldras
 #: data/campaigns/Liberty/scenarios/04_Unlawful_Orders.cfg:657
@@ -1122,7 +1124,7 @@ msgid ""
 "Look, more riders come from the southeast. We cannot survive another "
 "assault. We are finished!"
 msgstr ""
-"Look, more riders come from the southeast. We cannot survive another "
+"Look, more riders come from the south-east. We cannot survive another "
 "assault. We are finished!"
 
 #. [message]: speaker=narrator
@@ -1225,7 +1227,7 @@ msgid ""
 "there and will take you to our master. Try to avoid the soldiers if you can."
 msgstr ""
 "Well, good thing I found you first. Now hurry, you must make it past the "
-"city into the Grey Woods. There is a small path in the southeast that leads "
+"city into the Grey Woods. There is a small path in the south-east that leads "
 "into the forest; look for the signpost. My brother Hans is waiting for you "
 "there and will take you to our master. Try to avoid the soldiers if you can."
 
@@ -1514,7 +1516,7 @@ msgid ""
 "I was planning on giving you gold. Any good army is well financed, and with "
 "the lich gone we can now spare it."
 msgstr ""
-"I was planning on giving you gold. Any good army is well financed, and with "
+"I was planning on giving you gold. Any good army is well-financed, and with "
 "the lich gone we can now spare it."
 
 #. [message]: speaker=Helicrom
@@ -1635,7 +1637,7 @@ msgid ""
 msgstr ""
 "Camped at the edge of the forest, they quietly observed substantial troop "
 "movements coming from the direction of Aldril, a nearby city, and marching "
-"to the northwest. Unsure what to make of it, they debated their next course "
+"to the north-west. Unsure what to make of it, they debated their next course "
 "of action..."
 
 #. [side]: type=Royal Guard, id=Archarel
@@ -1671,7 +1673,7 @@ msgid ""
 "of Wesnoth. Idiocy! If the noble lord of Elensefar is unwilling to resist "
 "the Queen, how should I ever expect to?"
 msgstr ""
-"The words of Lord Maddock have weighed heavy on me these past few days. It "
+"The words of Lord Maddock have weighed heavily on me these past few days. It "
 "has dawned on me that we can never win. We will never defeat the entire army "
 "of Wesnoth. Idiocy! If the noble lord of Elensefar is unwilling to resist "
 "the Queen, how should I ever expect to?"
@@ -2108,7 +2110,7 @@ msgstr "Help, I hope. Circumstances cannot afford to get much more dire."
 #. [message]: speaker=Baldras
 #: data/campaigns/Liberty/scenarios/08_Glory.cfg:557
 msgid "Riders approach from the northwest! Stand fast, men."
-msgstr "Riders approach from the northwest! Stand fast, men."
+msgstr "Riders approach from the north-west! Stand fast, men."
 
 #. [unit]: type=Paladin, id=Sir Gwydion
 #: data/campaigns/Liberty/scenarios/08_Glory.cfg:566
@@ -2215,7 +2217,7 @@ msgid "No one inside the fortress would make it out alive."
 msgstr "No one inside the fortress would make it out alive."
 
 #. [message]: speaker=narrator
-#: data/campaigns/Liberty/scenarios/08_Glory.cfg:918
+#: data/campaigns/Liberty/scenarios/08_Glory.cfg:916
 msgid ""
 "After more than a week of fierce fighting, the main body of Asheviere’s host "
 "arrived from Weldyn. The battle was soon finished. Every last man from the "
@@ -2226,12 +2228,12 @@ msgstr ""
 "province of Annuvin was executed."
 
 #. [message]: speaker=Baldras
-#: data/campaigns/Liberty/scenarios/08_Glory.cfg:948
+#: data/campaigns/Liberty/scenarios/08_Glory.cfg:946
 msgid "Men, help me out of here! I am trapped under this rubble."
 msgstr "Men, help me out of here! I am trapped under this rubble."
 
 #. [message]: speaker=narrator
-#: data/campaigns/Liberty/scenarios/08_Glory.cfg:952
+#: data/campaigns/Liberty/scenarios/08_Glory.cfg:950
 msgid ""
 "No one was able to get to Baldras in time. He and many of his companions "
 "died that day beneath the stronghold of Halstead."
@@ -2240,17 +2242,17 @@ msgstr ""
 "died that day beneath the stronghold of Halstead."
 
 #. [message]: speaker=Baldras
-#: data/campaigns/Liberty/scenarios/08_Glory.cfg:957
+#: data/campaigns/Liberty/scenarios/08_Glory.cfg:955
 msgid "I hope this sacrifice is not in vain... but we will never know."
 msgstr "I hope this sacrifice is not in vain... but we will never know."
 
 #. [message]: speaker=Baldras
-#: data/campaigns/Liberty/scenarios/08_Glory.cfg:963
+#: data/campaigns/Liberty/scenarios/08_Glory.cfg:961
 msgid "Our dream of freedom... gone... Unngh."
 msgstr "Our dream of freedom... gone... Unngh."
 
 #. [message]: speaker=narrator
-#: data/campaigns/Liberty/scenarios/08_Glory.cfg:970
+#: data/campaigns/Liberty/scenarios/08_Glory.cfg:968
 msgid ""
 "The rebellion had staked its all on victory at Halstead, but win or lose, "
 "there would be no help for the villagers, ground beneath the wheels of "
@@ -2261,22 +2263,22 @@ msgstr ""
 "Asheviere’s wrath."
 
 #. [message]: speaker=Harper
-#: data/campaigns/Liberty/scenarios/08_Glory.cfg:986
+#: data/campaigns/Liberty/scenarios/08_Glory.cfg:984
 msgid "Uncle!"
 msgstr "Uncle!"
 
 #. [message]: speaker=Baldras
-#: data/campaigns/Liberty/scenarios/08_Glory.cfg:990
+#: data/campaigns/Liberty/scenarios/08_Glory.cfg:988
 msgid "NO!"
 msgstr "NO!"
 
 #. [message]: speaker=Baldras
-#: data/campaigns/Liberty/scenarios/08_Glory.cfg:994
+#: data/campaigns/Liberty/scenarios/08_Glory.cfg:992
 msgid "I promised your father I would watch after you... and I failed."
 msgstr "I promised your father I would watch after you... and I failed."
 
 #. [message]: speaker=Baldras
-#: data/campaigns/Liberty/scenarios/08_Glory.cfg:998
+#: data/campaigns/Liberty/scenarios/08_Glory.cfg:996
 msgid ""
 "But we are so close to the end. We must finish this. I am sorry you will not "
 "be able to enjoy our freedom. Goodbye, Harper."
@@ -2285,7 +2287,7 @@ msgstr ""
 "be able to enjoy our freedom. Goodbye, Harper."
 
 #. [message]: speaker=Helicrom
-#: data/campaigns/Liberty/scenarios/08_Glory.cfg:1012
+#: data/campaigns/Liberty/scenarios/08_Glory.cfg:1010
 msgid ""
 "Carry on, my friends. Fighting by your side is the most honorable thing I "
 "have done..."
@@ -2294,12 +2296,12 @@ msgstr ""
 "have done..."
 
 #. [message]: speaker=second_unit
-#: data/campaigns/Liberty/scenarios/08_Glory.cfg:1059
+#: data/campaigns/Liberty/scenarios/08_Glory.cfg:1057
 msgid "Your reign of terror is over, General."
 msgstr "Your reign of terror is over, General."
 
 #. [message]: speaker=Dommel
-#: data/campaigns/Liberty/scenarios/08_Glory.cfg:1064
+#: data/campaigns/Liberty/scenarios/08_Glory.cfg:1062
 msgid ""
 "You will never successfully oppose Asheviere. Her power is too great... This "
 "small victory today is but a reprieve from the unimaginable pain you will "
@@ -2310,21 +2312,21 @@ msgstr ""
 "suffer when the full force of her wrath descends upon you."
 
 #. [message]: speaker=Baldras
-#: data/campaigns/Liberty/scenarios/08_Glory.cfg:1075
+#: data/campaigns/Liberty/scenarios/08_Glory.cfg:1073
 msgid ""
 "This was no small victory. You underestimate the power of love for freedom."
 msgstr ""
 "This was no small victory. You underestimate the power of love for freedom."
 
 #. [message]: speaker=Dommel
-#: data/campaigns/Liberty/scenarios/08_Glory.cfg:1080
+#: data/campaigns/Liberty/scenarios/08_Glory.cfg:1078
 msgid ""
 "You... underestimate the... cruelty and ambition of your Queen... Uungh..."
 msgstr ""
 "You... underestimate the... cruelty and ambition of your Queen... Uungh..."
 
 #. [message]: speaker=Baldras
-#: data/campaigns/Liberty/scenarios/08_Glory.cfg:1087
+#: data/campaigns/Liberty/scenarios/08_Glory.cfg:1085
 msgid ""
 "Small victory? Bah! Now we will raze this fortress and bury it in the earth "
 "from whence it came."
@@ -2440,7 +2442,7 @@ msgid ""
 "harass us anymore.”</i>"
 msgstr ""
 "<i>“We fled like criminals in the night, but we made sure that no one would "
-"harass us anymore.”</i>"
+"harass us any more.”</i>"
 
 #. [part]
 #: data/campaigns/Liberty/scenarios/09_Epilogue.cfg:44
@@ -2448,7 +2450,7 @@ msgid ""
 "<i>“If you wish to find us, head southwest. When you reach the land’s end, "
 "just keep going. See you in the Three Sisters, old friend. ― Relana”</i>"
 msgstr ""
-"<i>“If you wish to find us, head southwest. When you reach the land’s end, "
+"<i>“If you wish to find us, head south-west. When you reach the land’s end, "
 "just keep going. See you in the Three Sisters, old friend. ― Relana”</i>"
 
 #. [unit_type]: id=Bone Knight, race=undead
@@ -2517,7 +2519,7 @@ msgid ""
 "skilled as mages with more formal training, their magic can be quite lethal, "
 "while their banditry has resulted in moderate skill with the short sword."
 msgstr ""
-"Some mages are thrown out of the mage’s guild for attempting to practice "
+"Some mages are thrown out of the mage’s guild for attempting to practise "
 "forbidden arts. Now completely outside the law, these rogue mages do "
 "whatever necessary to support their study of black magic. Although not as "
 "skilled as mages with more formal training, their magic can be quite lethal, "
@@ -2641,12 +2643,12 @@ msgstr ""
 "experienced residents."
 
 #. [unit_type]: id=Highwayman_Peasant
-#: data/campaigns/Liberty/units/Villagers.cfg:52
+#: data/campaigns/Liberty/units/Villagers.cfg:53
 msgid "Senior Village Elder"
 msgstr "Senior Village Elder"
 
 #. [unit_type]: id=Highwayman_Peasant
-#: data/campaigns/Liberty/units/Villagers.cfg:56
+#: data/campaigns/Liberty/units/Villagers.cfg:57
 msgid ""
 "The entire village looks to the senior elder for guidance. Strong and wise, "
 "the senior elders take responsibility for the community’s well-being on "
@@ -2659,17 +2661,17 @@ msgstr ""
 "as magistrates so that legal and customary authority will coincide."
 
 #. [female]
-#: data/campaigns/Liberty/units/Villagers.cfg:58
+#: data/campaigns/Liberty/units/Villagers.cfg:59
 msgid "female^Senior Village Elder"
 msgstr "Senior Village Elder"
 
 #. [unit_type]: id=Footpad_Peasant
-#: data/campaigns/Liberty/units/Villagers.cfg:119
+#: data/campaigns/Liberty/units/Villagers.cfg:92
 msgid "Peasant Youth"
 msgstr "Peasant Youth"
 
 #. [unit_type]: id=Footpad_Peasant
-#: data/campaigns/Liberty/units/Villagers.cfg:123
+#: data/campaigns/Liberty/units/Villagers.cfg:96
 msgid ""
 "The scruffy-haired peasant youth are much like the young people living "
 "elsewhere in Wesnoth: reckless, cocky, and eager to explore."
@@ -2678,17 +2680,17 @@ msgstr ""
 "elsewhere in Wesnoth: reckless, cocky, and eager to explore."
 
 #. [female]
-#: data/campaigns/Liberty/units/Villagers.cfg:129
+#: data/campaigns/Liberty/units/Villagers.cfg:102
 msgid "female^Peasant Youth"
 msgstr "Peasant Youth"
 
 #. [unit_type]: id=Outlaw_Peasant
-#: data/campaigns/Liberty/units/Villagers.cfg:143
+#: data/campaigns/Liberty/units/Villagers.cfg:116
 msgid "Watchman"
 msgstr "Watchman"
 
 #. [unit_type]: id=Outlaw_Peasant
-#: data/campaigns/Liberty/units/Villagers.cfg:148
+#: data/campaigns/Liberty/units/Villagers.cfg:121
 msgid ""
 "The watchmen are men and women who protect the villages from marauders, both "
 "human and otherwise, that prowl the Wesnoth countryside at night."
@@ -2697,17 +2699,17 @@ msgstr ""
 "human and otherwise, that prowl the Wesnoth countryside at night."
 
 #. [female]
-#: data/campaigns/Liberty/units/Villagers.cfg:150
+#: data/campaigns/Liberty/units/Villagers.cfg:123
 msgid "female^Watchwoman"
 msgstr "Watchwoman"
 
 #. [unit_type]: id=Fugitive_Peasant
-#: data/campaigns/Liberty/units/Villagers.cfg:164
+#: data/campaigns/Liberty/units/Villagers.cfg:137
 msgid "Borderer"
 msgstr "Borderer"
 
 #. [unit_type]: id=Fugitive_Peasant
-#: data/campaigns/Liberty/units/Villagers.cfg:169
+#: data/campaigns/Liberty/units/Villagers.cfg:142
 msgid ""
 "Border villages maintain militias dedicated to fending off hostiles. While "
 "these borderers are not trained and armed to up to military standards, their "
@@ -2720,17 +2722,17 @@ msgstr ""
 "their home ground."
 
 #. [female]
-#: data/campaigns/Liberty/units/Villagers.cfg:171
+#: data/campaigns/Liberty/units/Villagers.cfg:144
 msgid "female^Borderer"
 msgstr "Borderer"
 
 #. [unit_type]: id=Poacher_Peasant
-#: data/campaigns/Liberty/units/Villagers.cfg:190
+#: data/campaigns/Liberty/units/Villagers.cfg:163
 msgid "Peasant Hunter"
 msgstr "Peasant Hunter"
 
 #. [unit_type]: id=Poacher_Peasant
-#: data/campaigns/Liberty/units/Villagers.cfg:193
+#: data/campaigns/Liberty/units/Villagers.cfg:166
 msgid ""
 "Villages, especially in wilder areas near frontiers, rely on hunters to "
 "bring in much of their food supply. Their stealth and intimate knowledge of "
@@ -2741,12 +2743,12 @@ msgstr ""
 "local terrain can be valuable assets in combat."
 
 #. [unit_type]: id=Trapper_Peasant
-#: data/campaigns/Liberty/units/Villagers.cfg:206
+#: data/campaigns/Liberty/units/Villagers.cfg:179
 msgid "Peasant Trapper"
 msgstr "Peasant Trapper"
 
 #. [unit_type]: id=Trapper_Peasant
-#: data/campaigns/Liberty/units/Villagers.cfg:210
+#: data/campaigns/Liberty/units/Villagers.cfg:183
 msgid ""
 "Trappers are skilled hunters who supply food and furs for several villages. "
 "Their hunting experience makes them most valuable at night and in forests "
@@ -2757,12 +2759,12 @@ msgstr ""
 "and swamps."
 
 #. [unit_type]: id=Huntsman_Peasant
-#: data/campaigns/Liberty/units/Villagers.cfg:223
+#: data/campaigns/Liberty/units/Villagers.cfg:196
 msgid "Peasant Huntsman"
 msgstr "Peasant Huntsman"
 
 #. [unit_type]: id=Huntsman_Peasant
-#: data/campaigns/Liberty/units/Villagers.cfg:228
+#: data/campaigns/Liberty/units/Villagers.cfg:201
 msgid ""
 "Huntsmen have spent their lives in the backwoods and swamps of their "
 "wilderness homes. They can bullseye ferocious swamp rats and track anything "
@@ -2820,17 +2822,11 @@ msgstr "How can this be? We have lost."
 
 #. [message]: speaker=narrator
 #: data/campaigns/Liberty/utils/utils.cfg:164
-#, fuzzy
-#| msgid ""
-#| "They returned to their village to find it destroyed, with those who "
-#| "fought left dead and the few survivors born away to unguessable fates. It "
-#| "was a bitter doom, but as Asheviere’s grip tightened they would live to "
-#| "see worse."
 msgid ""
 "They returned to their village to find it destroyed, with those who fought "
-"left dead and the few survivors borne away to unguessable fates. It was a "
-"bitter doom, but as Asheviere’s grip tightened they would live to see worse."
+"left dead and the few survivors borne away to unknown fates. It was a bitter "
+"doom, but as Asheviere’s grip tightened they would live to see worse."
 msgstr ""
 "They returned to their village to find it destroyed, with those who fought "
-"left dead and the few survivors born away to unguessable fates. It was a "
-"bitter doom, but as Asheviere’s grip tightened they would live to see worse."
+"left dead and the few survivors borne away to unknown fates. It was a bitter "
+"doom, but as Asheviere’s grip tightened they would live to see worse."

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2013 - 2015 Boldizsár Lipka <lipkab@zoho.com>
+   Copyright (C) 2013 - 2016 Boldizsár Lipka <lipkab@zoho.com>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org
 
    This program is free software; you can redistribute it and/or modify
@@ -15,15 +15,14 @@
 #include "global.hpp"
 
 #include "gettext.hpp"
-#include "game_display.hpp"
 #include "game_preferences.hpp"
 #include "construct_dialog.hpp"
 #include "settings.hpp"
-#include "map.hpp"
-#include "map_exception.hpp"
+#include "map/map.hpp"
+#include "map/exception.hpp"
 #include "generators/map_create.hpp"
 #include "gui/dialogs/message.hpp"
-#include "gui/dialogs/mp_create_game_set_password.hpp"
+#include "gui/dialogs/multiplayer/mp_create_game_set_password.hpp"
 #include "gui/dialogs/transient_message.hpp"
 #include "minimap.hpp"
 #include "mp_game_settings.hpp"
@@ -34,11 +33,9 @@
 #include "scripting/plugins/context.hpp"
 #include "wml_exception.hpp"
 #include "wml_separators.hpp"
-#include "formula_string_utils.hpp"
+#include "formula/string_utils.hpp"
 
-#include <boost/assign/list_of.hpp>
-#include <boost/bind.hpp>
-#include <boost/foreach.hpp>
+#include "utils/functional.hpp"
 
 static lg::log_domain log_config("config");
 #define ERR_CF LOG_STREAM(err, log_config)
@@ -48,67 +45,67 @@ static lg::log_domain log_mp_configure("mp/configure");
 
 namespace mp {
 
-configure::nolock_settings::nolock_settings(game_display& disp)
-	: turns_slider_(disp.video())
-	, turns_label_(disp.video(), "", font::SIZE_SMALL, font::LOBBY_COLOR)
-	, village_gold_slider_(disp.video())
-	, village_gold_label_(disp.video(), "", font::SIZE_SMALL, font::LOBBY_COLOR)
-	, village_support_slider_(disp.video())
-	, village_support_label_(disp.video(), "", font::SIZE_SMALL, font::LOBBY_COLOR)
-	, xp_modifier_slider_(disp.video())
-	, xp_modifier_label_(disp.video(), "", font::SIZE_SMALL, font::LOBBY_COLOR)
-	, generic_label_(disp.video(), "`~ " + std::string(_("Generic")), font::SIZE_PLUS, font::LOBBY_COLOR)
-	, use_map_settings_(disp.video(), _("Use map settings"), gui::button::TYPE_CHECK)
-	, random_start_time_(disp.video(), _("Random start time"), gui::button::TYPE_CHECK)
-	, fog_game_(disp.video(), _("Fog of war"), gui::button::TYPE_CHECK)
-	, shroud_game_(disp.video(), _("Shroud"), gui::button::TYPE_CHECK)
+configure::nolock_settings::nolock_settings(CVideo& video)
+	: turns_slider_(video)
+	, turns_label_(video, "", font::SIZE_SMALL, font::LOBBY_COLOR)
+	, village_gold_slider_(video)
+	, village_gold_label_(video, "", font::SIZE_SMALL, font::LOBBY_COLOR)
+	, village_support_slider_(video)
+	, village_support_label_(video, "", font::SIZE_SMALL, font::LOBBY_COLOR)
+	, xp_modifier_slider_(video)
+	, xp_modifier_label_(video, "", font::SIZE_SMALL, font::LOBBY_COLOR)
+	, generic_label_(video, "`~ " + std::string(_("Generic")), font::SIZE_PLUS, font::LOBBY_COLOR)
+	, use_map_settings_(video, _("Use map settings"), gui::button::TYPE_CHECK)
+	, random_start_time_(video, _("Random start time"), gui::button::TYPE_CHECK)
+	, fog_game_(video, _("Fog of war"), gui::button::TYPE_CHECK)
+	, shroud_game_(video, _("Shroud"), gui::button::TYPE_CHECK)
 {
 
 }
-configure::configure(game_display& disp, const config &cfg, chat& c, config& gamelist, saved_game& game, bool local_players_only) :
-	ui(disp, _("Configure Game"), cfg, c, gamelist),
+configure::configure(CVideo& video, const config &cfg, chat& c, config& gamelist, saved_game& game, bool local_players_only) :
+	ui(video, _("Configure Game"), cfg, c, gamelist),
 
 	local_players_only_(local_players_only),
-	tooltip_manager_(disp.video()),
+	tooltip_manager_(video),
 	mp_countdown_init_time_(270),
 	mp_countdown_reservoir_time_(330),
 
-	countdown_game_(disp.video(), _("Time limit"), gui::button::TYPE_CHECK),
-	countdown_init_time_slider_(disp.video()),
-	countdown_init_time_label_(disp.video(), "", font::SIZE_SMALL, font::LOBBY_COLOR),
-	countdown_reservoir_time_slider_(disp.video()),
-	countdown_reservoir_time_label_(disp.video(), "", font::SIZE_SMALL, font::LOBBY_COLOR),
-	countdown_turn_bonus_label_(disp.video(), "", font::SIZE_SMALL, font::LOBBY_COLOR),
-	countdown_turn_bonus_slider_(disp.video()),
-	countdown_action_bonus_label_(disp.video(), "", font::SIZE_SMALL, font::LOBBY_COLOR),
-	countdown_action_bonus_slider_(disp.video()),
-	name_entry_label_(disp.video(), _("Name of game:"), font::SIZE_PLUS, font::LOBBY_COLOR),
-	observers_game_(disp.video(), _("Observers"), gui::button::TYPE_CHECK),
-	oos_debug_(disp.video(), _("Debug OOS"), gui::button::TYPE_CHECK),
-	shuffle_sides_(disp.video(), _("Shuffle sides"), gui::button::TYPE_CHECK),
-	random_faction_mode_label_(disp.video(), _("Random factions:"), font::SIZE_SMALL, font::LOBBY_COLOR),
-	random_faction_mode_(disp, std::vector<std::string>()),
-	cancel_game_(disp.video(), _("Back")),
-	launch_game_(disp.video(), _("OK")),
-	password_button_(disp.video(), _("Set Password...")),
-	name_entry_(disp.video(), 32),
-	entry_points_label_(disp.video(), _("Select an entry point:"), font::SIZE_SMALL, font::LOBBY_COLOR),
-	entry_points_combo_(disp, std::vector<std::string>()),
-	options_pane_left_(disp.video()),
-	options_pane_right_(disp.video()),
+	countdown_game_(video, _("Time limit"), gui::button::TYPE_CHECK),
+	countdown_init_time_slider_(video),
+	countdown_init_time_label_(video, "", font::SIZE_SMALL, font::LOBBY_COLOR),
+	countdown_reservoir_time_slider_(video),
+	countdown_reservoir_time_label_(video, "", font::SIZE_SMALL, font::LOBBY_COLOR),
+	countdown_turn_bonus_label_(video, "", font::SIZE_SMALL, font::LOBBY_COLOR),
+	countdown_turn_bonus_slider_(video),
+	countdown_action_bonus_label_(video, "", font::SIZE_SMALL, font::LOBBY_COLOR),
+	countdown_action_bonus_slider_(video),
+	name_entry_label_(video, _("Name of game:"), font::SIZE_PLUS, font::LOBBY_COLOR),
+	observers_game_(video, _("Observers"), gui::button::TYPE_CHECK),
+	oos_debug_(video, _("Debug OOS"), gui::button::TYPE_CHECK),
+	shuffle_sides_(video, _("Shuffle sides"), gui::button::TYPE_CHECK),
+	random_faction_mode_label_(video, _("Random factions:"), font::SIZE_SMALL, font::LOBBY_COLOR),
+	random_faction_mode_(video, std::vector<std::string>()),
+	cancel_game_(video, _("Back")),
+	launch_game_(video, _("OK")),
+	password_button_(video, _("Set Password...")),
+	name_entry_(video, 32),
+	entry_points_label_(video, _("Select an entry point:"), font::SIZE_SMALL, font::LOBBY_COLOR),
+	entry_points_combo_(video, std::vector<std::string>()),
+	options_pane_left_(video),
+	options_pane_right_(video),
 	entry_points_(),
 	show_entry_points_(false),
 	force_use_map_settings_check_(false),
 	state_(game),
 	parameters_(state_.mp_settings()),
 	engine_(state_),
-	options_manager_(cfg, disp, &options_pane_right_, engine_.options_default()),
-	nolock_settings_(engine_.force_lock_settings() ? 0 : new nolock_settings(disp))
+	options_manager_(cfg, video, &options_pane_right_, engine_.options_default()),
+	nolock_settings_(engine_.force_lock_settings() ? 0 : new nolock_settings(video))
 {
 	// Build the list of scenarios to play
 
 	DBG_MP << "constructing multiplayer configure dialog" << std::endl;
-	
+
 	countdown_game_.set_check(engine_.mp_countdown_default());
 	countdown_game_.set_help_string(_("Enables user time limit"));
 
@@ -234,9 +231,9 @@ configure::configure(game_display& disp, const config &cfg, chat& c, config& gam
 	plugins_context_.reset(new plugins_context("Multiplayer Configure"));
 
 	//These structure initializers create a lobby::process_data_event
-	plugins_context_->set_callback("launch", 	boost::bind(&configure::plugin_event_helper, this, process_event_data (true, false)));
-	plugins_context_->set_callback("quit", 		boost::bind(&configure::plugin_event_helper, this, process_event_data (false, true)));
-	plugins_context_->set_callback("set_name",	boost::bind(&gui::textbox::set_text, &name_entry_, boost::bind(get_str, _1, "name"), font::NORMAL_COLOR), true);
+	plugins_context_->set_callback("launch", 	std::bind(&configure::plugin_event_helper, this, process_event_data (true, false)));
+	plugins_context_->set_callback("quit", 		std::bind(&configure::plugin_event_helper, this, process_event_data (false, true)));
+	plugins_context_->set_callback("set_name",	std::bind(&gui::textbox::set_text, &name_entry_, std::bind(get_str, _1, "name"), font::NORMAL_COLOR), true);
 
 	if(!options_manager_.has_options() && engine_.force_lock_settings() && state_.classification().campaign_type != game_classification::CAMPAIGN_TYPE::MULTIPLAYER) {
 		set_result(CREATE);
@@ -296,7 +293,7 @@ void configure::get_parameters()
 		countdown_init_time_slider_.value() : -1;
 	if(mp_countdown_reservoir_time_val > 0 && mp_countdown_init_time_val > mp_countdown_reservoir_time_val)
 		mp_countdown_init_time_val = mp_countdown_reservoir_time_val;
-	
+
 	// Updates the values in the configure_engine to match
 	// the values selected by the user with the widgets:
 	engine_.set_game_name(name_entry_.text());
@@ -358,7 +355,7 @@ void configure::process_event_impl(const process_event_data & data)
 	if(data.launch) {
 		// check if the map is valid
 		if (name_entry_.text() == "") {
-			gui2::show_transient_message(disp_.video(), "", _("You must enter a name."));
+			gui2::show_transient_message(video(), "", _("You must enter a name."));
 		} else {
 			set_result(CREATE);
 			return;
@@ -368,7 +365,7 @@ void configure::process_event_impl(const process_event_data & data)
 	if(password_button_.pressed()) {
 		gui2::tmp_create_game_set_password::execute(
 				  parameters_.password
-				, disp_.video());
+				, video());
 	}
 
 	if (entry_points_combo_.changed()) {
@@ -567,8 +564,8 @@ void configure::layout_children(const SDL_Rect& rect)
 
 	int slider_width = options_pane_left_.width() - 40;
 
-	unsigned int xpos_left = 0;
-	unsigned int ypos_left = 0;
+	int xpos_left = 0;
+	int ypos_left = 0;
 
 	ypos_left += 2 * border_size;
 	options_pane_left_.add_widget(&shuffle_sides_, xpos_left, ypos_left);

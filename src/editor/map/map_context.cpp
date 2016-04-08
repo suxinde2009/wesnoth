@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2008 - 2015 by Tomasz Sniatowski <kailoran@gmail.com>
+   Copyright (C) 2008 - 2016 by Tomasz Sniatowski <kailoran@gmail.com>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -14,27 +14,27 @@
 #define GETTEXT_DOMAIN "wesnoth-editor"
 
 #include "editor/action/action.hpp"
+#include "editor/editor_preferences.hpp"
 #include "map_context.hpp"
 
 #include "config_assign.hpp"
 #include "display.hpp"
 #include "filesystem.hpp"
 #include "gettext.hpp"
-#include "map_exception.hpp"
-#include "map_label.hpp"
+#include "map/exception.hpp"
+#include "map/label.hpp"
 #include "resources.hpp"
 #include "serialization/binary_or_text.hpp"
 #include "serialization/parser.hpp"
-#include "terrain_type_data.hpp"
+#include "terrain/type_data.hpp"
 #include "team.hpp"
-#include "unit.hpp"
+#include "units/unit.hpp"
 #include "wml_exception.hpp"
 
 
-#include "formula_string_utils.hpp"
+#include "formula/string_utils.hpp"
 
 #include <boost/regex.hpp>
-#include <boost/foreach.hpp>
 
 
 namespace editor {
@@ -63,7 +63,7 @@ map_context::map_context(const editor_map& map, const display& disp, bool pure_m
     , victory_defeated_(true)
 	, random_time_(false)
 	, active_area_(-1)
-	, labels_(disp, NULL)
+	, labels_(disp, nullptr)
 	, units_()
 	, teams_()
 	, tod_manager_(new tod_manager(schedule))
@@ -95,7 +95,7 @@ map_context::map_context(const config& game_config, const std::string& filename,
 	, victory_defeated_(true)
 	, random_time_(false)
 	, active_area_(-1)
-	, labels_(disp, NULL)
+	, labels_(disp, nullptr)
 	, units_()
 	, teams_()
 	, tod_manager_(new tod_manager(game_config.find_child("editor_times", "id", "default")))
@@ -147,6 +147,8 @@ map_context::map_context(const config& game_config, const std::string& filename,
 			boost::regex_constants::match_not_dot_null)) {
 		map_ = editor_map::from_string(game_config, file_string); //throws on error
 		pure_map_ = true;
+
+		add_to_recent_files();
 		return;
 	}
 
@@ -166,14 +168,15 @@ map_context::map_context(const config& game_config, const std::string& filename,
 			} catch (config::error & e) {
 				throw editor_map_load_exception("load_scenario", e.message); //we already caught and rethrew this exception in load_scenario
 			}
-			return;
 		} else {
 			LOG_ED << "Loading embedded map file" << std::endl;
 			embedded_ = true;
 			pure_map_ = true;
 			map_ = editor_map::from_string(game_config, map_data);
-			return;
 		}
+
+		add_to_recent_files();
+		return;
 	}
 
 	// 3.0 Macro referenced pure map
@@ -192,11 +195,13 @@ map_context::map_context(const config& game_config, const std::string& filename,
 	file_string = filesystem::read_file(filename_);
 	map_ = editor_map::from_string(game_config, file_string);
 	pure_map_ = true;
+
+	add_to_recent_files();
 }
 
 void map_context::set_side_setup(int side, const std::string& team_name, const std::string& user_team_name,
 		int gold, int income, int village_gold, int village_support,
-		bool fog, bool share_view, bool shroud, bool share_maps,
+		bool fog, bool shroud, team::SHARE_VISION share_vision,
 		team::CONTROLLER controller, bool hidden, bool no_leader)
 {
 	assert(teams_.size() > static_cast<unsigned int>(side));
@@ -211,11 +216,7 @@ void map_context::set_side_setup(int side, const std::string& team_name, const s
 	t.set_hidden(hidden);
 	t.set_fog(fog);
 	t.set_shroud(shroud);
-	//TODO: USE team::SHARE_VISION in editor too.
-	t.handle_legacy_share_vision(config_of
-		("share_maps", share_maps)
-		("share_view", share_view)
-	);
+	t.set_share_vision(share_vision);
 	t.set_village_gold(village_gold);
 	t.set_village_support(village_support);
 	actions_since_save_++;
@@ -287,32 +288,32 @@ void map_context::load_scenario(const config& game_config)
 	labels_.read(scenario);
 
 	tod_manager_.reset(new tod_manager(scenario));
-	BOOST_FOREACH(const config &time_area, scenario.child_range("time_area")) {
+	for(const config &time_area : scenario.child_range("time_area")) {
 		tod_manager_->add_time_area(map_,time_area);
 	}
 
-	BOOST_FOREACH(const config& item, scenario.child_range("item")) {
+	for(const config& item : scenario.child_range("item")) {
 		const map_location loc(item);
 		overlays_.insert(std::pair<map_location,
 				overlay>(loc, overlay(item) ));
 	}
 
-	BOOST_FOREACH(const config& music, scenario.child_range("music")) {
+	for(const config& music : scenario.child_range("music")) {
 		music_tracks_.insert(std::pair<std::string, sound::music_track>(music["name"], sound::music_track(music)));
 	}
 
 	resources::teams = &teams_;
 
 	int i = 1;
-	BOOST_FOREACH(config &side, scenario.child_range("side"))
+	for(config &side : scenario.child_range("side"))
 	{
 		team t;
 		side["side"] = i;
 		t.build(side, map_);
 		teams_.push_back(t);
 
-		BOOST_FOREACH(config &a_unit, side.child_range("unit")) {
-			map_location loc(a_unit, NULL);
+		for(config &a_unit : side.child_range("unit")) {
+			map_location loc(a_unit, nullptr);
 			a_unit["side"] = i;
 			units_.add(loc, unit(a_unit, true) );
 		}
@@ -368,7 +369,7 @@ void map_context::draw_terrain(const t_translation::t_terrain & terrain,
 	t_translation::t_terrain full_terrain = one_layer_only ? terrain :
 		map_.get_terrain_info(terrain).terrain_with_default_base();
 
-	BOOST_FOREACH(const map_location& loc, locs) {
+	for(const map_location& loc : locs) {
 		draw_terrain_actual(full_terrain, loc, one_layer_only);
 	}
 }
@@ -452,7 +453,7 @@ config map_context::to_config()
 			item["team_name"] = it->second.team_name;
 	}
 
-	BOOST_FOREACH(const music_map::value_type& track, music_tracks_) {
+	for(const music_map::value_type& track : music_tracks_) {
 		track.second.write(scenario, true);
 	}
 
@@ -474,14 +475,13 @@ config map_context::to_config()
 		// side["allow_player"] = "yes";
 
 		side["fog"] = t->uses_fog();
-		side["share_view"] = t->share_view();
 		side["shroud"] = t->uses_shroud();
-		side["share_maps"] = t->share_maps();
+		side["share_vision"] = t->share_vision();
 
 		side["gold"] = t->gold();
 		side["income"] = t->base_income();
 
-		BOOST_FOREACH(const map_location& village, t->villages()) {
+		for(const map_location& village : t->villages()) {
 			village.write(side.add_child("village"));
 		}
 
@@ -555,6 +555,7 @@ bool map_context::save_map()
 				throw editor_map_save_exception(_("Could not save into scenario"));
 			}
 		}
+		add_to_recent_files();
 		clear_modified();
 	} catch (filesystem::io_exception& e) {
 		utils::string_map symbols;
@@ -601,7 +602,7 @@ void map_context::perform_partial_action(const editor_action& action)
 		throw editor_logic_exception("Empty undo stack in perform_partial_action()");
 	}
 	editor_action_chain* undo_chain = dynamic_cast<editor_action_chain*>(last_undo_action());
-	if (undo_chain == NULL) {
+	if (undo_chain == nullptr) {
 		throw editor_logic_exception("Last undo action not a chain in perform_partial_action()");
 	}
 	editor_action* undo = action.perform(*this);
@@ -620,6 +621,11 @@ void map_context::clear_modified()
 	actions_since_save_ = 0;
 }
 
+void map_context::add_to_recent_files()
+{
+	preferences::editor::add_recent_files_entry(get_filename());
+}
+
 bool map_context::can_undo() const
 {
 	return !undo_stack_.empty();
@@ -632,22 +638,22 @@ bool map_context::can_redo() const
 
 editor_action* map_context::last_undo_action()
 {
-	return undo_stack_.empty() ? NULL : undo_stack_.back();
+	return undo_stack_.empty() ? nullptr : undo_stack_.back();
 }
 
 editor_action* map_context::last_redo_action()
 {
-	return redo_stack_.empty() ? NULL : redo_stack_.back();
+	return redo_stack_.empty() ? nullptr : redo_stack_.back();
 }
 
 const editor_action* map_context::last_undo_action() const
 {
-	return undo_stack_.empty() ? NULL : undo_stack_.back();
+	return undo_stack_.empty() ? nullptr : undo_stack_.back();
 }
 
 const editor_action* map_context::last_redo_action() const
 {
-	return redo_stack_.empty() ? NULL : redo_stack_.back();
+	return redo_stack_.empty() ? nullptr : redo_stack_.back();
 }
 
 void map_context::undo()
@@ -681,7 +687,7 @@ void map_context::partial_undo()
 		throw editor_logic_exception("Empty undo stack in partial_undo()");
 	}
 	editor_action_chain* undo_chain = dynamic_cast<editor_action_chain*>(last_undo_action());
-	if (undo_chain == NULL) {
+	if (undo_chain == nullptr) {
 		throw editor_logic_exception("Last undo action not a chain in partial undo");
 	}
 	//a partial undo performs the first action form the current action's action_chain that would be normally performed
@@ -712,7 +718,7 @@ void map_context::trim_stack(action_stack& stack)
 
 void map_context::clear_stack(action_stack& stack)
 {
-	BOOST_FOREACH(editor_action* a, stack) {
+	for (editor_action* a : stack) {
 		delete a;
 	}
 	stack.clear();

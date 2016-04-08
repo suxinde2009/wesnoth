@@ -1,6 +1,6 @@
 /*
    Copyright (C) 2003 by David White <dave@whitevine.net>
-   Copyright (C) 2005 - 2015 by Guillaume Melquiond <guillaume.melquiond@gmail.com>
+   Copyright (C) 2005 - 2016 by Guillaume Melquiond <guillaume.melquiond@gmail.com>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -71,7 +71,7 @@ std::ostream& operator<<(std::ostream& stream, const preproc_map::value_type& de
  *
  * @returns                       The resulting preprocessed file data.
  */
-std::istream *preprocess_file(std::string const &fname, preproc_map *defines = NULL);
+std::istream *preprocess_file(std::string const &fname, preproc_map *defines = nullptr);
 
 void preprocess_resource(const std::string& res_name, preproc_map *defines_map,
 			bool write_cfg=false, bool write_plain_cfg=false, std::string target_directory="");

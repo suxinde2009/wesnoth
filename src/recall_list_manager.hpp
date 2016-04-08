@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2014 - 2015 by Chris Beck <render787@gmail.com>
+   Copyright (C) 2014 - 2016 by Chris Beck <render787@gmail.com>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -17,7 +17,7 @@
 #ifndef RECALL_LIST_MGR_HPP
 #define RECALL_LIST_MGR_HPP
 
-#include "unit_ptr.hpp"
+#include "units/ptr.hpp"
 
 #include <string>
 #include <vector>

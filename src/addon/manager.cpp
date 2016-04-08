@@ -20,11 +20,10 @@
 #include "dialogs.hpp"
 #include "filesystem.hpp"
 #include "formatter.hpp"
-#include "game_display.hpp"
 #include "game_preferences.hpp"
 #include "gettext.hpp"
-#include "gui/dialogs/addon_connect.hpp"
-#include "gui/dialogs/addon_list.hpp"
+#include "gui/dialogs/addon/connect.hpp"
+#include "gui/dialogs/addon/list.hpp"
 #include "gui/dialogs/addon/description.hpp"
 #include "gui/dialogs/addon/uninstall_list.hpp"
 #include "gui/dialogs/message.hpp"
@@ -38,10 +37,8 @@
 #include "serialization/parser.hpp"
 #include "version.hpp"
 #include "wml_separators.hpp"
-#include "formula_string_utils.hpp"
+#include "formula/string_utils.hpp"
 #include "addon/client.hpp"
-
-#include <boost/foreach.hpp>
 
 static lg::log_domain log_config("config");
 #define ERR_CFG LOG_STREAM(err , log_config)
@@ -318,11 +315,11 @@ static void unarchive_dir(const std::string& path, const config& cfg)
 
 	filesystem::make_directory(dir);
 
-	BOOST_FOREACH(const config &d, cfg.child_range("dir")) {
+	for(const config &d : cfg.child_range("dir")) {
 		unarchive_dir(dir, d);
 	}
 
-	BOOST_FOREACH(const config &f, cfg.child_range("file")) {
+	for(const config &f : cfg.child_range("file")) {
 		unarchive_file(dir, f);
 	}
 }
@@ -381,7 +378,7 @@ void refresh_addon_version_info_cache()
 
 version_info get_addon_version_info(const std::string& addon)
 {
-	static const version_info nil(0,0,0,false);
+	static const version_info nil;
 	std::map< std::string, version_info >::iterator entry = version_info_cache.find(addon);
 	return entry != version_info_cache.end() ? entry->second : nil;
 }

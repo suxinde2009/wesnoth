@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2011 - 2015 by Sytyi Nick <nsytyi@gmail.com>
+   Copyright (C) 2011 - 2016 by Sytyi Nick <nsytyi@gmail.com>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -18,7 +18,6 @@
 #include "serialization/validator.hpp"
 #include "tools/schema/tag.hpp"
 
-#include "config.hpp"
 #include "config_cache.hpp"
 #include "serialization/parser.hpp"
 
@@ -30,6 +29,8 @@
 #include <queue>
 #include <string>
 #include <stack>
+
+class config;
 
 /** @file
  *  One of the realizations of serialization/validator.hpp abstract validator.

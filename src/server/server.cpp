@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2003 - 2015 by David White <dave@whitevine.net>
+   Copyright (C) 2003 - 2016 by David White <dave@whitevine.net>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -19,20 +19,20 @@
 
 #include "server.hpp"
 
-#include "../global.hpp"
+#include "global.hpp"
 
-#include "../config.hpp"
-#include "../game_config.hpp"
-#include "../log.hpp"
-#include "../map.hpp" // gamemap::MAX_PLAYERS
-#include "../network.hpp"
-#include "../filesystem.hpp"
-#include "../multiplayer_error_codes.hpp"
-#include "../serialization/parser.hpp"
-#include "../serialization/preprocessor.hpp"
-#include "../serialization/string_utils.hpp"
-#include "../serialization/unicode.hpp"
-#include "../util.hpp"
+#include "config.hpp"
+#include "game_config.hpp"
+#include "log.hpp"
+#include "map/map.hpp" // gamemap::MAX_PLAYERS
+#include "network.hpp"
+#include "filesystem.hpp"
+#include "multiplayer_error_codes.hpp"
+#include "serialization/parser.hpp"
+#include "serialization/preprocessor.hpp"
+#include "serialization/string_utils.hpp"
+#include "serialization/unicode.hpp"
+#include "util.hpp"
 
 #include "game.hpp"
 #include "input_stream.hpp"
@@ -50,10 +50,10 @@
 #include "forum_user_handler.hpp"
 #endif
 
-#include <boost/bind.hpp>
+#include "utils/functional.hpp"
+
 #include <boost/scoped_ptr.hpp>
 #include <boost/scoped_array.hpp>
-#include <boost/foreach.hpp>
 #include <boost/utility.hpp>
 #include <algorithm>
 #include <cassert>
@@ -124,7 +124,9 @@ static lg::log_domain log_config("config");
 #ifndef SIGHUP
 #define SIGHUP 20
 #endif
-/** @todo FIXME: should define SIGINT here too, but to what? */
+/**
+ @todo FIXME: should define SIGINT here too, but to what?
+ */
 
 static sig_atomic_t config_reload = 0;
 
@@ -325,7 +327,7 @@ server::server(int port, const std::string& config_file, size_t min_threads,
 	ban_manager_(),
 	ip_log_(),
 	failed_logins_(),
-	user_handler_(NULL),
+	user_handler_(nullptr),
 	seeds_(),
 	players_(),
 	ghost_players_(),
@@ -347,8 +349,8 @@ server::server(int port, const std::string& config_file, size_t min_threads,
 	default_time_period_(0),
 	concurrent_connections_(0),
 	graceful_restart(false),
-	lan_server_(time(NULL)),
-	last_user_seen_time_(time(NULL)),
+	lan_server_(time(nullptr)),
+	last_user_seen_time_(time(nullptr)),
 	restart_command(),
 	max_ip_log_size_(0),
 	uh_name_(),
@@ -365,7 +367,7 @@ server::server(int port, const std::string& config_file, size_t min_threads,
 	join_lobby_response_("[join_lobby]\n[/join_lobby]\n", simple_wml::INIT_COMPRESSED),
 	games_and_users_list_("[gamelist]\n[/gamelist]\n", simple_wml::INIT_STATIC),
 	metrics_(),
-	last_ping_(time(NULL)),
+	last_ping_(time(nullptr)),
 	last_stats_(last_ping_),
 	last_uh_clean_(last_ping_),
 	cmd_handlers_()
@@ -560,15 +562,15 @@ void server::load_config() {
 	}
 
 	redirected_versions_.clear();
-	BOOST_FOREACH(const config &redirect, cfg_.child_range("redirect")) {
-		BOOST_FOREACH(const std::string &version, utils::split(redirect["version"])) {
+	for(const config &redirect : cfg_.child_range("redirect")) {
+		for(const std::string &version : utils::split(redirect["version"])) {
 			redirected_versions_[version] = redirect;
 		}
 	}
 
 	proxy_versions_.clear();
-	BOOST_FOREACH(const config &proxy, cfg_.child_range("proxy")) {
-		BOOST_FOREACH(const std::string &version, utils::split(proxy["version"])) {
+	for(const config &proxy : cfg_.child_range("proxy")) {
+		for(const std::string &version : utils::split(proxy["version"])) {
 			proxy_versions_[version] = proxy;
 		}
 	}
@@ -577,8 +579,8 @@ void server::load_config() {
 
 	// If there is a [user_handler] tag in the config file
 	// allow nick registration, otherwise we set user_handler_
-	// to NULL. Thus we must check user_handler_ for not being
-	// NULL everytime we want to use it.
+	// to nullptr. Thus we must check user_handler_ for not being
+	// nullptr everytime we want to use it.
 	user_handler_.reset();
 
 	if (const config &user_handler = cfg_.child("user_handler")) {
@@ -671,7 +673,7 @@ void server::run() {
 				}
 			}
 
-			time_t now = time(NULL);
+			time_t now = time(nullptr);
 			if (last_ping_ + network::ping_interval <= now) {
 				if (lan_server_ && players_.empty() && last_user_seen_time_ + lan_server_ < now)
 				{
@@ -708,8 +710,8 @@ void server::run() {
 				simple_wml::document ping( strstr.str().c_str(),
 							   simple_wml::INIT_COMPRESSED );
 				simple_wml::string_span s = ping.output_compressed();
-				BOOST_FOREACH(network::connection sock, ghost_players_) {
-					if (!lg::debug.dont_log(log_server)) {
+				for(network::connection sock : ghost_players_) {
+					if (!lg::debug().dont_log(log_server)) {
 						wesnothd::player_map::const_iterator i = players_.find(sock);
 						if (i != players_.end()) {
 							DBG_SERVER << "Pinging " << i->second.name() << "(" << i->first << ").\n";
@@ -724,7 +726,7 @@ void server::run() {
  				// Only a single thread should be accessing this
 				// Erase before we copy - speeds inserts
 				ghost_players_.clear();
-				BOOST_FOREACH(const wesnothd::player_map::value_type v, players_) {
+				for(const wesnothd::player_map::value_type v : players_) {
 					ghost_players_.insert(v.first);
 				}
 				last_ping_ = now;
@@ -849,8 +851,12 @@ void server::run() {
 			const size_t index = std::find(users.begin(), users.end(), pl_it->second.config_address()) - users.begin();
 			if (index < users.size()) {
 				simple_wml::document diff;
-				if(make_delete_diff(games_and_users_list_.root(), NULL, "user",
+				if(make_delete_diff(games_and_users_list_.root(), nullptr, "user",
 				                    pl_it->second.config_address(), diff)) {
+					for (t_games::const_iterator g = games_.begin(); g != games_.end(); ++g) {
+					      // Note: This string is parsed by the client to identify lobby leave messages!
+					      g->send_server_message_to_all(pl_it->second.name() + " has disconnected");
+					}
 					rooms_.lobby().send_data(diff, e.socket);
 				}
 
@@ -889,7 +895,7 @@ void server::run() {
 			connection_log ip_name = connection_log(pl_it->second.name(), ip, 0);
 			std::deque<connection_log>::iterator i = std::find(ip_log_.begin(), ip_log_.end(), ip_name);
 			if(i != ip_log_.end()) {
-				i->log_off = time(NULL);
+				i->log_off = time(nullptr);
 			}
 
 			players_.erase(pl_it);
@@ -1031,7 +1037,7 @@ void server::process_login(const network::connection sock,
 
 	const simple_wml::node* const login = data.child("login");
 	// Client must send a login first.
-	if (login == NULL) {
+	if (login == nullptr) {
 		send_error(sock, "You must login first.", MP_MUST_LOGIN);
 		return;
 	}
@@ -1143,7 +1149,7 @@ void server::process_login(const network::connection sock,
 			}
 			// This name is registered and an incorrect password provided
 			else if(!(user_handler_->login(username, password, seeds_[sock]))) {
-				const time_t now = time(NULL);
+				const time_t now = time(nullptr);
 
 				// Reset the random seed
 				seeds_.erase(sock);
@@ -1245,7 +1251,7 @@ void server::process_login(const network::connection sock,
 
 	// Send other players in the lobby the update that the player has joined
 	simple_wml::document diff;
-	make_add_diff(games_and_users_list_.root(), NULL, "user", diff);
+	make_add_diff(games_and_users_list_.root(), nullptr, "user", diff);
 	rooms_.lobby().send_data(diff, sock);
 
 	LOG_SERVER << network::ip_address(sock) << "\t" << username
@@ -1398,10 +1404,10 @@ std::string server::process_command(std::string query, std::string issuer_name) 
 		const cmd_handler &handler = handler_itor->second;
 		try {
 			handler(this, issuer_name, query, parameters, &out);
-		} catch (boost::bad_function_call & ex) {
-			ERR_SERVER << "While handling a command '" << command << "', caught a boost::bad_function_call exception.\n";
+		} catch (std::bad_function_call & ex) {
+			ERR_SERVER << "While handling a command '" << command << "', caught an std::bad_function_call exception.\n";
 			ERR_SERVER << ex.what() << std::endl;
-			out << "An internal server error occurred (boost::bad_function_call) while executing '" << command << "'\n";
+			out << "An internal server error occurred (std::bad_function_call) while executing '" << command << "'\n";
 		}
 	}
 
@@ -1417,7 +1423,7 @@ std::string server::process_command(std::string query, std::string issuer_name) 
 
 // Shutdown, restart and sample commands can only be issued via the socket.
 void server::shut_down_handler(const std::string& issuer_name, const std::string& /*query*/, std::string& parameters, std::ostringstream *out) {
-	assert(out != NULL);
+	assert(out != nullptr);
 
 	if (issuer_name != "*socket*" && !allow_remote_shutdown_) {
 		*out << denied_msg;
@@ -1436,7 +1442,7 @@ void server::shut_down_handler(const std::string& issuer_name, const std::string
 }
 
 void server::restart_handler(const std::string& issuer_name, const std::string& /*query*/, std::string& /*parameters*/, std::ostringstream *out) {
-	assert(out != NULL);
+	assert(out != nullptr);
 
 	if (issuer_name != "*socket*" && !allow_remote_shutdown_) {
 		*out << denied_msg;
@@ -1458,7 +1464,7 @@ void server::restart_handler(const std::string& issuer_name, const std::string& 
 }
 
 void server::sample_handler(const std::string& issuer_name, const std::string& /*query*/, std::string& parameters, std::ostringstream *out) {
-	assert(out != NULL);
+	assert(out != nullptr);
 
 	if (parameters.empty()) {
 		*out << "Current sample frequency: " << request_sample_frequency;
@@ -1476,12 +1482,12 @@ void server::sample_handler(const std::string& issuer_name, const std::string& /
 }
 
 void server::help_handler(const std::string& /*issuer_name*/, const std::string& /*query*/, std::string& /*parameters*/, std::ostringstream *out) {
-	assert(out != NULL);
+	assert(out != nullptr);
 	*out << help_msg;
 }
 
 void server::stats_handler(const std::string& /*issuer_name*/, const std::string& /*query*/, std::string& /*parameters*/, std::ostringstream *out) {
-	assert(out != NULL);
+	assert(out != nullptr);
 
 	*out << "Number of games = " << games_.size()
 		<< "\nTotal number of users = " << players_.size()
@@ -1489,27 +1495,27 @@ void server::stats_handler(const std::string& /*issuer_name*/, const std::string
 }
 
 void server::metrics_handler(const std::string& /*issuer_name*/, const std::string& /*query*/, std::string& /*parameters*/, std::ostringstream *out) {
-	assert(out != NULL);
+	assert(out != nullptr);
 	*out << metrics_;
 }
 
 void server::requests_handler(const std::string& /*issuer_name*/, const std::string& /*query*/, std::string& /*parameters*/, std::ostringstream *out) {
-	assert(out != NULL);
+	assert(out != nullptr);
 	metrics_.requests(*out);
 }
 
 void server::games_handler(const std::string& /*issuer_name*/, const std::string& /*query*/, std::string& /*parameters*/, std::ostringstream *out) {
-	assert(out != NULL);
+	assert(out != nullptr);
 	metrics_.games(*out);
 }
 
 void server::wml_handler(const std::string& /*issuer_name*/, const std::string& /*query*/, std::string& /*parameters*/, std::ostringstream *out) {
-	assert(out != NULL);
+	assert(out != nullptr);
 	*out << simple_wml::document::stats();
 }
 
 void server::netstats_handler(const std::string& /*issuer_name*/, const std::string& /*query*/, std::string& parameters, std::ostringstream *out) {
-	assert(out != NULL);
+	assert(out != nullptr);
 
 	network::pending_statistics stats = network::get_pending_stats();
 	*out << "Network stats:\nPending send buffers: "
@@ -1530,7 +1536,7 @@ void server::netstats_handler(const std::string& /*issuer_name*/, const std::str
 }
 
 void server::adminmsg_handler(const std::string& issuer_name, const std::string& /*query*/, std::string& parameters, std::ostringstream *out) {
-	assert(out != NULL);
+	assert(out != nullptr);
 
 	if (parameters == "") {
 		*out << "You must type a message.";
@@ -1564,7 +1570,7 @@ void server::adminmsg_handler(const std::string& issuer_name, const std::string&
 }
 
 void server::pm_handler(const std::string& issuer_name, const std::string& /*query*/, std::string& parameters, std::ostringstream *out) {
-	assert(out != NULL);
+	assert(out != nullptr);
 
 	std::string::iterator first_space = std::find(parameters.begin(), parameters.end(), ' ');
 	if (first_space == parameters.end()) {
@@ -1599,7 +1605,7 @@ void server::pm_handler(const std::string& issuer_name, const std::string& /*que
 }
 
 void server::msg_handler(const std::string& /*issuer_name*/, const std::string& /*query*/, std::string& parameters, std::ostringstream *out) {
-	assert(out != NULL);
+	assert(out != nullptr);
 
 	if (parameters == "") {
 		*out << "You must type a message.";
@@ -1619,7 +1625,7 @@ void server::msg_handler(const std::string& /*issuer_name*/, const std::string& 
 }
 
 void server::lobbymsg_handler(const std::string& /*issuer_name*/, const std::string& /*query*/, std::string& parameters, std::ostringstream *out) {
-	assert(out != NULL);
+	assert(out != nullptr);
 
 	if (parameters == "") {
 		*out << "You must type a message.";
@@ -1635,7 +1641,7 @@ void server::lobbymsg_handler(const std::string& /*issuer_name*/, const std::str
 }
 
 void server::status_handler(const std::string& issuer_name, const std::string& /*query*/, std::string& parameters, std::ostringstream *out) {
-	assert(out != NULL);
+	assert(out != nullptr);
 
 	*out << "STATUS REPORT for '" << parameters << "'";
 	bool found_something = false;
@@ -1668,7 +1674,7 @@ void server::status_handler(const std::string& issuer_name, const std::string& /
 }
 
 void server::clones_handler(const std::string& /*issuer_name*/, const std::string& /*query*/, std::string& /*parameters*/, std::ostringstream *out) {
-	assert(out != NULL);
+	assert(out != nullptr);
 
 	*out << "CLONES STATUS REPORT";
 	std::set<std::string> clones;
@@ -1692,7 +1698,7 @@ void server::clones_handler(const std::string& /*issuer_name*/, const std::strin
 }
 
 void server::bans_handler(const std::string& /*issuer_name*/, const std::string& /*query*/, std::string& parameters, std::ostringstream *out) {
-	assert(out != NULL);
+	assert(out != nullptr);
 
 	try
 	{
@@ -1714,7 +1720,7 @@ void server::bans_handler(const std::string& /*issuer_name*/, const std::string&
 }
 
 void server::ban_handler(const std::string& issuer_name, const std::string& /*query*/, std::string& parameters, std::ostringstream *out) {
-	assert(out != NULL);
+	assert(out != nullptr);
 
 	bool banned = false;
 	std::string::iterator first_space = std::find(parameters.begin(), parameters.end(), ' ');
@@ -1728,7 +1734,7 @@ void server::ban_handler(const std::string& issuer_name, const std::string& /*qu
 	const std::string target(parameters.begin(), first_space);
 
 	const std::string duration(first_space + 1, second_space);
-	time_t parsed_time = time(NULL);
+	time_t parsed_time = time(nullptr);
 	if (ban_manager_.parse_time(duration, &parsed_time) == false) {
 		*out << "Failed to parse the ban duration: '" << duration << "'\n"
 			<< ban_manager_.get_ban_help();
@@ -1786,7 +1792,7 @@ void server::ban_handler(const std::string& issuer_name, const std::string& /*qu
 }
 
 void server::kickban_handler(const std::string& issuer_name, const std::string& /*query*/, std::string& parameters, std::ostringstream *out) {
-		assert(out != NULL);
+		assert(out != nullptr);
 
 		bool banned = false;
 		std::string::iterator first_space = std::find(parameters.begin(), parameters.end(), ' ');
@@ -1797,7 +1803,7 @@ void server::kickban_handler(const std::string& issuer_name, const std::string& 
 		std::string::iterator second_space = std::find(first_space + 1, parameters.end(), ' ');
 		const std::string target(parameters.begin(), first_space);
 		const std::string duration(first_space + 1, second_space);
-		time_t parsed_time = time(NULL);
+		time_t parsed_time = time(nullptr);
 		if (ban_manager_.parse_time(duration, &parsed_time) == false) {
 			*out << "Failed to parse the ban duration: '" << duration << "'\n"
 				<< ban_manager_.get_ban_help();
@@ -1869,7 +1875,7 @@ void server::kickban_handler(const std::string& issuer_name, const std::string& 
 	}
 
 void server::gban_handler(const std::string& issuer_name, const std::string& /*query*/, std::string& parameters, std::ostringstream *out) {
-			assert(out != NULL);
+			assert(out != nullptr);
 
 			bool banned = false;
 			std::string::iterator first_space = std::find(parameters.begin(), parameters.end(), ' ');
@@ -1885,7 +1891,7 @@ void server::gban_handler(const std::string& issuer_name, const std::string& /*q
 			second_space = std::find(first_space + 1, parameters.end(), ' ');
 
 			const std::string duration(first_space + 1, second_space);
-			time_t parsed_time = time(NULL);
+			time_t parsed_time = time(nullptr);
 			if (ban_manager_.parse_time(duration, &parsed_time) == false) {
 				*out << "Failed to parse the ban duration: '" << duration << "'\n"
 					<< ban_manager_.get_ban_help();
@@ -1941,7 +1947,7 @@ void server::gban_handler(const std::string& issuer_name, const std::string& /*q
 		}
 
 void server::unban_handler(const std::string& /*issuer_name*/, const std::string& /*query*/, std::string& parameters, std::ostringstream *out) {
-	assert(out != NULL);
+	assert(out != nullptr);
 
 	if (parameters == "") {
 		*out << "You must enter an ipmask to unban.";
@@ -1951,7 +1957,7 @@ void server::unban_handler(const std::string& /*issuer_name*/, const std::string
 }
 
 void server::ungban_handler(const std::string& /*issuer_name*/, const std::string& /*query*/, std::string& parameters, std::ostringstream *out) {
-	assert(out != NULL);
+	assert(out != nullptr);
 
 	if (parameters == "") {
 		*out << "You must enter an ipmask to ungban.";
@@ -1961,7 +1967,7 @@ void server::ungban_handler(const std::string& /*issuer_name*/, const std::strin
 }
 
 void server::kick_handler(const std::string& /*issuer_name*/, const std::string& /*query*/, std::string& parameters, std::ostringstream *out) {
-	assert(out != NULL);
+	assert(out != nullptr);
 
 	if (parameters == "") {
 		*out <<  "You must enter a mask to kick.";
@@ -1993,7 +1999,7 @@ void server::kick_handler(const std::string& /*issuer_name*/, const std::string&
 }
 
 void server::motd_handler(const std::string& /*issuer_name*/, const std::string& /*query*/, std::string& parameters, std::ostringstream *out) {
-	assert(out != NULL);
+	assert(out != nullptr);
 
 	if (parameters == "") {
 		if (motd_ != "") {
@@ -2010,7 +2016,7 @@ void server::motd_handler(const std::string& /*issuer_name*/, const std::string&
 }
 
 void server::searchlog_handler(const std::string& /*issuer_name*/, const std::string& /*query*/, std::string& parameters, std::ostringstream *out) {
-	assert(out != NULL);
+	assert(out != nullptr);
 
 	if (parameters.empty()) {
 		*out << "You must enter a mask to search for.";
@@ -2030,7 +2036,7 @@ void server::searchlog_handler(const std::string& /*issuer_name*/, const std::st
 		if ((match_ip && utils::wildcard_string_match(ip, parameters))
 		|| (!match_ip && utils::wildcard_string_match(username, parameters))) {
 			found_something = true;
-			wesnothd::player_map::const_iterator pl = std::find_if(players_.begin(), players_.end(), boost::bind(&::match_user, _1, username, ip));
+			wesnothd::player_map::const_iterator pl = std::find_if(players_.begin(), players_.end(), std::bind(&::match_user, _1, username, ip));
 			if (pl != players_.end()) {
 				*out << std::endl << player_status(pl);
 			} else {
@@ -2042,7 +2048,7 @@ void server::searchlog_handler(const std::string& /*issuer_name*/, const std::st
 }
 
 void server::dul_handler(const std::string& /*issuer_name*/, const std::string& /*query*/, std::string& parameters, std::ostringstream *out) {
-	assert(out != NULL);
+	assert(out != nullptr);
 
 	try {
 
@@ -2088,7 +2094,7 @@ void server::process_nickserv(const network::connection sock, simple_wml::node& 
 			pl->second.mark_registered();
 
 			simple_wml::document diff;
-			make_change_diff(games_and_users_list_.root(), NULL,
+			make_change_diff(games_and_users_list_.root(), nullptr,
 						 "user", pl->second.config_address(), diff);
 			rooms_.lobby().send_data(diff);
 
@@ -2165,7 +2171,7 @@ void server::process_nickserv(const network::connection sock, simple_wml::node& 
 			pl->second.mark_registered(false);
 
 			simple_wml::document diff;
-			make_change_diff(games_and_users_list_.root(), NULL,
+			make_change_diff(games_and_users_list_.root(), nullptr,
 						 "user", pl->second.config_address(), diff);
 			rooms_.lobby().send_data(diff);
 		} catch (user_handler::error& e) {
@@ -2265,7 +2271,7 @@ void server::process_data_lobby(const network::connection sock,
 		create_game->copy_into(g.level().root());
 		rooms_.exit_lobby(sock);
 		simple_wml::document diff;
-		if(make_change_diff(games_and_users_list_.root(), NULL,
+		if(make_change_diff(games_and_users_list_.root(), nullptr,
 		                    "user", pl->second.config_address(), diff)) {
 			rooms_.lobby().send_data(diff);
 		}
@@ -2345,7 +2351,7 @@ void server::process_data_lobby(const network::connection sock,
 		simple_wml::document diff;
 		bool diff1 = make_change_diff(*games_and_users_list_.child("gamelist"),
 					      "gamelist", "game", g->description(), diff);
-		bool diff2 = make_change_diff(games_and_users_list_.root(), NULL,
+		bool diff2 = make_change_diff(games_and_users_list_.root(), nullptr,
 					      "user", pl->second.config_address(), diff);
 		if (diff1 || diff2) {
 			rooms_.lobby().send_data(diff);
@@ -2419,7 +2425,7 @@ void server::process_data_game(const network::connection sock,
 			// Update our config object which describes the open games,
 			// and save a pointer to the description in the new game.
 			simple_wml::node* const gamelist = games_and_users_list_.child("gamelist");
-			assert(gamelist != NULL);
+			assert(gamelist != nullptr);
 			simple_wml::node& desc = gamelist->add_child("game");
 			g.level().root().copy_into(desc);
 			if (const simple_wml::node* m = data.child("multiplayer")) {
@@ -2464,7 +2470,7 @@ void server::process_data_game(const network::connection sock,
 		}
 
 		const simple_wml::node::child_list& mlist = data.children("modification");
-		BOOST_FOREACH (const simple_wml::node* m, mlist) {
+		for (const simple_wml::node* m : mlist) {
 			desc.add_child_at("modification", 0);
 			desc.child("modification")->set_attr_dup("id", m->attr("id"));
 			if (m->attr("require_modification").to_bool(false))
@@ -2510,7 +2516,7 @@ void server::process_data_game(const network::connection sock,
 		g.level().clear();
 		scenario->copy_into(g.level().root());
 
-		if (g.description() == NULL) {
+		if (g.description() == nullptr) {
 			ERR_SERVER << network::ip_address(sock) << "\tERROR: \""
 				<< g.name() << "\" (" << g.id()
 				<< ") is initialized but has no description_.\n";
@@ -2591,7 +2597,7 @@ void server::process_data_game(const network::connection sock,
 			simple_wml::document diff;
 			bool diff1 = make_change_diff(*games_and_users_list_.child("gamelist"),
 						      "gamelist", "game", g.description(), diff);
-			bool diff2 = make_change_diff(games_and_users_list_.root(), NULL,
+			bool diff2 = make_change_diff(games_and_users_list_.root(), nullptr,
 						      "user", pl->second.config_address(), diff);
 			if (diff1 || diff2) {
 				rooms_.lobby().send_data(diff, sock);
@@ -2647,7 +2653,7 @@ void server::process_data_game(const network::connection sock,
 		return;
 	// The owner is kicking/banning someone from the game.
 	} else if (data.child("kick") || data.child("ban")) {
-		bool ban = (data.child("ban") != NULL);
+		bool ban = (data.child("ban") != nullptr);
 		const network::connection user =
 				(ban ? g.ban_user(*data.child("ban"), pl)
 				: g.kick_member(*data.child("kick"), pl));
@@ -2665,7 +2671,7 @@ void server::process_data_game(const network::connection sock,
 				ERR_SERVER << "ERROR: Could not find kicked player in players_."
 				" (socket: " << user << ")\n";
 			} else {
-				make_change_diff(games_and_users_list_.root(), NULL, "user",
+				make_change_diff(games_and_users_list_.root(), nullptr, "user",
 						pl2->second.config_address(), diff);
 			}
 			rooms_.lobby().send_data(diff, sock);
@@ -2697,15 +2703,9 @@ void server::process_data_game(const network::connection sock,
 	} else if (data.child("whiteboard")) {
 		g.process_whiteboard(data,pl);
 		return;
-	} else if (data.child("change_controller_wml")) {
-		g.process_change_controller_wml(data,pl);
-		return;
 	} else if (data.child("change_turns_wml")) {
 		g.process_change_turns_wml(data,pl);
 		update_game_in_lobby(g);
-		return;
-	} else if (data.child("require_random")) {
-		g.require_random(data,pl);
 		return;
 	} else if (simple_wml::node* sch = data.child("request_choice")) {
 		g.handle_choice(*sch, pl);
@@ -2718,9 +2718,7 @@ void server::process_data_game(const network::connection sock,
 		return;
 	// Data to ignore.
 	} else if (data.child("error")
-	|| data.child("side_secured")
 	|| data.root().has_attr("failed")
-	|| data.root().has_attr("side_drop")
 	|| data.root().has_attr("side")) {
 		return;
 	}
@@ -2734,7 +2732,7 @@ void server::delete_game(t_games::iterator game_it) {
 	metrics_.game_terminated(game_it->termination_reason());
 
 	simple_wml::node* const gamelist = games_and_users_list_.child("gamelist");
-	assert(gamelist != NULL);
+	assert(gamelist != nullptr);
 
 	// Send a diff of the gamelist with the game deleted to players in the lobby
 	simple_wml::document diff;
@@ -2765,7 +2763,7 @@ void server::delete_game(t_games::iterator game_it) {
 		if (pl != players_.end()) {
 			pl->second.mark_available();
 			simple_wml::document udiff;
-			if (make_change_diff(games_and_users_list_.root(), NULL,
+			if (make_change_diff(games_and_users_list_.root(), nullptr,
 					     "user", pl->second.config_address(), udiff)) {
 				rooms_.lobby().send_data(udiff);
 			}
@@ -2806,7 +2804,7 @@ int main(int argc, char** argv) {
 	size_t min_threads = 5;
 	size_t max_threads = 0;
 
-	srand(static_cast<unsigned>(time(NULL)));
+	srand(static_cast<unsigned>(time(nullptr)));
 
 	std::string config_file;
 
@@ -2814,7 +2812,7 @@ int main(int argc, char** argv) {
 	game_config::path = filesystem::get_cwd();
 
 	// show 'info' by default
-	lg::set_log_domain_severity("server", lg::info);
+	lg::set_log_domain_severity("server", lg::info());
 	lg::timestamps(true);
 
 	for (int arg = 1; arg != argc; ++arg) {
@@ -2826,7 +2824,7 @@ int main(int argc, char** argv) {
 		if ((val == "--config" || val == "-c") && arg+1 != argc) {
 			config_file = argv[++arg];
 		} else if (val == "--verbose" || val == "-v") {
-			lg::set_log_domain_severity("all", lg::debug);
+			lg::set_log_domain_severity("all", lg::debug());
 		} else if (val.substr(0, 6) == "--log-") {
 			size_t p = val.find('=');
 			if (p == std::string::npos) {
@@ -2835,10 +2833,10 @@ int main(int argc, char** argv) {
 			}
 			std::string s = val.substr(6, p - 6);
 			int severity;
-			if (s == "error") severity = lg::err.get_severity();
-			else if (s == "warning") severity = lg::warn.get_severity();
-			else if (s == "info") severity = lg::info.get_severity();
-			else if (s == "debug") severity = lg::debug.get_severity();
+			if (s == "error") severity = lg::err().get_severity();
+			else if (s == "warning") severity = lg::warn().get_severity();
+			else if (s == "info") severity = lg::info().get_severity();
+			else if (s == "debug") severity = lg::debug().get_severity();
 			else {
 				std::cerr << "unknown debug level: " << s << '\n';
 				return 2;

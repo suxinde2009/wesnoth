@@ -25,7 +25,6 @@
 ;Variables
 
   Var StartMenuFolder
-  !define UserdataFlags "'--config-dir Wesnoth%version_major'"
 
 ;--------------------------------
 ;Interface Settings
@@ -36,6 +35,7 @@
   !define MUI_FINISHPAGE_TITLE_3LINES
   !define MUI_LICENSEPAGE_TEXT_BOTTOM " "
   !define MUI_LICENSEPAGE_BUTTON $(^NextBtn)
+  !define MUI_COMPONENTSPAGE_NODESC
 
 ;--------------------------------
 ;Language Selection Dialog Settings
@@ -66,6 +66,7 @@
   !insertmacro MUI_PAGE_FINISH
 
   !insertmacro MUI_UNPAGE_CONFIRM
+  !insertmacro MUI_UNPAGE_COMPONENTS
   !insertmacro MUI_UNPAGE_INSTFILES
 
 ;--------------------------------
@@ -144,14 +145,14 @@ Function StartMenuShortcuts
 
   ; Create shortcuts
   CreateDirectory "$SMPROGRAMS\$StartMenuFolder"
-  CreateShortCut "$SMPROGRAMS\$StartMenuFolder\Battle for Wesnoth.lnk" "$INSTDIR\wesnoth.exe" ${UserdataFlags}
-  CreateShortCut "$SMPROGRAMS\$StartMenuFolder\Battle for Wesnoth (with console).lnk" "$INSTDIR\cwesnoth.cmd" ${UserdataFlags} "$INSTDIR\wesnoth.exe"
+  CreateShortCut "$SMPROGRAMS\$StartMenuFolder\Battle for Wesnoth.lnk" "$INSTDIR\wesnoth.exe"
+  CreateShortCut "$SMPROGRAMS\$StartMenuFolder\Battle for Wesnoth (with console).lnk" "$INSTDIR\cwesnoth.cmd" "" "$INSTDIR\wesnoth.exe"
   CreateShortCut "$SMPROGRAMS\$StartMenuFolder\Manual.lnk" "$INSTDIR\manual\manual.$(LCode).html"
 
   ${If} ${IsNT}
   ${AndIf} ${AtMostWin7}
   ; Win7 or lower has collapsed start menu folders, activate additional shortcuts.
-    CreateShortCut "$SMPROGRAMS\$StartMenuFolder\Map editor.lnk" "$INSTDIR\wesnoth.exe" "-e ${UserdataFlags}" "$INSTDIR\wesnoth_editor-icon.ico"
+    CreateShortCut "$SMPROGRAMS\$StartMenuFolder\Map editor.lnk" "$INSTDIR\wesnoth.exe" "-e" "$INSTDIR\wesnoth_editor-icon.ico"
     CreateShortCut "$SMPROGRAMS\$StartMenuFolder\Uninstall.lnk" "$INSTDIR\Uninstall.exe"
     CreateShortCut "$SMPROGRAMS\$StartMenuFolder\Changelog.lnk" "$INSTDIR\changelog.txt"
     CreateShortCut "$SMPROGRAMS\$StartMenuFolder\Player's changelog.lnk" "$INSTDIR\players_changelog.txt"
@@ -184,7 +185,8 @@ FunctionEnd
 ;--------------------------------
 ;Uninstaller Section
 
-Section "Uninstall"
+Section "un.$(LWesnoth)" un.BfW
+  SectionIn RO  # read only (mandatory)
 
   %NSIS_UNINSTALL_FILES
   Delete "$INSTDIR\wesnoth_editor-icon.ico"
@@ -227,6 +229,10 @@ Section "Uninstall"
   DeleteRegKey /ifempty SHCTX "Software\Battle for Wesnoth\%version"
   DeleteRegKey /ifempty SHCTX "Software\Battle for Wesnoth"
 
+SectionEnd
+
+Section /o "un.$(LUserdata)" un.Userdata # optional
+  RMDir /r "$DOCUMENTS\My Games\Wesnoth%version_major"
 SectionEnd
 
 ;--------------------------------

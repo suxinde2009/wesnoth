@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2011 - 2015 by Mark de Wever <koraq@xs4all.nl>
+   Copyright (C) 2011 - 2016 by Mark de Wever <koraq@xs4all.nl>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -41,7 +41,7 @@ twalker_::tstate twidget::next(const tlevel level)
 	switch(level) {
 		case widget:
 			if(widget_) {
-				widget_ = NULL;
+				widget_ = nullptr;
 				return invalid;
 			} else {
 				/* FALL DOWN */
@@ -59,7 +59,7 @@ bool twidget::at_end(const tlevel level) const
 {
 	switch(level) {
 		case widget:
-			return widget_ == NULL;
+			return widget_ == nullptr;
 		case grid: /* FALL DOWN */
 		case child:
 			return true;
@@ -76,11 +76,11 @@ gui2::twidget* twidget::get(const tlevel level)
 			return widget_;
 		case grid: /* FALL DOWN */
 		case child:
-			return NULL;
+			return nullptr;
 	}
 
 	assert(false);
-	return NULL;
+	return nullptr;
 }
 
 } //  namespace walker

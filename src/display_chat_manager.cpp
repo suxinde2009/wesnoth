@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2014 - 2015 by Chris Beck <render787@gmail.com>
+   Copyright (C) 2014 - 2016 by Chris Beck <render787@gmail.com>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -26,9 +26,8 @@
 #include "serialization/string_utils.hpp"
 
 #include <boost/cstdint.hpp>
-#include <boost/foreach.hpp>
-#include "SDL_timer.h"
-#include "SDL_video.h"
+#include <SDL_timer.h>
+#include <SDL_video.h>
 
 static lg::log_domain log_engine("engine");
 #define ERR_NG LOG_STREAM(err, log_engine)
@@ -38,7 +37,7 @@ using boost::uint32_t;
 namespace {
 	const int chat_message_border = 5;
 	const int chat_message_x = 10;
-	const SDL_Color chat_message_color = {255,255,255,255};
+	const SDL_Color chat_message_color = {255,255,255,SDL_ALPHA_OPAQUE};
 	const SDL_Color chat_message_bg     = {0,0,0,140};
 }
 
@@ -55,7 +54,16 @@ void display_chat_manager::add_chat_message(const time_t& time, const std::strin
 	std::string sender = speaker;
 	if (whisper) {
 		sender.assign(speaker, 9, speaker.size());
+		add_whisperer( sender );
 	}
+	//remove disconnected user from whisperer
+	std::string::size_type pos = message.find(" has disconnected");
+	if (pos != std::string::npos){
+		for(std::set<std::string>::const_iterator w = whisperers().begin(); w != whisperers().end(); ++w){
+			if (*w == message.substr(0,pos)) remove_whisperer(*w);
+		}
+	}
+
 	if (!preferences::parse_should_show_lobby_join(sender, message)) return;
 	if (preferences::is_ignored(sender)) return;
 
@@ -109,7 +117,7 @@ void display_chat_manager::add_chat_message(const time_t& time, const std::strin
 		ypos += std::max(font::get_floating_label_rect(m->handle).h,
 			font::get_floating_label_rect(m->speaker_handle).h);
 	}
-	SDL_Color speaker_color = {255,255,255,255};
+	SDL_Color speaker_color = {255,255,255,SDL_ALPHA_OPAQUE};
 	if(side >= 1) {
 		speaker_color = int_to_color(team::get_side_color_range(side).mid());
 	}
@@ -196,7 +204,7 @@ void display_chat_manager::prune_chat_messages(bool remove_all)
 		}
 	}
 
-	BOOST_FOREACH(const chat_message &cm, chat_messages_) {
+	for(const chat_message &cm : chat_messages_) {
 		font::move_floating_label(cm.speaker_handle, 0, - movement);
 		font::move_floating_label(cm.handle, 0, - movement);
 	}

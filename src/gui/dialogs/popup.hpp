@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2011 - 2015 by Mark de Wever <koraq@xs4all.nl>
+   Copyright (C) 2011 - 2016 by Mark de Wever <koraq@xs4all.nl>
    Part of the Battle for Wesnoth Project http://www.wesnoth.org/
 
    This program is free software; you can redistribute it and/or modify
@@ -106,7 +106,7 @@ private:
 	 *                            upon.
 	 * @param window              The window just created.
 	 */
-	virtual void post_build(CVideo& video, twindow& window);
+	virtual void post_build(twindow& window);
 
 	/**
 	 * Actions to be taken before showing the window.
@@ -115,7 +115,7 @@ private:
 	 *                            upon.
 	 * @param window              The window to be shown.
 	 */
-	virtual void pre_show(CVideo& video, twindow& window);
+	virtual void pre_show(twindow& window);
 };
 
 } // namespace gui2
